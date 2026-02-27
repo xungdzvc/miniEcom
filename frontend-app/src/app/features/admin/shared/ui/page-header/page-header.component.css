@@ -1,0 +1,50 @@
+.admin-page-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: var(--admin-spacing-md);
+  flex-wrap: wrap;
+}
+
+.title h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--admin-text-dark);
+}
+
+.title p {
+  margin: 4px 0 0;
+  color: var(--admin-text-light);
+  font-size: 0.95rem;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 768px) {
+  .admin-page-header {
+    align-items: flex-start;
+  }
+
+  .actions {
+    width: 100%;
+  }
+
+  .actions :is(button, a) {
+    flex: 1 1 auto;
+    min-width: 140px;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .actions :is(button, a) {
+    width: 100%;
+    min-width: 0;
+  }
+}

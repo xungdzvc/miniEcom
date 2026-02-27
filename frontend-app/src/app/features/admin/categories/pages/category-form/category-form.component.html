@@ -1,0 +1,27 @@
+<app-form-layout [title]="isEdit ? '✏️ Cập nhật danh mục' : '📝 Thêm danh mục mới'">
+
+  <form [formGroup]="form" (ngSubmit)="submit()">
+
+    <app-form-field
+      label="Tên danh mục"
+      [required]="true"
+      [control]="form.get('name')"
+      errorMessage="Vui lòng nhập tên danh mục."
+    >
+      <input class="form-control" formControlName="name" placeholder="Ví dụ: Productions" />
+    </app-form-field>
+
+    <app-form-actions
+      [submitText]="isEdit ? 'Cập nhật' : 'Thêm danh mục'"
+      [disabled]="form.invalid || isLoading"
+    >
+    </app-form-actions>
+
+    <!-- nếu bạn muốn có nút hủy -->
+    <div style="margin-top:10px; display:flex; justify-content:flex-end;">
+      <button class="btn btn-outline" type="button" (click)="cancel()">Hủy</button>
+    </div>
+
+  </form>
+
+</app-form-layout>

@@ -1,0 +1,152 @@
+<section class="cart-wrapper">
+  <header class="cart-header">
+    <div class="header-content">
+      <h1 class="page-title">Giỏ hàng của bạn</h1>
+      <p class="page-subtitle">Có <b>{{ cartItems?.cartItems?.length ?? 0 }}</b> sản phẩm trong giỏ</p>
+    </div>
+    
+    <div class="header-actions">
+      <a routerLink="/products" class="btn btn-text">
+        <i class="icon-arrow-left"></i> Tiếp tục mua sắm
+      </a>
+      <button 
+        class="btn btn-ghost danger-hover" 
+        (click)="clear()"
+        [disabled]="(cartItems?.cartItems?.length ?? 0) === 0">
+        Làm trống giỏ
+      </button>
+    </div>
+  </header>
+
+  <div class="cart-empty" *ngIf="(cartItems?.cartItems?.length ?? 0) === 0">
+    <div class="empty-illustration">🛒</div>
+    <h3>Giỏ hàng đang trống</h3>
+    <p>Hãy dạo một vòng cửa hàng để chọn đồ nhé!</p>
+    <a routerLink="/products" class="btn btn-primary">Khám phá ngay</a>
+  </div>
+
+  <div class="cart-grid" *ngIf="(cartItems?.cartItems?.length ?? 0) > 0">
+    
+    <div class="cart-items-container">
+      <article class="cart-item" *ngFor="let it of (cartItems?.cartItems ?? [])">
+        <div class="item-media">
+          <img [src]="it.thumbnail ? (fileBaseUrl + it.thumbnail) : 'https://placehold.co/120x120'" alt="{{it.productName}}">
+        </div>
+
+        <div class="item-content">
+          <div class="item-header">
+            <span class="badge-cat">{{ it.categoryName }}</span>
+            <button class="btn-icon-remove" (click)="remove(it.id, it.productName)" title="Xoá">✕</button>
+          </div>
+          
+          <h3 class="item-name" (click)="viewDetail(it.slug)">{{ it.productName }}</h3>
+
+          <div class="item-meta">
+            <div class="price-group">
+              <ng-container *ngIf="itemOldPrice(it) > itemCurrentPrice(it)">
+                <span class="price-new">{{ itemCurrentPrice(it) | number:'1.0-0' }} VNĐ</span>
+
+                <span class="price-old">{{ itemOldPrice(it) | number:'1.0-0' }} VNĐ</span>
+                <span class="badge-discount">-{{ itemDiscountPercent(it) }}%</span>
+              </ng-container>
+              <ng-container *ngIf="itemOldPrice(it) <= itemCurrentPrice(it)">
+                <span class="price-new">{{ itemCurrentPrice(it) | number:'1.0-0' }} VNĐ</span>
+              </ng-container>
+            </div>
+
+            <div class="qty-subtotal">
+            <div class="qty-stepper">
+              <button class="qty-btn" type="button" (click)="decQty(it)" [disabled]="itemQty(it) <= 1">−</button>
+
+              <input
+                class="qty-input"
+                type="number"
+                [ngModel]="itemQty(it)"
+                (ngModelChange)="setQty(it, $event)"
+                min="1"
+              />
+
+              <button class="qty-btn" type="button" (click)="incQty(it)">+</button>
+            </div>
+
+            <span class="subtotal-text">
+              Tạm tính: <b>{{ itemLineTotal(it) | number:'1.0-0' }} VNĐ</b>
+            </span>
+          </div>
+
+          </div>
+        </div>
+      </article>
+    </div>
+
+    <aside class="cart-sidebar">
+      <div class="summary-card">
+        <h2 class="summary-title">Tóm tắt đơn hàng</h2>
+
+        <div class="summary-rows">
+          <div class="row">
+            <span class="label">Tạm tính</span>
+            <span class="value">{{ subtotal | number:'1.0-0' }} VNĐ</span>
+          </div>
+
+
+          <div class="row success" *ngIf="couponDiscount > 0">
+            <span class="label">Mã giảm giá</span>
+            <span class="value">-{{ couponDiscount | number:'1.0-0' }} VNĐ</span>
+          </div>
+        </div>
+
+        <div class="coupon-section">
+          <label>Mã ưu đãi</label>
+          <div class="input-group">
+            <input type="text" [(ngModel)]="coupon" placeholder="Nhập mã..." [disabled]="couponDiscount > 0">
+            <button *ngIf="couponDiscount === 0" class="btn btn-sm btn-dark" (click)="applyCoupon()">Áp dụng</button>
+            <button *ngIf="couponDiscount > 0" class="btn btn-sm btn-danger" (click)="clearCoupon()">Gỡ</button>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="total-section">
+          <span class="label">Tổng cộng</span>
+          <div class="total-values">
+            <span class="total-main">{{ total | number:'1.0-0' }} VNĐ</span>
+            
+          </div>
+        </div>
+
+        <div class="wallet-info">
+          <div class="wallet-row">
+            <span>Số dư ví:</span>
+            <b>{{ userBalance | number:'1.0-0' }} VNĐ</b>
+          </div>
+          <div class="wallet-row" *ngIf="total > 0">
+             <span>Sau thanh toán:</span>
+             <b [class.text-danger]="balanceAfter === 0">{{ balanceAfter | number:'1.0-0' }} VNĐ</b>
+          </div>
+        </div>
+
+        <div class="alert-box" *ngIf="!isEnoughBalance">
+          ⚠️ Số dư không đủ để thanh toán.
+        </div>
+
+        <button class="btn btn-primary btn-block btn-lg" (click)="checkout('WALLET')" [disabled]="!isEnoughBalance">
+          Thanh toán ngay
+        </button>
+
+        <div class="secondary-actions" *ngIf="!isEnoughBalance">
+          <button class="btn btn-outline btn-block" (click)="topUp()">Nạp tiền vào ví</button>
+          <button class="btn btn-text btn-block" (click)="checkout('ORDER_BANKING')">Chuyển khoản ngân hàng</button>
+        </div>
+        
+      </div>
+    </aside>
+  </div>
+  <div class="loading-backdrop" *ngIf="isPaying">
+  <div class="loading-card">
+    <div class="spinner"></div>
+    <div class="loading-title">Đang xử lý thanh toán...</div>
+    <div class="loading-sub">Vui lòng không tắt trình duyệt</div>
+  </div>
+</div>
+</section>

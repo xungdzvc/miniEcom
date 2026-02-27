@@ -1,0 +1,22 @@
+<section class="steps">
+  <div class="container">
+
+    <div class="section-head">
+      <span class="badge">Quy trình</span>
+      <h2>Mua source code chỉ trong 5 phút</h2>
+      <p class="muted">
+        Tự động – Nhanh chóng – Không cần chờ duyệt.
+      </p>
+    </div>
+
+    <div class="steps-grid">
+      <div class="card step-card" *ngFor="let step of steps; let i = index">
+        <div class="step-number">{{ i + 1 }}</div>
+        <div class="step-icon">{{ step.icon }}</div>
+        <h3>{{ step.title }}</h3>
+        <p class="muted">{{ step.description }}</p>
+      </div>
+    </div>
+
+  </div>
+</section>

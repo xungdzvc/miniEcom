@@ -1,0 +1,9 @@
+<app-auth-form
+  [title]="'Đăng nhập'"
+  [buttonText]="'Đăng nhập'"
+  [mode]="'login'"
+  [form]="form"
+  [errorMessage]="errorMessage"
+  (onSubmit)="onSubmit($event)"
+  (googleLogin)="onGoogleLogin($event)">
+</app-auth-form>

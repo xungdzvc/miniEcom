@@ -1,0 +1,272 @@
+/* ==========================================================================
+   Global Design System
+   - One visual language for User/Admin/Auth pages
+   - Theme via :root[data-theme="light"|"dark"]
+   ========================================================================== */
+
+:root{
+  /* Colors */
+  --bg:#f8fafc;
+  --card:#ffffff;
+  --text:#0f172a;
+  --muted:#64748b;
+  --border:#e2e8f0;
+  --accent:#2563eb;
+  --accent-2:#1d4ed8;
+  --success:#16a34a;
+  --warning:#f59e0b;
+  --danger:#ef4444;
+
+  /* Surfaces */
+  --surface-1: color-mix(in srgb, var(--card) 86%, var(--bg));
+  --surface-2: color-mix(in srgb, var(--card) 70%, var(--bg));
+
+  /* Radii */
+  --radius-sm:10px;
+  --radius-md:14px;
+  --radius-lg:18px;
+
+  /* Shadows */
+  --shadow-sm: 0 6px 16px rgba(2,6,23,.06);
+  --shadow-md: 0 12px 24px rgba(2,6,23,.10);
+  --shadow-lg: 0 18px 42px rgba(2,6,23,.14);
+
+  /* Layout */
+  --container: 1200px;
+
+  /* Focus */
+  --ring: 0 0 0 4px color-mix(in srgb, var(--accent) 18%, transparent);
+
+  /* Typography */
+  --font: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+
+  /* --- Admin compatibility mapping (do not remove) --- */
+  --admin-primary: var(--accent);
+  --admin-secondary: color-mix(in srgb, var(--text) 92%, #000);
+  --admin-success: var(--success);
+  --admin-warning: var(--warning);
+  --admin-danger: var(--danger);
+  --admin-info: color-mix(in srgb, var(--accent) 65%, #22c55e);
+
+  --admin-bg-light: var(--bg);
+  --admin-bg-white: var(--card);
+  --admin-bg-dark: color-mix(in srgb, var(--text) 75%, #000);
+
+  --admin-text-dark: var(--text);
+  --admin-text-light: var(--muted);
+  --admin-text-white: #ffffff;
+
+  --admin-border-radius: var(--radius-md);
+  --admin-box-shadow: var(--shadow-sm);
+  --admin-box-shadow-hover: var(--shadow-md);
+
+  --admin-spacing-xs: 0.5rem;
+  --admin-spacing-sm: 1rem;
+  --admin-spacing-md: 1.5rem;
+  --admin-spacing-lg: 2rem;
+  --admin-spacing-xl: 3rem;
+}
+
+:root[data-theme="dark"]{
+  --bg:#050b1a;
+  --card:#0b1225;
+  --text:#e5e7eb;
+  --muted:#9ca3af;
+  --border:rgba(148,163,184,0.18);
+  --accent:#60a5fa;
+  --accent-2:#93c5fd;
+  --surface-1: color-mix(in srgb, var(--card) 84%, #0b1733);
+  --surface-2: color-mix(in srgb, var(--card) 68%, #0b1733);
+  --shadow-sm: 0 10px 22px rgba(0,0,0,.28);
+  --shadow-md: 0 16px 34px rgba(0,0,0,.38);
+  --shadow-lg: 0 24px 52px rgba(0,0,0,.46);
+}
+
+html, body{ height: 100%; }
+
+body{
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* --------------------------------------------------------------------------
+   Base elements
+   -------------------------------------------------------------------------- */
+
+*{ box-sizing: border-box; }
+
+a{ color: inherit; }
+
+button, input, textarea, select{ font-family: inherit; }
+
+/* Prevent layout shift on scroll */
+html{ scrollbar-gutter: stable; }
+
+/* --------------------------------------------------------------------------
+   Layout helpers
+   -------------------------------------------------------------------------- */
+
+.container{
+  width: min(var(--container), calc(100vw - 32px));
+  margin-inline: auto;
+}
+
+.card{
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+.card.pad{ padding: 16px; }
+
+.muted{ color: var(--muted); }
+
+/* --------------------------------------------------------------------------
+   Buttons
+   -------------------------------------------------------------------------- */
+
+.btn{
+  appearance: none;
+  border: 1px solid transparent;
+  background: var(--text);
+  color: var(--bg);
+  padding: 10px 14px;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-weight: 800;
+  line-height: 1;
+  transition: transform .12s ease, box-shadow .12s ease, background .12s ease, border-color .12s ease;
+}
+
+.btn:hover{ transform: translateY(-1px); box-shadow: var(--shadow-sm); }
+.btn:active{ transform: translateY(0); }
+
+.btn-primary{ background: var(--accent); color: #fff; }
+.btn-primary:hover{ background: var(--accent-2); }
+
+.btn-ghost{
+  background: var(--card);
+  border-color: var(--border);
+  color: var(--text);
+}
+
+.btn-outline{
+  background: transparent;
+  border-color: color-mix(in srgb, var(--accent) 55%, var(--border));
+  color: var(--accent);
+}
+
+.btn-sm{ padding: 8px 12px; border-radius: var(--radius-sm); font-weight: 800; }
+.btn-block{ width: 100%; }
+
+.icon-btn{
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--text);
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  transition: transform .12s ease, box-shadow .12s ease, background .12s ease;
+}
+
+.icon-btn:hover{ transform: translateY(-1px); box-shadow: var(--shadow-sm); }
+.icon-btn:active{ transform: translateY(0); }
+
+/* --------------------------------------------------------------------------
+   Inputs
+   -------------------------------------------------------------------------- */
+
+.input{
+  width: 100%;
+  padding: 12px 12px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--text);
+  outline: none;
+  transition: box-shadow .12s ease, border-color .12s ease, background .12s ease;
+}
+
+.input:focus{
+  border-color: color-mix(in srgb, var(--accent) 60%, var(--border));
+  box-shadow: var(--ring);
+}
+
+.label{ display:block; font-weight: 800; font-size: 13px; margin-bottom: 6px; }
+.field{ display:flex; flex-direction:column; gap:6px; }
+
+/* --------------------------------------------------------------------------
+   Tabs / chips
+   -------------------------------------------------------------------------- */
+
+.tabs{
+  display: inline-flex;
+  gap: 4px;
+  padding: 4px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  border-radius: 20px;
+}
+
+.tab{
+  border: none;
+  background: transparent;
+  padding: 8px 12px;
+  border-radius: 999px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--text);
+}
+
+.tab.active{
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent) 22%, var(--border));
+}
+
+.chips{ display:flex; flex-wrap:wrap; gap:8px; }
+
+.chip{
+  border: 1px solid var(--border);
+  background: var(--card);
+  padding: 8px 12px;
+  border-radius: 999px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--text);
+}
+
+.chip.active{
+  border-color: color-mix(in srgb, var(--accent) 60%, var(--border));
+  box-shadow: var(--ring);
+}
+
+/* --------------------------------------------------------------------------
+   Alerts (generic)
+   -------------------------------------------------------------------------- */
+
+.alert{
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  margin-bottom: 14px;
+  border: 1px solid var(--border);
+  background: var(--card);
+}
+
+.alert-success{ border-color: color-mix(in srgb, var(--success) 45%, var(--border)); }
+.alert-error{ border-color: color-mix(in srgb, var(--danger) 55%, var(--border)); }
+

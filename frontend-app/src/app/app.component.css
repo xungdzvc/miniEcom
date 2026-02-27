@@ -1,0 +1,16 @@
+.toast-notification {
+    /* QUAN TRỌNG: Đổi absolute thành fixed */
+    position: fixed; 
+    
+    /* Vị trí muốn hiển thị (Ví dụ: Góc trên bên phải) */
+    top: 20px;
+    right: 20px;
+    
+    /* Đảm bảo nó nổi lên trên tất cả các thành phần khác */
+    z-index: 9999; 
+    
+    /* Tuỳ chỉnh thêm để đẹp hơn */
+    min-width: 300px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    animation: slideInLeft 0.5s ease-in-out;
+}

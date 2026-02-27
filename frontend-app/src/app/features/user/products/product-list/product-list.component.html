@@ -1,0 +1,28 @@
+<section class="wrap">
+  <div class="head">
+    <div>
+      <h1>Mã nguồn</h1>
+      <p>Chọn danh mục và sắp xếp theo ý bạn.</p>
+    </div>
+
+    <div class="tabs">
+      <button class="tab" [class.active]="sort==='newest'" (click)="setSort('newest')">Mới nhất</button>
+      <button class="tab" [class.active]="sort==='views'" (click)="setSort('views')">Xem nhiều</button>
+      <button class="tab" [class.active]="sort==='sales'" (click)="setSort('sales')">Bán chạy</button>
+      <button class="tab" [class.active]="sort==='free'" (click)="setSort('free')">Miễn phí</button>
+    </div>
+  </div>
+
+  <div class="chips">
+    <button class="chip"
+      *ngFor="let c of categories"
+      [class.active]="(c==='Tất cả' && !activeCategory) || activeCategory===c"
+      (click)="setCategory(c)">
+      {{ c }}
+    </button>
+  </div>
+
+  <div class="grid">
+    <app-product-card *ngFor="let p of filtered" [product]="p"></app-product-card>
+  </div>
+</section>

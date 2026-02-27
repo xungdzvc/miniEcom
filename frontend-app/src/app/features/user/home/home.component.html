@@ -1,0 +1,88 @@
+<section class="hero-wrapper">
+  <div class="hero-grid">
+    <div class="hero-main">
+      <div class="badge-new">✨ Mới cập nhật v2.0</div>
+      <h1>Source Code for <span class="text-gradient">Developers</span></h1>
+      <p class="hero-desc">Kho mã nguồn chất lượng cao, cấu trúc sạch (Clean Architecture), sẵn sàng deploy. Tối ưu cho việc học tập và phát triển sản phẩm thực tế.</p>
+      
+      <div class="hero-actions">
+        <button class="btn btn-primary btn-lg">
+          Khám phá ngay <span class="arrow">→</span>
+        </button>
+        <button class="btn btn-ghost btn-lg">
+          <i class="icon-github"></i> Mã nguồn mở
+        </button>
+      </div>
+    </div>
+
+    <div class="hero-stats">
+      <div class="stat-card dark">
+        <div class="stat-icon">⚡</div>
+        <div class="stat-info">
+          <span class="label">Update</span>
+          <span class="value">Weekly</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">📚</div>
+        <div class="stat-info">
+          <span class="label">Docs</span>
+          <span class="value">Full Setup</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">🎯</div>
+        <div class="stat-info">
+          <span class="label">Focus</span>
+          <span class="value">Clean Code</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section-container">
+  
+  <header class="section-header">
+    <div class="header-content">
+      <h2>Sản phẩm nổi bật</h2>
+      <p>Các dự án được cộng đồng quan tâm nhất</p>
+    </div>
+    
+    <a routerLink="/products" class="link-view-all">Xem tất cả kho <i class="arrow-right">→</i></a>
+  </header>
+
+  <div class="filter-toolbar">
+    <div class="sort-tabs">
+      <button class="tab" 
+        *ngFor="let c of categories"
+        [class.active]="(c==='Tất cả' && !activeCategory) || activeCategory===c"
+        (click)="setCategory(c)">
+        {{ c }}
+      </button>
+    </div>
+
+    <div class="sort-tabs">
+      <button class="tab" [class.active]="sort==='newest'" (click)="setSort('newest')">Mới nhất</button>
+      <button class="tab" [class.active]="sort==='views'" (click)="setSort('views')">Xem nhiều</button>
+      <button class="tab" [class.active]="sort==='sales'" (click)="setSort('sales')">Bán chạy</button>
+      <button class="tab" [class.active]="sort==='free'" (click)="setSort('free')">Miễn phí</button>
+    </div>
+  </div>
+
+  <div class="product-grid">
+    <app-product-card 
+      *ngFor="let p of featured"
+      [product]="p"
+      ctaText="Xem Code">
+    </app-product-card>
+  </div>
+
+</section>
+
+<app-steps></app-steps>
+
+<app-faq></app-faq>
+
+<app-cta></app-cta>
+

@@ -1,0 +1,12 @@
+.form-section {
+  margin-bottom: 36px;
+}
+
+.section-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 18px;
+  padding-left: 10px;
+  border-left: 4px solid var(--admin-primary);
+  color: var(--admin-text-dark);
+}

@@ -1,0 +1,114 @@
+<!-- Animated mesh gradient background -->
+<div class="gradient-mesh">
+  <div class="mesh-layer mesh-1"></div>
+  <div class="mesh-layer mesh-2"></div>
+  <div class="mesh-layer mesh-3"></div>
+  <div class="mesh-layer mesh-4"></div>
+</div>
+
+<!-- Grid overlay with perspective -->
+<div class="grid-overlay" [style.transform]="'perspective(1000px) rotateX(' + (mousePos.y * 5) + 'deg) rotateY(' + (mousePos.x * 5) + 'deg)'">
+  <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+        <path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="0.5"/>
+      </pattern>
+    </defs>
+    <rect width="100%" height="100%" fill="url(#grid)" />
+  </svg>
+</div>
+
+<!-- Floating orbs with 3D effect -->
+<div class="orbs-container">
+  <div 
+    *ngFor="let orb of orbs; let i = index"
+    class="orb"
+    [style.left]="(10 + (i * 12)) + '%'"
+    [style.top]="(20 + (i % 3) * 25) + '%'"
+    [style.animation-delay]="(i * 0.8) + 's'"
+    [style.transform]="'translateZ(' + (i * 20) + 'px)'"
+  ></div>
+</div>
+
+<!-- Main content -->
+<div class="content-stage" [class.active]="mounted">
+  <!-- Holographic card -->
+  <div 
+    class="holo-card"
+    [style.transform]="'perspective(1200px) rotateY(' + (mousePos.x * 10) + 'deg) rotateX(' + (-mousePos.y * 10) + 'deg) translateZ(50px)'"
+  >
+    <!-- Shine effect -->
+    <div 
+      class="card-shine"
+      [style.background]="'radial-gradient(circle at ' + (50 + mousePos.x * 50) + '% ' + (50 + mousePos.y * 50) + '%, rgba(255,255,255,0.4), transparent 50%)'"
+    ></div>
+
+    <!-- Icon badge -->
+    <div class="icon-badge">
+      <div class="badge-glow" [style.background]="errorData.color"></div>
+      <span class="badge-icon">{{ errorData.icon }}</span>
+    </div>
+
+    <!-- Error code with 3D layering -->
+    <div class="code-display">
+      <div class="code-layers">
+        <span class="code-layer layer-1" [style.color]="errorData.color">{{ code }}</span>
+        <span class="code-layer layer-2">{{ code }}</span>
+        <span class="code-layer layer-3">{{ code }}</span>
+        <span class="code-main">{{ code }}</span>
+      </div>
+      <div 
+        class="code-underline" 
+        [style.background]="'linear-gradient(90deg, transparent, ' + errorData.color + ', transparent)'"
+      ></div>
+    </div>
+
+    <!-- Error info -->
+    <div class="error-details">
+      <h1 class="error-heading">{{ errorData.title }}</h1>
+      <p class="error-desc">{{ errorData.message }}</p>
+    </div>
+
+    <!-- Status indicators -->
+    <div class="status-bar">
+      <div class="status-item">
+        <div class="status-dot pulse"></div>
+        <span>SYSTEM</span>
+      </div>
+      <div class="status-item">
+        <div class="status-dot"></div>
+        <span>STATUS: {{ code }}</span>
+      </div>
+      <div class="status-item">
+        <div class="status-dot pulse"></div>
+        <span>STANDBY</span>
+      </div>
+    </div>
+
+    <!-- Action button -->
+    <button class="elite-button" (click)="goBack()">
+      <span class="button-bg"></span>
+      <span class="button-content">
+        <svg class="button-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="19" y1="12" x2="5" y2="12"></line>
+          <polyline points="12 19 5 12 12 5"></polyline>
+        </svg>
+        <span class="button-text">Quay về trang chủ</span>
+      </span>
+      <span class="button-shimmer"></span>
+    </button>
+  </div>
+
+  <!-- Floating geometric shapes -->
+  <div class="geometric-shapes">
+    <div class="shape-item shape-triangle"></div>
+    <div class="shape-item shape-square"></div>
+    <div class="shape-item shape-circle"></div>
+  </div>
+</div>
+
+<!-- Scanlines overlay -->
+<div class="scanlines"></div>
+
+<!-- Vignette -->
+<div class="vignette"></div>

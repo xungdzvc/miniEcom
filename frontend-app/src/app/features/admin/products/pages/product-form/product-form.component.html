@@ -1,0 +1,162 @@
+<app-form-layout [title]="mode === 'add' ? '📝 Thêm Sản Phẩm Mới' : '✏️ Cập Nhật Sản Phẩm'">
+
+  <form [formGroup]="productForm" (ngSubmit)="onSubmit()">
+
+    <app-form-section title="1. Thông tin cơ bản">
+
+      <app-form-field
+        label="Tên Sản Phẩm"
+        [required]="true"
+        [control]="productForm.get('name')"
+        errorMessage="Tên sản phẩm phải có ít nhất 5 ký tự."
+      >
+        <input
+          type="text"
+          class="form-control"
+          formControlName="name"
+          placeholder="Ví dụ: Landing Page Template Pro"
+        />
+      </app-form-field>
+
+      <div class="grid-2-cols">
+        <app-form-field
+          label="Danh Mục"
+          [required]="true"
+          [control]="productForm.get('categoryId')"
+          errorMessage="Vui lòng chọn danh mục."
+        >
+          <select class="form-control" formControlName="categoryId">
+            <option [ngValue]="null" disabled>-- Chọn danh mục --</option>
+            <option *ngFor="let cat of categories" [ngValue]="cat.id">{{ cat.name }}</option>
+          </select>
+        </app-form-field>
+
+        <app-form-field label="Trạng Thái">
+          <div class="status-toggle">
+            <input type="checkbox" id="status" formControlName="status" />
+            <label for="status" class="toggle-label"></label>
+            <span class="status-text">
+              {{ productForm.get('status')?.value ? 'Đang kinh doanh' : 'Ngừng kinh doanh' }}
+            </span>
+          </div>
+        </app-form-field>
+      </div>
+
+      <app-form-field
+        label="Mô Tả Chi Tiết"
+        [required]="true"
+        [control]="productForm.get('description')"
+        errorMessage="Mô tả sản phẩm là bắt buộc."
+      >
+        <textarea class="form-control" rows="4" formControlName="description"></textarea>
+      </app-form-field>
+
+      <app-form-field
+        label="Hướng dẫn cài đặt"
+        [control]="productForm.get('installTotoirial')"
+      >
+        <textarea class="form-control" rows="5" formControlName="installTotoirial"></textarea>
+      </app-form-field>
+    </app-form-section>
+
+    <app-form-section title="2. Chi tiết số liệu">
+      <div class="grid-2-cols">
+        <app-form-field
+          label="Giá"
+          [required]="true"
+          [control]="productForm.get('price')"
+          errorMessage="Giá phải là số dương."
+        >
+          <input type="number" class="form-control" min="0" formControlName="price" />
+        </app-form-field>
+
+        <app-form-field
+          label="Số lượng"
+          [required]="true"
+          [control]="productForm.get('quantity')"
+          errorMessage="Số lượng tối thiểu là 1."
+        >
+          <input type="number" class="form-control" min="1" formControlName="quantity" />
+        </app-form-field>
+
+        <app-form-field
+          label="Giảm giá (%)"
+          [required]="true"
+          [control]="productForm.get('discount')"
+          errorMessage="Giảm giá phải từ 0 đến 100."
+        >
+          <input type="number" class="form-control" min="0" max="100" formControlName="discount" />
+        </app-form-field>
+
+        <app-form-field label="Giá mới">
+          <input type="number" class="form-control" formControlName="newPricewithDiscount" readonly />
+        </app-form-field>
+      </div>
+    </app-form-section>
+
+    <app-form-section title="3. Tài nguyên & Links">
+
+      <app-form-field
+        label="Ảnh đại diện (thumbnail)"
+        [required]="true"
+        [control]="productForm.get('thumbnail')"
+        errorMessage="Ảnh đại diện là bắt buộc."
+      >
+        <app-image-uploader
+          [label]="'Thumbnail'"
+          [required]="true"
+          [multiple]="false"
+          [existing]="thumbnailExisting"
+          [baseUrl]="fileBaseUrl"
+          helper="Chọn 1 ảnh. Nếu đang sửa, ảnh cũ sẽ được giữ lại nếu bạn không xoá."
+          (existingChange)="onThumbnailExistingChange($event)"
+          (filesChange)="onThumbnailFilesChange($event)"
+        ></app-image-uploader>
+      </app-form-field>
+
+     <app-form-field
+  label="Link File Download"
+  [required]="false"
+  [control]="productForm.get('downloadUrl')"
+>
+  <input type="url" class="form-control" formControlName="downloadUrl" />
+</app-form-field>
+
+<app-form-field
+  label="Link File Youtube"
+  [required]="false"
+  [control]="productForm.get('youtubeUrl')"
+>
+  <input type="url" class="form-control" formControlName="youtubeUrl" />
+</app-form-field>
+
+<app-form-field
+  label="Link File Demo"
+  [required]="false"
+  [control]="productForm.get('demoUrl')"
+>
+  <input type="url" class="form-control" formControlName="demoUrl" />
+</app-form-field>
+
+      
+    </app-form-section>
+
+    <app-form-section title="4. Ảnh sản phẩm">
+      <app-image-uploader
+        label="Bộ sưu tập ảnh"
+        [multiple]="true"
+        [existing]="galleryExisting"
+        [baseUrl]="fileBaseUrl"
+        helper="Bạn có thể xoá ảnh cũ và/hoặc thêm ảnh mới."
+        (existingChange)="onGalleryExistingChange($event)"
+        (filesChange)="onGalleryFilesChange($event)"
+      ></app-image-uploader>
+    </app-form-section>
+
+    <app-form-actions
+      [submitText]="mode === 'add' ? 'Thêm sản phẩm' : 'Cập nhật sản phẩm'"
+      [disabled]="productForm.invalid"
+    ></app-form-actions>
+
+  </form>
+</app-form-layout>

@@ -1,0 +1,75 @@
+<section class="wrap">
+  <div class="head">
+    <div>
+      <h1>Đơn hàng</h1>
+      <p>Lịch sử mua mã nguồn và trạng thái thanh toán.</p>
+    </div>
+
+    <a class="btn ghost" routerLink="/products">Mua thêm →</a>
+  </div>
+
+  <div class="filters">
+    <div class="search">
+      <span class="icon">⌕</span>
+      <input [(ngModel)]="q" placeholder="Tìm theo mã đơn hàng..." />
+    </div>
+
+    <select [(ngModel)]="status">
+      <option value="ALL">Tất cả trạng thái</option>
+      <option value="SUCCESS">Đã thanh toán</option>
+      <option value="PENDING">Chờ xử lý</option>
+      <option value="FAILED">Thất bại</option>
+      <option value="REFUNDED">Hoàn tiền</option>
+    </select>
+  </div>
+
+  <div class="panel">
+    <div class="empty" *ngIf="filtered.length === 0">
+      Bạn chưa có đơn hàng nào
+    </div>
+
+    <table *ngIf="filtered.length > 0">
+      <thead>
+        <tr>
+          <th>Mã</th>
+          <th>Thời gian</th>
+          <th>Tổng</th>
+          <th>Trạng thái</th>
+          <th class="right">Hành động</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let r of filtered">
+          <td class="mono">HD{{ todayYear }}{{ r.orderId }}</td>
+          <td>{{ r.orderDate | date:'HH:mm:ss dd/MM/yyyy' }}</td>
+          <td class="bold">{{ r.total | number:'1.0-0' }} VNĐ</td>
+          <td>
+            <span
+              class="badge"
+              [class.ok]="r.status==='SUCCESS'"
+              [class.warn]="r.status==='PENDING'"
+              [class.bad]="r.status==='FAILED'"
+              [class.neutral]="r.status==='REFUNDED'">
+              {{ label(r?.status) }}
+            </span>
+          </td>
+          <td class="right">
+         
+
+          <button
+            *ngIf="r.status === 'SUCCESS'; else notPaid"
+            class="btn small ghost"
+            type="button" (click)="goToOrderDetail(r.orderId)">
+            Chi tiết
+           </button>
+
+          <ng-template #notPaid>
+          </ng-template>
+        </td>
+
+        </tr>
+      </tbody>
+    </table>
+
+  </div>
+</section>

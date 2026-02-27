@@ -1,0 +1,128 @@
+.cta {
+  padding: 80px 0;
+  background: var(--bg);
+}
+
+.cta-card {
+  position: relative;
+  background: #0f172a; /* Nền tối sang trọng */
+  border-radius: 32px;
+  padding: 80px 60px;
+  text-align: center;
+  overflow: hidden;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+}
+
+/* Hiệu ứng ánh sáng lan tỏa */
+.glow-element {
+  position: absolute;
+  top: -50%;
+  left: -20%;
+  width: 100%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.15) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+.cta-content {
+  position: relative;
+  z-index: 2;
+}
+
+.badge-alt {
+  color: #60a5fa;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  font-size: 13px;
+}
+
+.cta-card h2 {
+  color: #fff;
+  font-size: 48px;
+  margin: 20px 0;
+  line-height: 1.1;
+}
+
+.cta-card h2 span {
+  background: linear-gradient(90deg, #3b82f6, #2dd4bf);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.cta-card p {
+  color: #94a3b8;
+  font-size: 18px;
+  max-width: 600px;
+  margin: 0 auto 40px;
+  line-height: 1.6;
+}
+
+/* Nút bấm kiểu Modern */
+.cta-actions {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  align-items: center;
+}
+
+.btn-main {
+  background: #3b82f6;
+  color: white;
+  padding: 16px 32px;
+  border-radius: 12px;
+  font-weight: 600;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.3s;
+}
+
+.btn-main:hover {
+  background: #2563eb;
+  transform: translateY(-3px);
+  box-shadow: 0 10px 20px rgba(59, 130, 246, 0.3);
+}
+
+.btn-sub {
+  color: #fff;
+  text-decoration: none;
+  font-weight: 600;
+  padding: 16px 32px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  transition: all 0.3s;
+}
+
+.btn-sub:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+/* Vật trang trí nhỏ bay lơ lửng */
+.cta-illustration .code-badge {
+  position: absolute;
+  right: 10%;
+  bottom: 20%;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  padding: 10px 20px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #2dd4bf;
+  font-family: monospace;
+  animation: float 4s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-15px); }
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .cta-card { padding: 50px 20px; }
+  .cta-card h2 { font-size: 32px; }
+  .cta-actions { flex-direction: column; }
+}

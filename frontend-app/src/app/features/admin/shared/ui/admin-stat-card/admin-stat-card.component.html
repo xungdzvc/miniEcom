@@ -1,0 +1,17 @@
+<div class="stat-card">
+  <div class="stat-top">
+    <div class="stat-title">
+      <span class="stat-icon" *ngIf="icon">{{ icon }}</span>
+      <span>{{ title }}</span>
+    </div>
+
+    <div class="stat-trend" *ngIf="trend" [ngClass]="trendClass">
+      {{ trend === 'up' ? '▲' : trend === 'down' ? '▼' : '•' }}
+    </div>
+  </div>
+
+  <div class="stat-value">{{ value }}</div>
+
+  <div class="stat-subtitle" *ngIf="subtitle">{{ subtitle }}</div>
+  <div class="stat-hint" *ngIf="hint">{{ hint }}</div>
+</div>

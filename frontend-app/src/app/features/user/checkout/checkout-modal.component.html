@@ -1,0 +1,148 @@
+<div class="overlay" (click)="closeModal()">
+    <div class="modal" (click)="$event.stopPropagation()">
+
+    <button class="close-icon" (click)="closeModal()">✕</button>
+
+    <div class="checkout-layout" *ngIf="step === 'CHECKOUT'">
+      
+      <div class="col-left">
+        <h3>Phương thức thanh toán</h3>
+        
+        <div class="methods">
+          <label class="method-item" 
+                 [class.selected]="paymentMethod==='WALLET'" 
+                 [class.disabled]="!canPayByWallet">
+            <input type="radio" name="pm" value="WALLET" [(ngModel)]="paymentMethod" [disabled]="!canPayByWallet">
+            <div class="m-info">
+              <div class="m-title">Ví tài khoản</div>
+              <div class="m-sub">Số dư: {{ user?.vnd | number }}đ</div>
+              
+              <div class="m-tag error" *ngIf="!canPayByWallet">
+                Thiếu {{ (finalPrice - (user?.vnd || 0)) | number }}đ
+              </div>
+            </div>
+          </label>
+
+          <label class="method-item" [class.selected]="paymentMethod==='ORDER_BANKING'">
+            <input type="radio" name="pm" value="ORDER_BANKING" [(ngModel)]="paymentMethod">
+            <div class="m-info">
+              <div class="m-title">Chuyển khoản QR</div>
+              <div class="m-sub">Momo / VietQR (Tự động duyệt)</div>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <div class="col-right">
+        <h3>Đơn hàng</h3>
+        
+        <div class="product-summary">
+          <img [src]="getFileUrl(product?.thumbnail)" alt="thumb" class="p-img">
+          <div class="p-info">
+            <div class="p-name">{{ product?.name }}</div>
+            
+            <div class="p-price-row">
+              <span class="current-price">{{ priceAfterProductDiscount | number }}đ</span>
+              <span class="old-price" *ngIf="productDiscountPercent > 0">
+                {{ originalPrice | number }}đ
+              </span>
+              <span class="badge-discount" *ngIf="productDiscountPercent > 0">
+                -{{ productDiscountPercent }}%
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="coupon-box">
+          <input placeholder="Nhập mã giảm giá" [(ngModel)]="couponCode">
+          <button class="btn-apply" (click)="applyCoupon()" [disabled]="isLoading">
+            Áp dụng
+          </button>
+        </div>
+
+        <div class="billing-details">
+          <div class="price-row">
+            <span>Giá gốc</span>
+            <span>{{ originalPrice | number }}đ</span>
+          </div>
+
+          <div class="price-row highlight-green" *ngIf="productDiscountPercent > 0">
+            <span>Giảm giá sản phẩm ({{productDiscountPercent}}%)</span>
+            <span>-{{ savedByProduct | number }}đ</span>
+          </div>
+
+          <div class="price-row highlight-green" *ngIf="discountAmount > 0">
+            <span>Coupon giảm giá</span>
+            <span>-{{ discountAmount | number }}đ</span>
+          </div>
+
+          <div class="divider-dashed"></div>
+
+          <div class="price-row total">
+            <span>Thanh toán</span>
+            <div class="total-group">
+              <span class="big">{{ finalPrice | number }}đ</span>
+              <span class="saved-label" *ngIf="(savedByProduct + discountAmount) > 0">
+                (Tiết kiệm {{ (savedByProduct + discountAmount) | number }}đ)
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <button class="btn-pay" [disabled]="isLoading" (click)="onPay()">
+          <span *ngIf="!isLoading">Thanh toán ngay</span>
+          <span *ngIf="isLoading" class="spinner">⏳ Đang xử lý...</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="waiting-layout" *ngIf="step === 'WAITING_PAYMENT'">
+  <h3>Quét mã để thanh toán</h3>
+
+  <div class="qr-wrapper">
+    <div class="qr-container" [class.blur]="isExpired">
+      <img [src]="qrData?.qrUrl" class="qr-code-img" alt="QR Code">
+    </div>
+    
+    <div class="expired-overlay" *ngIf="isExpired">
+      <div class="expired-msg">QR Hết hạn</div>
+      <button class="btn-refresh" (click)="closeModal()">Đóng</button>
+    </div>
+  </div>
+  
+  <div class="transfer-info">
+    <p>Số tiền: <strong class="money">{{ qrData?.amount | number }}đ</strong></p>
+    <p>
+      Nội dung: <strong>{{ qrData?.paymentContent }}</strong> 
+      <button class="btn-copy" (click)="copyContent(qrData?.paymentContent)">Copy</button>
+    </p>
+  </div>
+
+  <div class="countdown-box" *ngIf="!isExpired">
+    <div class="loading-bar">
+      <div class="spinner-sm"></div>
+      <span class="timer-text">Đang chờ giao dịch</span>
+    </div>
+    <p class="hint">Đơn hàng sẽ hết hạn sau... ({{ timeLeft }})</p>
+  </div>
+  
+  <div class="expired-box" *ngIf="isExpired">
+    <span style="color: red; font-weight: bold;">Đơn hàng đã hết hạn thanh toán.</span>
+  </div>
+</div>
+
+    <div class="success-layout" *ngIf="step === 'SUCCESS'">
+      <div class="icon-check">✅</div>
+      <h2>Thanh toán thành công!</h2>
+      <p>Cảm ơn bạn đã mua sản phẩm. Bạn có thể tải source code ngay bây giờ.</p>
+      
+      <div class="actions">
+        <button class="btn-download" (click)="goToOrderDetail(orderData!.orderId)">⬇️ Tải xuống ngay</button>
+        <button class="btn-close" (click)="closeModal()">Đóng</button>
+      </div>
+    </div>
+
+  </div>
+</div>

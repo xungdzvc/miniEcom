@@ -1,0 +1,56 @@
+<article class="p-card">
+  <div class="p-thumb">
+    <img [src]="fileBaseUrl + product.thumbnail" [alt]="product.name" />
+    <div class="p-badge">Nổi bật</div>
+  </div>
+
+  <div class="p-body">
+    <div class="p-top">
+      <span class="p-tag">{{ product.categoryName || 'source-share' }}</span>
+    </div>
+
+    <h3 class="p-title" [title]="product.name">{{ product.name }}</h3>
+
+    <p class="p-desc">{{ product.description || '' }}</p>
+
+    <div class="p-meta">
+      <span>👁 {{ formatNumber(product.viewCount) }} lượt xem</span>
+      <span>🛒 {{ formatNumber(product.saleCount) }} lượt mua</span>
+    </div>
+
+    <!-- ✅ Bottom: giá trên, nút dưới -->
+    <div class="p-bottom">
+      <div class="p-price">
+        <div class="price-line">
+           <!-- BADGE DISCOUNT -->
+          <span class="badge" *ngIf="product.discount && product.discount > 1">
+            -{{ calcDiscountPercent(product.price, product.discount) }}%
+          </span>
+
+          <!-- GIÁ CŨ -->
+          <div class="old" *ngIf="product.discount && product.discount > 1 && product.price">
+            <span class="amount">{{ product.price | number:'1.0-0' }}</span>
+            <span class="cur">VND</span>
+          </div>
+          <!-- GIÁ HIỆN TẠI -->
+          <ng-container *ngIf="calcNewPrice(product.price, product.discount) > 0; else freeTpl">
+            <div class="new">
+              <span class="amount">{{ calcNewPrice(product.price, product.discount) | number:'1.0-0' }}</span>
+              <span class="cur">VND</span>
+            </div>
+          </ng-container>
+
+          <ng-template #freeTpl>
+            <div class="new free">Miễn phí</div>
+          </ng-template>
+
+         
+        </div>
+      </div>
+
+      <button class="p-btn p-btn-block" type="button" (click)="viewDetail(product.slug)">
+        Xem chi tiết
+      </button>
+    </div>
+  </div>
+</article>

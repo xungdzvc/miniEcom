@@ -1,0 +1,100 @@
+.faq-wrapper {
+  display: flex;
+  justify-content: space-between;
+  gap: 60px;
+  align-items: flex-start;
+}
+
+/* Cột trái */
+.faq-intro {
+  flex: 0 0 35%;
+  position: sticky;
+  top: 100px; /* Ghim lại khi cuộn chuột */
+}
+
+.display-title {
+  font-size: 42px;
+  line-height: 1.2;
+  margin: 20px 0;
+}
+
+.display-title span {
+  color: var(--accent); /* Màu xanh như trong ảnh */
+}
+
+.btn-link {
+  display: inline-block;
+  margin-top: 20px;
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+/* Cột phải */
+.faq-list {
+  flex: 1;
+}
+
+.faq-item {
+  border-bottom: 1px solid var(--border); /* Chỉ kẻ dòng dưới như ảnh */
+  background: transparent;
+  border-radius: 0;
+  transition: all 0.3s;
+}
+
+.faq-header {
+  padding: 25px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+/* Vòng tròn số thứ tự */
+.faq-number {
+  width: 40px;
+  height: 40px;
+  background: rgba(59, 130, 246, 0.08); /* Màu nền nhạt */
+  color: var(--accent);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.faq-item.active .faq-number {
+  background: var(--accent);
+  color: #fff;
+}
+
+/* Hiệu ứng Body */
+.faq-body {
+  max-height: 0;
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.faq-item.active .faq-body {
+  max-height: 300px;
+  padding-bottom: 30px;
+  padding-left: 60px; /* Đẩy nội dung thụt vào sau con số */
+}
+
+/* Responsive cho mobile */
+@media (max-width: 992px) {
+  .faq-wrapper {
+    flex-direction: column;
+  }
+  .faq-intro {
+    flex: 1;
+    position: static;
+    margin-bottom: 40px;
+  }
+}
