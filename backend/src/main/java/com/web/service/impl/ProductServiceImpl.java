@@ -24,6 +24,7 @@ import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.List;
 import com.web.security.SecurityUtil;
+import com.web.service.IStorageService;
 import com.web.service.elastic.ProductElasticService;
 import com.web.util.Utils;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,27 +40,34 @@ public class ProductServiceImpl implements IProductService {
     private final UserRepository userRepository;
     private final ProductMapper productMapper;
     private final ReviewRepository reviewRepository;
+    private final IStorageService storageService;
     private final ProductElasticService productElasticService;
 
     @Override
     public ProductResponse addOrUpdateProduct(ProductCreateOrUpdateRequest productDTO, Long productId) {
-
-        UserEntity userEntity = userRepository.findById(SecurityUtil.getUserId()).orElseThrow(() -> new MyException("Người bán không tồn tại"));
+        Long userId = SecurityUtil.getUserId();
+        UserEntity userEntity = userRepository.findById(userId).orElseThrow(() -> new MyException("Người bán không tồn tại"));
         ProductEntity product = new ProductEntity();
         LocalDateTime now = LocalDateTime.now();
         if (productId == null) {
             product = productMapper.toEntity(productDTO);
             product.setCreatedAt(now);
-            product.setUpdatedAt(now);
+            product.setUser(userEntity);
 
         } else {
+
             product = productRepository.findById(productId).orElseThrow(() -> new MyException("Sản phẩm lỗi"));
-            product.setUpdatedAt(now);
-            product.setUser(userEntity);
+            if (!SecurityUtil.isAdmin() && !userId.equals(product.getUser().getId())) {
+                throw new MyException("bạn không đủ quyền để thực hiện thao tác này");
+            }
+
         }
+        product.setUpdatedAt(now);
 
         CategoryEntity categoryEntity = categoryRepository.findById(productDTO.getCategoryId()).orElseThrow(() -> new MyException("Danh mục không tồn tại"));
 
+        product.setStatus(productDTO.getStatus());
+        product.setThumbnail(productDTO.getThumbnail());
         product.setSlug(Utils.slugify(productDTO.getName()));
         product.setName(productDTO.getName());
         product.setDescription(productDTO.getDescription());
@@ -73,7 +81,6 @@ public class ProductServiceImpl implements IProductService {
             productDetail = new ProductDetailEntity();
         }
 
-        productDetail.setQuantity(productDTO.getQuantity());
         productDetail.setDemoUrl(productDTO.getDemoUrl());
         productDetail.setDownloadUrl(productDTO.getDownloadUrl());
         productDetail.setYoutubeUrl(productDTO.getYoutubeUrl());
@@ -81,17 +88,19 @@ public class ProductServiceImpl implements IProductService {
         productDetail.setQuantity(productDTO.getQuantity());
         productDetail.setInstallTutorial(productDTO.getInstallTutorial());
         productDetail.setTechnology(productDTO.getTechnology());
+        productDetail.setPin(productDTO.getPin());
+        productDetail.setShareBy(productDTO.getShareBy());
         productDetail.setProduct(product);
         product.setProductDetail(productDetail);
         replaceImage(productDTO.getImageUrls(), product);
 
         productRepository.save(product);
-        productElasticService.save(productMapper.toProductDocument(product));
+        productElasticService.updateProduct(product);
         return productMapper.toResponse(product);
     }
 
     @Override
-    public ApiResponse<?> changeStatusProduct(Long id,boolean status) {
+    public ApiResponse<?> changeStatusProduct(Long id, boolean status) {
         ProductEntity productEntity = productRepository.findById(id).orElseThrow(() -> new MyException("Sản phẩm không tồn tại"));
         productEntity.setStatus(status);
         productRepository.save(productEntity);
@@ -102,7 +111,19 @@ public class ProductServiceImpl implements IProductService {
     @Override
     public ApiResponse<?> deleteProduct(Long id) {
         ProductEntity productEntity = productRepository.findById(id).orElseThrow(() -> new MyException("Sản phẩm không tồn tại"));
+
+        List<String> LImagesUrl = new ArrayList<>();
+        LImagesUrl.add(productEntity.getThumbnail());
+        for (ProductImageEntity e : productEntity.getProductImages()) {
+            LImagesUrl.add(e.getImageUrl());
+        }
+
         productRepository.delete(productEntity);
+        for (String url : LImagesUrl) {
+            storageService.delete(url);
+        }
+        productElasticService.deleteProduct(id);
+
         return ApiResponse.success(null, "Xoá thành công ");
 
     }
@@ -195,15 +216,14 @@ public class ProductServiceImpl implements IProductService {
 
         ProductDetailEntity productDetailEntity = productEntity.getProductDetail();
         if (productDetailEntity == null) {
-            // Option A: tạo mới detail nếu chưa có
             productDetailEntity = new ProductDetailEntity();
             productDetailEntity.setViewCount(0);
-            productDetailEntity.setProduct(productEntity); // nếu mapping 2 chiều
+            productDetailEntity.setProduct(productEntity);
             productEntity.setProductDetail(productDetailEntity);
         }
 
         int views = productDetailEntity.getViewCount();
-        productDetailEntity.setViewCount(views + 1); // ✅ đúng
+        productDetailEntity.setViewCount(views + 1);
 
         productRepository.save(productEntity);
     }
@@ -233,6 +253,14 @@ public class ProductServiceImpl implements IProductService {
             reviewResponses.add(reviewReponse);
         }
         return reviewResponses;
+    }
+
+    @Override
+    public void changePinStatusProduct(Long id, boolean status) {
+        ProductEntity productEntity = productRepository.findById(id).orElseThrow(() -> new MyException("Sản phẩm không tồn tại"));
+        productEntity.getProductDetail().setPin(status);
+        productRepository.save(productEntity);
+
     }
 
 }

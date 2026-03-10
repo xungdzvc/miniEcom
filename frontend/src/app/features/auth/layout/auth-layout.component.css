@@ -1,0 +1,136 @@
+:host { display: block; }
+
+.auth-page{
+  min-height: 100vh;
+  padding: 24px;
+  display: grid;
+  place-items: center;
+  background:
+    radial-gradient(900px 420px at 20% 10%, rgba(16,185,129,.14), transparent 60%),
+    radial-gradient(760px 420px at 90% 10%, rgba(59,130,246,.10), transparent 55%),
+    #0b1220;
+}
+
+.auth-grid{
+  width: min(1080px, 100%);
+  min-height: 620px;
+  border-radius: 22px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,.08);
+  background: rgba(255,255,255,.03);
+  backdrop-filter: blur(10px);
+  display: grid;
+  grid-template-columns: 1.25fr .9fr;
+}
+
+.hero{
+  padding: 42px 42px;
+  color: rgba(255,255,255,.92);
+  background:
+    radial-gradient(900px 520px at 30% 10%, rgba(16,185,129,.22), transparent 58%),
+    linear-gradient(135deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+}
+
+.hero-inner{ max-width: 560px; }
+
+.badge{
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 12px;
+  background: rgba(16,185,129,.14);
+  border: 1px solid rgba(16,185,129,.25);
+  color: rgba(255,255,255,.92);
+  margin-bottom: 18px;
+}
+
+.brand{
+  font-size: 34px;
+  margin: 0 0 14px;
+  letter-spacing: .2px;
+}
+
+.headline{
+  font-size: 22px;
+  margin: 0 0 10px;
+  line-height: 1.25;
+}
+
+.subheadline{
+  margin: 0 0 18px;
+  color: rgba(255,255,255,.75);
+  line-height: 1.55;
+}
+
+.bullets{
+  list-style: none;
+  padding: 0;
+  margin: 18px 0 0;
+  display: grid;
+  gap: 12px;
+}
+
+.bullets li{
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  color: rgba(255,255,255,.84);
+}
+
+.dot{
+  width: 9px;
+  height: 9px;
+  border-radius: 999px;
+  background: rgba(16,185,129,.9);
+  box-shadow: 0 0 0 4px rgba(16,185,129,.18);
+  margin-top: 6px;
+  flex: 0 0 auto;
+}
+
+.hero-footer{
+  margin-top: 26px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.mini-card{
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,.10);
+  background: rgba(255,255,255,.04);
+}
+
+.mini-title{
+  font-weight: 800;
+  font-size: 13px;
+  margin-bottom: 4px;
+}
+.mini-desc{
+  font-size: 12px;
+  color: rgba(255,255,255,.72);
+}
+
+/* right side */
+.panel{
+  display: grid;
+  place-items: center;
+  padding: 28px;
+  background: rgba(255,255,255,.02);
+}
+
+/* responsive: mobile -> hero lên trên, form xuống dưới */
+@media (max-width: 900px){
+  .auth-grid{
+    grid-template-columns: 1fr;
+  }
+  .hero{
+    padding: 28px 22px;
+  }
+  .panel{
+    padding: 22px;
+  }
+}

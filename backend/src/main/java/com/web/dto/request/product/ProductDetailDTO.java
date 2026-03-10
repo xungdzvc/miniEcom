@@ -25,4 +25,6 @@ public class ProductDetailDTO {
     private Integer discount;
     private String technology;
     private String installTutorial;
+    private Boolean pin;
+    private String shareBy;
 }

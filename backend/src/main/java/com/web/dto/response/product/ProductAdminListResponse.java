@@ -20,6 +20,7 @@ public class ProductAdminListResponse {
     private Integer quantity;
     private Boolean status;
     private Integer discount;
+    private Boolean pin;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

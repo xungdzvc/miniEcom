@@ -1,0 +1,146 @@
+<div class="dash-wrapper">
+  <div class="dash-header">
+    <div class="dash-header-content">
+      <h2 class="dash-title">Tổng quan hệ thống</h2>
+      <p class="dash-subtitle">
+        Theo dõi nhanh sản phẩm, người dùng và doanh thu trên trang quản trị.
+      </p>
+    </div>
+
+    <div class="dash-header-actions">
+      <button class="dash-refresh-btn" type="button" (click)="loadHome()">
+        🔄 Tải lại
+      </button>
+    </div>
+  </div>
+
+  <ng-container *ngIf="!isLoading; else loadingTpl">
+    <!-- Tổng quan -->
+    <section class="dash-section">
+      <div class="dash-section-head">
+        <div>
+          <h3 class="dash-section-title">Thông tin chung</h3>
+          <p class="dash-section-subtitle">
+            Số liệu tổng quan hiện tại của hệ thống.
+          </p>
+        </div>
+      </div>
+
+      <div class="dash-grid dash-grid-overview">
+        <app-admin-stat-card
+          *ngFor="let card of overviewCards"
+          [title]="card.title"
+          [icon]="card.icon"
+          [value]="card.value"
+          [subtitle]="card.subtitle"
+          [trend]="card.trend"
+        />
+      </div>
+    </section>
+
+    <!-- Doanh thu + users -->
+    <section class="dash-two-col">
+      <div class="dash-panel">
+        <div class="dash-panel-head">
+          <h3 class="dash-panel-title">Doanh thu</h3>
+          <p class="dash-panel-subtitle">
+            So sánh theo chu kỳ tháng, quý và năm.
+          </p>
+        </div>
+
+        <div class="dash-grid dash-grid-revenue">
+          <app-admin-stat-card
+            *ngFor="let card of revenueCards"
+            [title]="card.title"
+            [icon]="card.icon"
+            [value]="card.value"
+            [subtitle]="card.subtitle"
+            [trend]="card.trend"
+          />
+        </div>
+      </div>
+
+      <div class="dash-panel">
+        <div class="dash-panel-head">
+          <h3 class="dash-panel-title">Người dùng mới</h3>
+          <p class="dash-panel-subtitle">
+            Theo dõi mức tăng trưởng tài khoản.
+          </p>
+        </div>
+
+        <div class="dash-grid dash-grid-users">
+          <app-admin-stat-card
+            *ngFor="let card of userCards"
+            [title]="card.title"
+            [icon]="card.icon"
+            [value]="card.value"
+            [subtitle]="card.subtitle"
+            [trend]="card.trend"
+          />
+        </div>
+      </div>
+    </section>
+
+    <!-- Chart -->
+    <section class="dash-panel dash-chart-panel">
+      <div class="dash-panel-head chart-head">
+        <div>
+          <h3 class="dash-panel-title">Biểu đồ so sánh doanh thu</h3>
+          <p class="dash-panel-subtitle">
+            So sánh nhanh doanh thu giữa tháng, quý và năm hiện tại.
+          </p>
+        </div>
+
+        <div class="chart-badges">
+          <span class="chart-badge">Tháng</span>
+          <span class="chart-badge">Quý</span>
+          <span class="chart-badge">Năm</span>
+        </div>
+      </div>
+
+      <div class="revenue-chart">
+        <div class="chart-row" *ngFor="let item of revenueChartItems">
+          <div class="chart-label">{{ item.label }}</div>
+
+          <div class="chart-bar-track">
+            <div
+              class="chart-bar-fill"
+              [style.width]="calcBarWidth(item.value)"
+            ></div>
+          </div>
+
+          <div class="chart-value">{{ formatCurrency(item.value) }}</div>
+        </div>
+      </div>
+
+      <div class="compare-grid">
+        <div class="compare-card">
+          <div class="compare-card-label">Quý so với tháng</div>
+          <div class="compare-card-value">
+            {{ revenueGrowthQuarterVsMonthText }}
+          </div>
+          <div class="compare-card-note">
+            Mức chênh lệch doanh thu quý hiện tại so với doanh thu tháng.
+          </div>
+        </div>
+
+        <div class="compare-card">
+          <div class="compare-card-label">Năm so với quý</div>
+          <div class="compare-card-value">
+            {{ revenueGrowthYearVsQuarterText }}
+          </div>
+          <div class="compare-card-note">
+            Mức chênh lệch doanh thu năm hiện tại so với doanh thu quý.
+          </div>
+        </div>
+      </div>
+    </section>
+  </ng-container>
+
+  <ng-template #loadingTpl>
+    <div class="dash-loading">
+      <div class="spinner"></div>
+      <p>Đang tải dữ liệu dashboard...</p>
+    </div>
+  </ng-template>
+</div>

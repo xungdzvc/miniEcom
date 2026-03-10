@@ -21,16 +21,14 @@ public interface OrderRepository extends JpaRepository<OrderEntity, Long> {
     List<OrderEntity> findByUserIdAndStatus(Long id, OrderStatus status);
     
     OrderEntity findByIdAndStatus(Long id, OrderStatus status );
-    List<OrderEntity> getByUserId(Long id);
 
-    @Modifying
     @Query("""
            select o from OrderEntity o
            where o.user.id = :userId and ( o.status = :status
            or o.expiresAt >= :now )
            """)
     List<OrderEntity> findSuccessOrNotExpired(
-            Long userId, OrderStatus status, LocalDateTime now
+            @Param("userId")Long userId,@Param("status") OrderStatus status,@Param("now") LocalDateTime now
     );
 
     @Transactional
@@ -42,4 +40,17 @@ public interface OrderRepository extends JpaRepository<OrderEntity, Long> {
            and o.expiresAt <= :now
            """)
     void markExpired(@Param("now")LocalDateTime now);
+    
+    
+    @Query("""
+           select coalesce(SUM(o.total), 0)
+               FROM OrderEntity o
+           where o.status = com.web.enums.OrderStatus.SUCCESS
+           and o.orderDate >= :start
+           and o.orderDate < :end
+           """)
+    Long sumRevenueBetween(
+            @Param("start")LocalDateTime start,
+            @Param("end")LocalDateTime end);
+    
 }

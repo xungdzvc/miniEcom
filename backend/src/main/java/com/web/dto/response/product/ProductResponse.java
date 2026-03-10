@@ -26,10 +26,13 @@ public class ProductResponse {
     private Integer quantity;
     private String youtubeUrl;
     private String demoUrl;
+    private String downloadUrl;
     private Integer viewCount;
     private Integer saleCount;
     private Integer discount;
     private String technology;
     private String installTutorial;
+    private Boolean pin;
+    private String shareBy;
     private List<String> imageUrls;
 }

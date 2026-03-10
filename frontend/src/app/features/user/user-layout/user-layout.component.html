@@ -1,0 +1,171 @@
+<div class="shell">
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="topbar-left">
+        <button class="action-btn mobile-menu-toggle" (click)="toggleMobileMenu($event)">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+        </button>
+
+        <a class="logo" routerLink="/">
+          <img src="/logo.png" alt="XungLord.com Logo" />
+        </a>
+
+        <nav class="desktop-nav">
+          <a routerLink="/" class="nav-link" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Trang chủ</a>
+          <a routerLink="/products" class="nav-link" routerLinkActive="active">Sản phẩm</a>
+          <div class="nav-dropdown-wrap" (click)="toggleCategoryMenu($event)">
+            <button class="nav-link has-icon" [class.active]="categoryMenuOpen">
+              Danh mục
+              <svg class="dropdown-arrow" [class.open]="categoryMenuOpen" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </button>
+            <div class="dropdown-menu" *ngIf="categoryMenuOpen">
+              <a class="dropdown-item" 
+                 *ngFor="let c of categories"
+                 [routerLink]="['/products']" 
+                 [queryParams]="{ categoryId: c.id }"
+                 (click)="categoryMenuOpen = false">
+                {{ c.name }}
+              </a>
+            </div>
+          </div>
+        </nav>
+      </div>
+
+      <div class="topbar-center">
+  <div class="search-container" #searchBox [class.active]="suggests.length > 0">
+    <div class="search-input-wrapper">
+      <svg class="icon-s" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+      </svg>
+      <input type="text" 
+             placeholder="Tìm dự án, mã nguồn..." 
+             [(ngModel)]="keyword" 
+             (input)="onSearch()" 
+             (keydown.enter)="goSearch()" 
+             (mousedown)="$event.stopPropagation()"/>
+    </div>
+
+    <div class="suggest-card" *ngIf="suggests.length > 0" (mousedown)="$event.stopPropagation()">
+      <div class="suggest-list">
+        <div class="s-item" *ngFor="let p of suggests" (click)="goDetail(p.slug)">
+          <div class="s-thumb">
+            <img [src]="getFileUrl(p.thumbnail)" alt="" />
+          </div>
+          <div class="s-info">
+            <div class="s-name">
+              <span class="highlight">{{ getTypedPart(p.name) }}</span>{{ getRemainPart(p.name) }}
+            </div>
+            <div class="s-meta">Premium Source • {{ p.price | number }}đ</div>
+          </div>
+          <svg class="s-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+        </div>
+      </div>
+      <div class="suggest-action" (click)="goSearch()">
+        Xem tất cả kết quả cho "{{ keyword }}"
+      </div>
+    </div>
+  </div>
+</div>
+
+      <div class="topbar-right">
+        <button class="action-btn hide-on-mobile" (click)="toggleTheme()" [title]="theme === 'light' ? 'Dark mode' : 'Light mode'">
+          <svg *ngIf="theme === 'light'" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+          <svg *ngIf="theme !== 'light'" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+        </button>
+
+        <!-- <button class="action-btn" routerLink="/notifications">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+          <span class="badge">3</span>
+        </button> -->
+
+        <button class="action-btn" routerLink="/cart"  #cartIcon>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <circle cx="9" cy="21" r="1"></circle>
+            <circle cx="20" cy="21" r="1"></circle>
+            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+          </svg>
+          
+          <span class="badge" *ngIf="isLogin() && cartItemCount > 0">
+            {{ cartItemCount }}
+          </span>
+        </button>
+
+        <div class="divider hide-on-mobile"></div>
+
+        <ng-container *ngIf="!isLogin(); else logged">
+          <div class="auth-group hide-on-mobile">
+            <a routerLink="/register" class="btn btn-outline register-btn">Đăng ký</a>
+            <a routerLink="/login" class="btn btn-primary login-btn">Đăng nhập</a>
+          </div>
+          <div class="guest-wrap user-menu-wrap show-on-mobile" (click)="toggleGuestMenu($event)">
+            <button class="action-btn">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+            </button>
+            <div class="dropdown-menu right" *ngIf="guestMenuOpen" (click)="$event.stopPropagation()">
+              <a class="dropdown-item" routerLink="/login" (click)="guestMenuOpen = false">🔑 Đăng nhập</a>
+              <a class="dropdown-item" routerLink="/register" (click)="guestMenuOpen = false">📝 Đăng ký mới</a>
+            </div>
+          </div>
+        </ng-container>
+
+        <ng-template #logged>
+          <div class="user-menu-wrap" (click)="toggleMenu($event)">
+            <div class="avatar-circle">
+              <img src="https://ui-avatars.com/api/?name=Xung+Lord&background=2563eb&color=fff" alt="Avatar">
+            </div>
+            <div class="dropdown-menu right" *ngIf="menuOpen">
+              <div class="dropdown-header">
+                <div class="dd-name">{{ getDisplayName() }}</div>
+                <div class="dd-sub">{{ getDisplayRole() }}</div>
+              </div>
+              <div class="dropdown-divider"></div>
+              <a class="dropdown-item" *ngIf="isAdmin" routerLink="/dashboard">🛠️ Bảng điều khiển</a>
+              <a class="dropdown-item" routerLink="/profile">👤 Thông tin tài khoản</a>
+              <a class="dropdown-item" routerLink="/orders">🛒 Lịch sử mua hàng</a>
+              <div class="dropdown-divider"></div>
+              <button class="dropdown-item text-danger" type="button" (click)="logout()">🚪 Đăng xuất</button>
+            </div>
+          </div>
+        </ng-template>
+      </div>
+    </div>
+  </header>
+
+  <div class="mobile-overlay" *ngIf="mobileMenuOpen" (click)="mobileMenuOpen = false"></div>
+  <aside class="mobile-sidebar" [class.open]="mobileMenuOpen">
+    <div class="sidebar-header">
+      <a class="logo" routerLink="/" (click)="mobileMenuOpen = false">XungLord<span>.com</span></a>
+      <button class="action-btn" (click)="mobileMenuOpen = false">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      </button>
+    </div>
+    <div class="sidebar-content">
+      <a routerLink="/" class="sidebar-item" (click)="mobileMenuOpen = false">🏠 Trang chủ</a>
+      <a routerLink="/products" class="sidebar-item" (click)="mobileMenuOpen = false">🏠 Sản phẩm</a>
+      <div class="sidebar-group-title">Danh mục sản phẩm</div>
+      
+      <a class="sidebar-item sub" 
+         *ngFor="let c of categories"
+         [routerLink]="['/products']" 
+         [queryParams]="{ category:   c.name }"
+         (click)="mobileMenuOpen = false">
+        {{ c.name }}
+      </a>
+      
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-group-title">Cài đặt</div>
+      <button class="sidebar-item btn-theme" (click)="toggleTheme()">
+        {{ theme === 'light' ? '🌙 Chế độ nền tối' : '☀️ Chế độ nền sáng' }}
+      </button>
+    </div>
+  </aside>
+
+  <main class="page">
+    <router-outlet></router-outlet>
+  </main>
+  <app-footer></app-footer>
+</div>

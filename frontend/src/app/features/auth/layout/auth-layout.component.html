@@ -1,0 +1,38 @@
+<div class="auth-page">
+  <div class="auth-grid">
+    <!-- LEFT: HERO -->
+    <section class="hero">
+      <div class="hero-inner">
+        <div class="badge">{{ badgeText }}</div>
+
+        <h1 class="brand">{{ brand }}</h1>
+
+        <h2 class="headline">{{ headline }}</h2>
+        <p class="subheadline">{{ subheadline }}</p>
+
+        <ul class="bullets">
+          <li *ngFor="let b of bullets">
+            <span class="dot"></span>
+            <span>{{ b }}</span>
+          </li>
+        </ul>
+
+        <div class="hero-footer">
+          <div class="mini-card">
+            <div class="mini-title">Mã Nguồn miễn phí</div>
+            <div class="mini-desc">Thoả sức học hỏi</div>
+          </div>
+          <div class="mini-card">
+            <div class="mini-title">Ưu đãi thành viên</div>
+            <div class="mini-desc">Quà tặng ngập tràn</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- RIGHT: FORM SLOT -->
+    <section class="panel">
+      <ng-content></ng-content>
+    </section>
+  </div>
+</div>

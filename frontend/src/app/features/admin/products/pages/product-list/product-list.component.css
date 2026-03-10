@@ -1,0 +1,22 @@
+.admin-container {
+  /* 1. Ăn theo màu nền của Theme (Sáng/Tối tự động đổi) */
+  background: var(--bg-surface);
+  color: var(--text-main);
+
+  /* 2. Tạo khung viền và bo góc giống Sidebar */
+  border: 1px solid var(--border);
+  border-radius: 16px; /* Bo góc lớn cho hiện đại */
+  box-shadow: var(--shadow-sm);
+
+  /* 3. Padding bên trong nội dung */
+  padding: 24px;
+  
+  /* 4. Khoảng cách với Header bên trên */
+  margin-top: 24px;
+
+  /* 5. Animation nhẹ khi đổi theme */
+  transition: all 0.3s ease;
+  
+  /* Đảm bảo bảng bên trong không bị tràn */
+  overflow: hidden; 
+}

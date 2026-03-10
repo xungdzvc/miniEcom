@@ -1,25 +1,38 @@
 package com.web.controller.admin;
 
+import com.web.dto.UserAdminEditDTO;
 import com.web.dto.request.user.ChangeStatusRequest;
+import com.web.dto.request.user.ChangeStaffRequest;
 import com.web.dto.response.common.ApiResponse;
 import com.web.service.IUserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("api/admin/users")
+@RequestMapping("/api/admin/users")
 @RequiredArgsConstructor
 public class UserAdminController {
 
     private final IUserService userService;
 
     @GetMapping
-    public ApiResponse<?> getUsers(){
-        return ApiResponse.success(userService.getUers());
+    public ApiResponse<?> getUsers() {
+        return ApiResponse.success(userService.getUsers());
     }
-    
+
     @PutMapping("/{id}/status")
-    public void changeStatus(@PathVariable Long id,@RequestBody ChangeStatusRequest req){
-         userService.changeStatus(id, req);
+    public void changeStatus(@PathVariable Long id, @RequestBody ChangeStatusRequest req) {
+        userService.changeStatus(id, req);
     }
+
+    @GetMapping("/{id}")
+    public ApiResponse<?> getUserById(@PathVariable Long id) {
+        return ApiResponse.success(userService.getUserById(id));
+    }
+
+    @PutMapping("/{id}")
+    public void updateUser(@PathVariable Long id, @RequestBody UserAdminEditDTO dto) {
+        userService.updateUser(id, dto);
+    }
+
 }

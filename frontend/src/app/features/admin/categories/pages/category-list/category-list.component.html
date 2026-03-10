@@ -1,0 +1,57 @@
+<div class="admin-container">
+
+  <app-admin-page-header
+    title="🏷️ Quản lý Danh mục"
+    subtitle="Thêm, sửa và quản lý các danh mục sản phẩm"
+  >
+    <button class="admin-btn admin-btn-secondary" (click)="reload()">🔄 Tải lại</button>
+    <button class="admin-btn admin-btn-primary" (click)="addCategoryClick()">➕ Thêm Danh Mục</button>
+  </app-admin-page-header>
+
+  <div class="admin-card" *ngIf="isLoading">
+    <div class="admin-card-body">
+      <div class="spinner"></div>
+      <p>Đang tải danh sách danh mục...</p>
+    </div>
+  </div>
+
+  <div class="admin-card" *ngIf="!isLoading && categories.length === 0">
+    <div class="admin-card-body">
+      <div class="admin-alert admin-alert-info">Chưa có danh mục nào.</div>
+      <button class="admin-btn admin-btn-primary" (click)="addCategoryClick()">+ Thêm Danh Mục</button>
+    </div>
+  </div>
+
+  <div class="admin-card" *ngIf="!isLoading && categories.length > 0">
+    <app-admin-table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Tên danh mục</th>
+          <th>Số sản phẩm</th>
+          <th>Ngày tạo</th>
+          <th>Ngày cập nhật</th>
+          <th class="actions">Thao tác</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr *ngFor="let category of categories; trackBy: trackById">
+          <td>{{ category.id }}</td>
+          <td>{{ category.name }}</td>
+          <td>
+            <span class="admin-badge">{{ category.quantity}}</span>
+          </td>
+          <td>{{ category.createdAt | date:'HH:mm:ss dd/MM/yyyy' }}</td>
+          <td>{{ category.updatedAt | date:'HH:mm:ss dd/MM/yyyy' }}</td>
+          <td class="actions">
+            <button class="admin-btn admin-btn-secondary" (click)="editCategory(category)">Sửa</button>
+            <button class="admin-btn admin-btn-danger" (click)="deleteCategory(category)">Xóa</button>
+          </td>
+        </tr>
+      </tbody>
+    </app-admin-table>
+    
+  </div>
+
+</div>

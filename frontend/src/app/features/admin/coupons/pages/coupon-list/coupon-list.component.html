@@ -1,0 +1,104 @@
+<div class="admin-container">
+  <app-admin-page-header
+    title="🎟️ Quản lý Coupon"
+    subtitle="Thêm, sửa và xóa mã giảm giá"
+  >
+    <div class="admin-search">
+      <input
+        type="text"
+        placeholder="Tìm coupon..."
+        [(ngModel)]="q"
+        (input)="onSearchChange()"
+      />
+    </div>
+
+    <div class="header-actions">
+      <button class="admin-btn admin-btn-primary" (click)="goAddCoupon()">
+        ➕ Thêm coupon
+      </button>
+
+      <button class="admin-btn admin-btn-secondary" (click)="loadCoupons()">
+        🔄 Tải lại
+      </button>
+    </div>
+  </app-admin-page-header>
+
+  <div class="admin-card">
+    <div class="admin-card-body">
+      <div *ngIf="isLoading" class="admin-empty-state">
+        <div class="spinner"></div>
+        <p>Đang tải danh sách coupon...</p>
+      </div>
+
+      <div *ngIf="!isLoading && coupons.length === 0" class="admin-empty-state">
+        <div class="admin-empty-icon">🎟️</div>
+        <h3>Chưa có coupon</h3>
+        <p>Danh sách hiện đang trống.</p>
+      </div>
+
+      <app-admin-table *ngIf="!isLoading && coupons.length > 0">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Mã coupon</th>
+            <th>Giảm giá (%)</th>
+            <th>Ngày tạo</th>
+            <th>Cập nhật</th>
+            <th class="actions">Thao tác</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr *ngFor="let coupon of pagedCoupons">
+            <td>{{ coupon.id }}</td>
+            <td><strong>{{ coupon.couponCode }}</strong></td>
+            <td>{{ coupon.discount }}%</td>
+            <td>
+              {{ coupon.createdAt ? (coupon.createdAt | date:'dd/MM/yyyy HH:mm') : '—' }}
+            </td>
+            <td>
+              {{ coupon.updatedAt ? (coupon.updatedAt | date:'dd/MM/yyyy HH:mm') : '—' }}
+            </td>
+            <td class="actions">
+              <button
+                class="admin-btn admin-btn-primary"
+                (click)="editCoupon(coupon.id)"
+              >
+                ✏️ Sửa
+              </button>
+
+              <button
+                class="admin-btn admin-btn-danger"
+                (click)="deleteCoupon(coupon)"
+              >
+                🗑️ Xóa
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </app-admin-table>
+
+      <div class="admin-pagination" *ngIf="!isLoading && coupons.length > 0">
+        <button
+          class="admin-btn admin-btn-secondary"
+          (click)="prevPage()"
+          [disabled]="page === 1"
+        >
+          ← Trước
+        </button>
+
+        <span class="page-info">
+          Trang {{ page }} / {{ totalPages }}
+        </span>
+
+        <button
+          class="admin-btn admin-btn-secondary"
+          (click)="nextPage()"
+          [disabled]="page === totalPages"
+        >
+          Sau →
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -32,6 +32,8 @@ public class ProductCreateOrUpdateRequest {
     private Integer discount;
     private String technology;
     private String installTutorial;
+    private Boolean pin;
+    private String shareBy;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private List<String> imageUrls;

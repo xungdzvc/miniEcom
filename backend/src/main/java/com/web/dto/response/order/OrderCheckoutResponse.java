@@ -15,6 +15,7 @@ public class OrderCheckoutResponse {
     private Long orderId;
     private String status;
     private Long total;
+    private String transferContent;
     private LocalDateTime orderDate;
     private LocalDateTime expiresAt;
     private String QRCodeUrl;

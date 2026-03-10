@@ -1,0 +1,17 @@
+<app-auth-layout
+  brand="XungLord Enterprise"
+  badgeText="Trusted Platform"
+  headline="Chào mừng bạn quay lại!"
+  subheadline="Đăng nhập để mua sắm nhanh hơn và nhận ưu đãi dành riêng cho bạn.">
+
+  <app-auth-form
+    [title]="'Đăng nhập'"
+    [buttonText]="'Đăng nhập'"
+    [mode]="'login'"
+    [form]="form"
+    [errorMessage]="errorMessage"
+    (onSubmit)="onSubmit($event)"
+    (googleLogin)="onGoogleLogin($event)">
+  </app-auth-form>
+
+</app-auth-layout>

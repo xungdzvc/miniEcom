@@ -13,7 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("api/products")
+@RequestMapping("/api/products")
 @RequiredArgsConstructor
 public class ProductController {
     
@@ -35,10 +35,7 @@ public class ProductController {
         productService.updateViewProductBySlug(slug);
     }
 
-    @DeleteMapping("/{id}")
-    public ApiResponse<?> deleteProduct(@PathVariable Long id) {
-        return productService.deleteProduct(id);
-    }
+
     @GetMapping("/category/{categoryId}")
     public ApiResponse<?> getProductByCategoryId(@PathVariable Long categoryId){
         return ApiResponse.success(productService.getProductByCategory(categoryId));

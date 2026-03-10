@@ -30,7 +30,7 @@ public class ProductDetailEntity {
     private Integer discount;
     
     @Column(name = "view_count")
-    private int viewCount;
+    private Integer viewCount;
 
     @Column(name = "sales_count")
     private Integer saleCount;
@@ -41,7 +41,15 @@ public class ProductDetailEntity {
     @Column(name = "install_tutorial")
     private String installTutorial;
 
+    @Column(name = "pin")
+    private Boolean pin;
+    
+    @Column(name = "share_by")
+    private String shareBy;
+    
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="product_id",nullable = false)
     private ProductEntity product;
+    
+    
 }

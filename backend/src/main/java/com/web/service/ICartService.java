@@ -12,5 +12,4 @@ public interface ICartService{
     CartResponse updateProductQuantityFromCart(Long cartItemId,Integer quantity);
     CartResponse getCart();
     CartResponse clearCart();
-    int getCouponDiscount(String code);
 }

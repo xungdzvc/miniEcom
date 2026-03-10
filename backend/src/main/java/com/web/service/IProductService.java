@@ -13,6 +13,7 @@ public interface IProductService {
     ProductResponse addOrUpdateProduct(ProductCreateOrUpdateRequest productDTO, Long id);
     ApiResponse deleteProduct(Long id);
     ApiResponse changeStatusProduct(Long id,boolean status);
+    void changePinStatusProduct(Long id,boolean status);
     List<ProductAdminListResponse> getProductsForAdmin();
     List<ProductViewerListResponse> getProductsForPreview();
     ProductResponse getProduct(Long id);

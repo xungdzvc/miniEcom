@@ -15,6 +15,7 @@ public interface OrderMapper {
 
     @Mapping(target = "QRCodeUrl", ignore = true)
     @Mapping(target = "orderId", source = "id")
+    @Mapping(target = "transferContent", ignore = true)
     OrderCheckoutResponse toOrderCheckoutResponse(OrderEntity orderEntity);
 
     @Mapping(target = "orderId", source = "id")

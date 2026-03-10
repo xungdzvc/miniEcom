@@ -1,15 +1,24 @@
 package com.web.dto.response.dashboard;
 
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
+@Getter
+@Setter
 public class DashboardSummaryResponse {
-    private int productsCount;
-    private int categoriesCount;
-    private int usersCount;
-    private int totalProduct;
-    private int totalProductActive;
-    private int totalProductInActive;
-    private int totalClickToWebsite;
+
+    private Integer totalProducts;
+    private Integer totalCategories;
+    private Integer totalUsers;
+    private Integer activeProducts;
+    private Integer inActiveProducts;
+
+    private Long monthRevenue;
+    private Long quarterRevenue;
+    private Long yearRevenue;
+
+    private Integer newUsersToday;
+    private Integer newUsersThisMonth;
 
 }

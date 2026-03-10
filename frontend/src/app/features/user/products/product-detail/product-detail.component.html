@@ -1,0 +1,366 @@
+<section class="detail">
+
+  <!-- ================= TOP ================= -->
+  <div class="top">
+
+    <!-- ========== GALLERY ========== -->
+    <div class="preview">
+
+      <div
+        class="g-view"
+        *ngIf="galleryImages?.length"
+        (mouseenter)="stopAuto()"
+        (mouseleave)="startAuto()">
+
+        <img
+          class="g-img"
+          [src]="galleryImages[activeIndex]"
+          alt="preview" />
+
+        <button class="g-nav left" type="button" (click)="prev()">‹</button>
+        <button class="g-nav right" type="button" (click)="next()">›</button>
+
+        <div class="g-dots" *ngIf="galleryImages.length > 1">
+          <button
+            *ngFor="let _ of galleryImages; let i = index"
+            class="dot"
+            type="button"
+            [class.active]="i === activeIndex"
+            (click)="go(i)">
+          </button>
+        </div>
+      </div>
+
+      <div class="g-thumbs" *ngIf="galleryImages.length > 1">
+        <button
+          class="t"
+          *ngFor="let img of galleryImages; let i = index"
+          type="button"
+          [class.active]="i === activeIndex"
+          (click)="go(i)">
+          <img [src]="img" alt="thumb" />
+        </button>
+      </div>
+
+    </div>
+
+    <!-- ========== INFO CARD ========== -->
+    <div class="info-card">
+
+      <div class="top-row">
+        <div class="cat-pill">
+          <span class="dot"></span>
+          {{ product?.categoryName }}
+        </div>
+
+        <div class="meta-chips">
+          <span class="chip">👁 {{ formatNumber(product?.viewCount) }}</span>
+          <span class="chip">🛒 {{ formatNumber(product?.saleCount) }}</span>
+        </div>
+      </div>
+
+      <h1 class="title">{{ product?.name }}</h1>
+
+      <div class="desc" *ngIf="product?.description">
+        {{ product?.description }}
+      </div>
+
+      <!-- ✅ SHARE BY (new) -->
+      <div class="shared-by" *ngIf="product?.shareBy">
+        👤 Shared by: <b>{{ product?.shareBy }}</b>
+      </div>
+
+      <!-- SPEC -->
+      <div class="specs">
+
+        <!-- ✅ Chỉ hiện Hỗ trợ nếu sản phẩm có giá > 0 -->
+        <div class="spec" *ngIf="(product?.price || 0) > 0">
+          <span class="k">📦 Hỗ trợ</span>
+          <b class="v">6 tháng</b>
+        </div>
+
+        <!-- ✅ Nếu giá = 0: Không có bảo hành/hỗ trợ (bạn có thể bỏ block này nếu muốn ẩn hoàn toàn) -->
+        <div class="spec" *ngIf="(product?.price || 0) === 0">
+          <span class="k">📦 Hỗ trợ</span>
+          <b class="v">Không áp dụng</b>
+        </div>
+
+        <div class="spec">
+          <span class="k">⚡ Bàn giao</span>
+          <span class="v">Tải file ngay sau thanh toán</span>
+        </div>
+
+        
+
+
+      </div>
+
+      <!-- PRICE -->
+      <div class="price-card" [class.has-discount]="hasDiscount()">
+
+        <div class="price-main">
+          <div class="price-now">
+            {{ calcNewPrice(product?.price, product?.discount) | number:'1.0-0' }} VNĐ
+          </div>
+
+          <div class="discount-badge" *ngIf="hasDiscount()">
+            -{{ calcDiscountPercent(product?.price, product?.discount) }}%
+          </div>
+        </div>
+
+        <div class="price-extra" *ngIf="hasDiscount()">
+          <div class="old-line">
+            <span class="old">
+              {{ product?.price | number:'1.0-0' }} VNĐ
+            </span>
+            <span class="save">
+              Tiết kiệm
+              <b class="save-amount">
+                {{ calcSaveAmount(product?.price, product?.discount) | number:'1.0-0' }} VNĐ
+              </b>
+            </span>
+          </div>
+          <div class="hint">⏳ Ưu đãi có thể thay đổi theo thời gian.</div>
+        </div>
+
+        <div class="price-extra" *ngIf="!hasDiscount()">
+          <div class="hint">✅ Giá tốt nhất hiện tại</div>
+        </div>
+
+      </div>
+
+      <!-- ACTIONS -->
+      <div class="actions">
+        <button class="btn btn-primary" (click)="buyNow()">🛒 Mua ngay</button>
+
+        <app-checkout-modal
+          *ngIf="isOpenBuyNow"
+          [product]="product"
+          [user]="currentUser"
+          (close)="isOpenBuyNow = false">
+        </app-checkout-modal>
+
+        <button class="btn btn-outline" (click)="addProductToCart()">
+          ➕ Thêm vào giỏ
+        </button>
+      </div>
+
+      
+
+      <div class="support-note">
+        Nếu bạn gặp lỗi khi cài đặt hoặc chạy dự án, cứ nhắn mình hỗ trợ — không cần lo.
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ================= TABS ================= -->
+  <div class="tabs">
+    <button class="tab" [class.active]="tab==='overview'" (click)="setTab('overview')">Mô tả</button>
+    <button class="tab" [class.active]="tab==='tech'" (click)="setTab('tech')">Công nghệ</button>
+    <button class="tab" [class.active]="tab==='guide'" (click)="setTab('guide')">Hướng dẫn</button>
+    <button class="tab" [class.active]="tab==='media'" (click)="setTab('media')">Hình ảnh</button>
+    <button class="tab" [class.active]="tab==='demo'" (click)="setTab('demo')">Video demo</button>
+    <button class="tab" [class.active]="tab==='demo2'" (click)="setTab('demo2')">Link Demo</button>
+    <button class="tab" [class.active]="tab==='reviews'" (click)="setTab('reviews')">Đánh giá</button>
+  </div>
+
+  <!-- ================= PANELS ================= -->
+  <div class="panel" *ngIf="tab==='overview'">
+    <h3>Tổng quan</h3>
+    <p>{{ product?.description || 'Chưa có mô tả.' }}</p>
+  </div>
+
+  <div class="panel" *ngIf="tab==='tech'">
+    <h3>Công nghệ</h3>
+    <p>{{ product?.technology || 'Chưa có công nghệ.' }}</p>
+  </div>
+
+  <div class="panel" *ngIf="tab==='guide'">
+    <h3>Hướng dẫn cài đặt</h3>
+    <p>{{ product?.installTutorial || 'Chưa có hướng dẫn.' }}</p>
+  </div>
+
+  <div class="panel" *ngIf="tab==='media'">
+    <h3>Hình ảnh</h3>
+
+    <div class="media-grid" *ngIf="galleryImages?.length">
+      <img
+        *ngFor="let img of galleryImages"
+        [src]="img"
+        (click)="selectedImg = img"
+        class="preview-thumb"
+        alt="media" />
+    </div>
+
+    <div class="image-viewer-overlay" *ngIf="selectedImg" (click)="selectedImg = null">
+      <div class="viewer-content" (click)="$event.stopPropagation()">
+        <button class="close-btn" (click)="selectedImg = null" type="button">&times;</button>
+        <img [src]="selectedImg" class="full-image" alt="full" />
+      </div>
+    </div>
+  </div>
+
+  <div class="panel" *ngIf="tab==='demo'">
+    <div class="demo-container" *ngIf="safeYoutubeUrl; else noVideo">
+      <div class="video-responsive">
+        <iframe
+          [src]="safeYoutubeUrl"
+          allowfullscreen
+          frameborder="0">
+        </iframe>
+      </div>
+      <div class="video-info">
+        <h4>🎥 Video Demo Sản phẩm</h4>
+        <p>Xem thực tế các tính năng của mã nguồn trước khi mua.</p>
+      </div>
+    </div>
+
+    <ng-template #noVideo>
+      <div class="empty-video">
+        <span class="ico">🎬</span>
+        <p>Hiện tại chưa có video demo cho sản phẩm này.</p>
+      </div>
+    </ng-template>
+  </div>
+  <div class="panel" *ngIf="tab==='demo2'">
+    <h3>Sản phẩm Demo</h3>
+    <p>{{ product?.demoUrl || 'Chưa có thông tin demo.' }}</p>
+  </div>
+  
+
+  <div class="panel" *ngIf="tab==='reviews'">
+
+    <div class="review-form-container">
+      <h3>Gửi đánh giá của bạn</h3>
+
+      <div class="rating-input" *ngIf="canRate; else notPurchasedMessage">
+        <span>Chọn mức độ hài lòng:</span>
+        <div class="stars stars-input">
+          <i class="fa fa-star"
+             *ngFor="let star of [1,2,3,4,5]"
+             [class.active]="star <= userRating"
+             (click)="userRating = star">
+          </i>
+        </div>
+      </div>
+
+      <ng-template #notPurchasedMessage>
+        <div class="alert-info">
+          <small>⚠️ Bạn chỉ có thể đánh giá sao sau khi đã mua sản phẩm này. Tuy nhiên, bạn vẫn có thể để lại bình luận thắc mắc.</small>
+        </div>
+      </ng-template>
+
+      <div class="comment-input">
+        <textarea
+          [(ngModel)]="userComment"
+          placeholder="Chia sẻ cảm nhận của bạn hoặc đặt câu hỏi về sản phẩm..."
+          rows="4">
+        </textarea>
+      </div>
+
+      <button (click)="submitReview()" class="btn-submit" type="button">Gửi đánh giá</button>
+    </div>
+
+    <div class="reviews-list-container">
+      <div class="list-header">
+        <h3 class="list-title">Đánh giá từ khách hàng</h3>
+        <span class="review-count">{{ reviewsData.length || 0 }} nhận xét</span>
+      </div>
+
+      <div class="empty-state" *ngIf="!reviewsData || reviewsData.length === 0">
+        <div class="empty-icon">💬</div>
+        <p>Chưa có đánh giá nào. Hãy là người đầu tiên nhận xét!</p>
+      </div>
+
+      <div class="review-item" *ngFor="let review of reviewsData">
+        <div class="r-avatar">
+          <img *ngIf="review.userAvatar; else defaultIcon" [src]="review.userAvatar" alt="Avatar" class="avatar-img" />
+          <ng-template #defaultIcon>
+            <div class="avatar-placeholder">
+              {{ (review.fullName || review.userName || 'U').charAt(0).toUpperCase() }}
+            </div>
+          </ng-template>
+        </div>
+
+        <div class="r-content">
+          <div class="r-main-info">
+            <div class="r-user-row">
+              <span class="r-name">{{ review.fullName || review.userName }}</span>
+              <div class="stars stars-readonly" *ngIf="review.rate > 0">
+                <span class="fa fa-star" *ngFor="let s of [1,2,3,4,5]" [class.filled]="s <= review.rate"></span>
+              </div>
+            </div>
+            <span class="r-date">{{ review.createdAt | date:'dd/MM/yyyy' }}</span>
+          </div>
+
+          <div class="r-comment">
+            {{ review.comment }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ================= RELATED ================= -->
+  <div class="related">
+    <div class="related-head">
+      <h3>Sản phẩm liên quan</h3>
+      <p>Cùng danh mục: {{ product?.categoryName }}</p>
+    </div>
+
+    <div class="related-grid">
+      <article class="rel-card" *ngFor="let p of relatedProducts">
+        <div class="rel-thumb">
+          <img [src]="getFileUrl(p.thumbnail)" alt="{{ p.name }}" />
+          <span class="rel-badge" *ngIf="p.discount">-{{ p.discount }}%</span>
+        </div>
+
+        <div class="rel-body">
+          <div class="rel-name" [title]="p.name">{{ p.name }}</div>
+
+          <div class="rel-meta">
+            <span title="Lượt xem">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+              </svg>
+              {{ formatNumber(p.viewCount) }}
+            </span>
+
+            <span title="Lượt mua">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="9" cy="21" r="1"></circle>
+                <circle cx="20" cy="21" r="1"></circle>
+                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+              </svg>
+              {{ formatNumber(p.saleCount) }}
+            </span>
+          </div>
+
+          <div class="rel-footer">
+            <div class="rel-price">
+              <span class="new">
+                {{ calcNewPrice(p.price, p.discount) | number:'1.0-0' }}đ
+              </span>
+              <span class="old" *ngIf="p.discount">
+                {{ p.price | number:'1.0-0' }}đ
+              </span>
+            </div>
+
+            <button class="btn btn-primary btn-sm rel-btn" (click)="viewDetail(p.slug)" type="button">
+              Chi tiết
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                   stroke-linecap="round" stroke-linejoin="round">
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+                <polyline points="12 5 19 12 12 19"></polyline>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </article>
+    </div>
+  </div>
+
+</section>

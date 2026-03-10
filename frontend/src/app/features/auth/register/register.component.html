@@ -1,0 +1,16 @@
+<app-auth-layout
+  brand="XungLord Enterprise"
+  badgeText="Trusted Platform"
+  headline="Tạo tài khoản mới"
+  subheadline="Đăng ký để theo dõi đơn hàng, lưu địa chỉ và nhận voucher.">
+
+  <app-auth-form
+    [title]="'Đăng ký'"
+    [buttonText]="'Đăng ký'"
+    [mode]="'register'"
+    [form]="form"
+    [errorMessage]="errorMessage"
+    (onSubmit)="onSubmit($event)">
+  </app-auth-form>
+
+</app-auth-layout>

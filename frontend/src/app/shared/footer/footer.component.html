@@ -1,0 +1,90 @@
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      
+      <div class="footer-brand">
+        <a routerLink="/" class="footer-logo">
+          XungLord<span>.com</span>
+        </a>
+        <p class="footer-desc">
+          Nền tảng chia sẻ mã nguồn chất lượng cao hàng đầu Việt Nam. 
+          Đồng hành cùng cộng đồng developer tối ưu hóa quy trình làm việc và học tập hiệu quả.
+        </p>
+        <div class="social-links">
+          <a href="#" class="social-icon" aria-label="Facebook">
+            <i class="fab fa-facebook-f"></i>
+          </a>
+          <a href="#" class="social-icon" aria-label="Github">
+            <i class="fab fa-github"></i>
+          </a>
+          <a href="#" class="social-icon" aria-label="Zalo">
+            <span class="zalo-text">Z</span>
+          </a>
+        </div>
+      </div>
+
+      <div class="footer-links-group">
+        <div class="links-col">
+          <h5 class="footer-heading">Khám phá</h5>
+          <ul class="footer-list">
+            <li *ngFor="let link of exploreLinks">
+              <ng-container *ngIf="link.link.startsWith('http'); else internalExplore">
+                <a [href]="link.link" target="_blank" rel="noopener noreferrer">{{ link.label }}</a>
+              </ng-container>
+              <ng-template #internalExplore>
+                <a [routerLink]="link.link">{{ link.label }}</a>
+              </ng-template>
+            </li>
+          </ul>
+        </div>
+
+        <div class="links-col">
+          <h5 class="footer-heading">Tài khoản</h5>
+          <ul class="footer-list">
+            <li *ngFor="let link of accountLinks">
+              <ng-container *ngIf="link.link.startsWith('http'); else internalAccount">
+                <a [href]="link.link" target="_blank" rel="noopener noreferrer">{{ link.label }}</a>
+              </ng-container>
+              <ng-template #internalAccount>
+                <a [routerLink]="link.link">{{ link.label }}</a>
+              </ng-template>
+            </li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-contact">
+        <h5 class="footer-heading">Liên hệ hỗ trợ</h5>
+        <div class="contact-list">
+          <div class="contact-item">
+            <div class="c-icon"><i class="fas fa-envelope"></i></div>
+            <a href="mailto:xunglord@gmail.com">xunglord.dev&#64;gmail.com</a>
+          </div>
+          <div class="contact-item">
+            <div class="c-icon"><i class="fas fa-phone-alt"></i></div>
+            <a href="tel:+840388001659">+84 0388 001 659</a>
+          </div>
+        </div>
+        
+        <div class="status-card">
+          <div class="pulse-wrapper">
+            <span class="pulse-dot"></span>
+          </div>
+          <div class="status-text">
+            <strong>Hỗ trợ trực tuyến 24/7</strong>
+            <p>Phản hồi nhanh qua Zalo & Ultraview</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="footer-bottom">
+      <p>© {{ currentYear }} XungLord. Tất cả quyền được bảo lưu.</p>
+      <div class="bottom-links">
+        <a href="#">Điều khoản</a>
+        <a href="#">Bảo mật</a>
+        <a href="#">Hỗ trợ</a>
+      </div>
+    </div>
+  </div>
+</footer>

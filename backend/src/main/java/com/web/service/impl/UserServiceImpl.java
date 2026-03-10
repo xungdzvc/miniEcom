@@ -1,8 +1,10 @@
 package com.web.service.impl;
 
 import com.web.dto.PasswordDTO;
-import com.web.dto.request.auth.UserCreateRequest;
+import com.web.dto.UserAdminEditDTO;
+import com.web.dto.request.auth.UserRegisterRequest;
 import com.web.dto.request.auth.UserLoginRequest;
+import com.web.dto.request.user.ChangeStaffRequest;
 import com.web.dto.request.user.UserUpdateRequest;
 import com.web.dto.request.user.ChangeStatusRequest;
 import com.web.dto.response.user.UserAdminListResponse;
@@ -29,8 +31,12 @@ import com.web.dto.response.auth.UserLoginResponse;
 import com.web.dto.response.auth.UserDTOResponse;
 import com.web.dto.response.auth.UserLoginResponse;
 import com.web.dto.response.user.UserProfileResponse;
+import com.web.entity.RefreshTokenEntity;
+import com.web.enums.Role;
+import java.time.LocalDate;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -99,60 +105,12 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
-    public List<UserAdminListResponse> getUers() {
+    public List<UserAdminListResponse> getUsers() {
         List<UserEntity> userEntities = userRepository.findAll();
         return userEntities.stream().map(userMapper::toUserAdminListResponse).toList();
     }
 
-    @Override
-    public UserDTOResponse register(UserCreateRequest userDTO) {
-        if (!userDTO.getRetype_password().endsWith(userDTO.getPassword())) {
-            throw new MyException("Mật khẩu bạn nhập không khớp");
-        }
-        if (userRepository.existsByEmail(userDTO.getEmail())) {
-            throw new MyException("Email này đã được sử dụng bở tài khoản khác");
-        }
-        if (userRepository.existsByUsername(userDTO.getUsername())) {
-            throw new MyException("Tài khoản này đã được sử dụng");
-        }
-        UserEntity userEntity = userMapper.toEntity(userDTO);
-        userEntity.setCreatedAt(LocalDateTime.now());
-
-        RoleEntity role = roleRepository.findByName("ROLE_USER");
-
-        CartEntity cartEntity = new CartEntity();
-        cartEntity.setUser(userEntity);
-
-        userEntity.getRoles().add(role);
-        userEntity.setAddress("");
-        userEntity.setTotalVnd(0L);
-        userEntity.setVnd(0L);
-        userEntity.setCreatedAt(LocalDateTime.now());
-        userEntity.setIsActive(true);
-        userEntity.setPassword(passwordEncoder.encode(userDTO.getPassword()));
-        userEntity.setUsername(userDTO.getUsername());
-        userEntity.setCart(cartEntity);
-        userRepository.save(userEntity);
-        return userMapper.toDTORSP(userEntity);
-
-    }
-
-    @Override
-    public UserLoginResponse login(UserLoginRequest userLoginRequest) {
-        UsernamePasswordAuthenticationToken authToken
-                = new UsernamePasswordAuthenticationToken(userLoginRequest.getUsername(), userLoginRequest.getPassword());
-        // Authenticate → SPRING SECURITY sẽ tạo CustomUserDetails
-        Authentication authentication = authenticationManager.authenticate(authToken);
-        // Lấy principal TỪ authentication (KHÔNG PHẢI từ authToken)
-        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-        String accessToken = jwtUtils.generateAccessToken(userDetails);
-        String refreshToken = jwtUtils.generateRefreshToken(userDetails);
-        UserLoginResponse user = new UserLoginResponse();
-        user.setAccessToken(accessToken);
-        user.setRefreshToken(refreshToken);
-        user.setUser(userMapper.toDTORSP(userDetails.getUser()));
-        return user;
-    }
+    
 
     @Override
     public void changeStatus(Long Id, ChangeStatusRequest req) {
@@ -160,6 +118,8 @@ public class UserServiceImpl implements IUserService {
         userEntity.setIsActive(req.isStatus());
         userRepository.save(userEntity);
     }
+
+    
 
     @Override
     public int getCount() {
@@ -173,7 +133,51 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
-    public UserEntity getUserById(Long userId) {
+    public UserAdminEditDTO getUserById(Long userId) {
+        UserEntity userE = userRepository.findById(userId).orElseThrow(() -> new MyException("Người dùng không tồn tại"));
+        UserAdminEditDTO dto = userMapper.toUserAdminEditDTO(userE);
+        dto.setRoleIds(new ArrayList<>());
+        for(RoleEntity role :userE.getRoles() ){
+            dto.getRoleIds().add(role.getId());
+        }
+        return dto;
+    }
+
+    @Override
+    public UserEntity getUserById(long userId) {
         return userRepository.findById(userId).orElseThrow(() -> new MyException("Người dùng không tồn tại"));
+    }
+
+    @Override
+    public void updateUser(Long userId, UserAdminEditDTO dto) {
+        
+        UserEntity userE = userRepository.findById(userId).orElseThrow(() -> new MyException("Người dùng không tồn tại"));
+        if(dto.getRoleIds() != null){
+            List<RoleEntity> roles = new ArrayList<>();
+            for(Long id :dto.getRoleIds()){
+                roles.add(roleRepository.findById(id).get());
+            }
+
+            userE.setRoles(roles);
+        }
+        userMapper.updateEntityFromDto(dto, userE);
+        userRepository.save(userE);
+
+    }
+
+    @Override
+    public int countNewUsersToday() {
+        LocalDate today = LocalDate.now();
+        LocalDateTime start = today.atStartOfDay();
+        LocalDateTime end = LocalDateTime.now();
+        return userRepository.countByCreatedAtBetween(start, end);
+    }
+
+    @Override
+    public int countNewUsersMonth() {
+        LocalDate now = LocalDate.now();
+        LocalDateTime start = now.withDayOfMonth(1).atStartOfDay();
+        LocalDateTime end = LocalDateTime.now();
+        return userRepository.countByCreatedAtBetween(start, end);
     }
 }

@@ -1,0 +1,109 @@
+<div class="admin-container">
+  <app-admin-page-header
+    title="👤 Quản lý Người dùng"
+    subtitle="Khóa / mở khóa, chỉnh sửa thông tin tài khoản người dùng"
+  >
+    <div class="admin-search">
+      <input
+        type="text"
+        placeholder="Tìm người dùng..."
+        [(ngModel)]="q"
+        (input)="onSearchChange()"
+      />
+    </div>
+
+    <div class="header-actions">
+      <button class="admin-btn admin-btn-primary" (click)="goAddUser()">
+        ➕ Thêm người dùng
+      </button>
+
+      <button class="admin-btn admin-btn-secondary" (click)="loadUsers()">
+        🔄 Tải lại
+      </button>
+    </div>
+  </app-admin-page-header>
+
+  <div class="admin-card">
+    <div class="admin-card-body">
+      <div *ngIf="isLoading" class="admin-empty-state">
+        <div class="spinner"></div>
+        <p>Đang tải danh sách người dùng...</p>
+      </div>
+
+      <div *ngIf="!isLoading && users.length === 0" class="admin-empty-state">
+        <div class="admin-empty-icon">👥</div>
+        <h3>Chưa có người dùng</h3>
+        <p>Danh sách hiện đang trống.</p>
+      </div>
+
+      <app-admin-table *ngIf="!isLoading && users.length > 0">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Username</th>
+            <th>Email</th>
+            <th>Vai trò</th>
+            <th>Trạng thái</th>
+            <th class="actions">Thao tác</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr *ngFor="let user of pagedUsers">
+            <td>{{ user.id }}</td>
+            <td>{{ user.username }}</td>
+            <td>{{ user.email }}</td>
+            <td>{{ (user.role || '').replaceAll('ROLE_', '') }}</td>
+
+            <td>
+              <app-status-badge
+                [on]="user.status"
+                onText="Hoạt động"
+                offText="Bị khóa"
+              ></app-status-badge>
+            </td>
+
+            <td class="actions">
+              <button
+                class="admin-btn admin-btn-primary"
+                (click)="editUser(user.id)"
+              >
+                ✏️ Sửa
+              </button>
+
+              <button
+                class="admin-btn admin-btn-secondary"
+                [title]="user.status ? 'Khóa' : 'Mở khóa'"
+                (click)="changeStatus(user)"
+              >
+                {{ user.status ? '🔒 Khóa' : '🔓 Mở khóa' }}
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </app-admin-table>
+
+      <div class="admin-pagination" *ngIf="!isLoading && users.length > 0">
+        <button
+          class="admin-btn admin-btn-secondary"
+          (click)="prevPage()"
+          [disabled]="page === 1"
+        >
+          ← Trước
+        </button>
+
+        <span class="page-info">
+          Trang {{ page }} / {{ totalPages }}
+        </span>
+
+        <button
+          class="admin-btn admin-btn-secondary"
+          (click)="nextPage()"
+          [disabled]="page === totalPages"
+        >
+          Sau →
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

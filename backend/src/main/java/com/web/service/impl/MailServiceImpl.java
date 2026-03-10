@@ -48,22 +48,16 @@ public class MailServiceImpl implements IMailService {
   @Override
   public void sendHtml(String to, String subject, String html) {
     try {
-      MimeMessage mime = mailSender.createMimeMessage();
-      MimeMessageHelper helper = new MimeMessageHelper(mime, "UTF-8");
-      helper.setTo(to);
-      helper.setSubject(subject);
-      helper.setText(html, true);
-
-      // set From có tên hiển thị
-      if (fromName != null && !fromName.isBlank()) {
-        helper.setFrom(new InternetAddress(from, fromName));
-      } else {
-        helper.setFrom(from);
-      }
-
-      mailSender.send(mime);
+        MimeMessage mime = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(mime, "UTF-8");
+        helper.setFrom(from, fromName);
+        helper.setTo(to);
+        helper.setSubject(subject);
+        helper.setText(html, true);
+        mailSender.send(mime);
     } catch (Exception e) {
-      throw new RuntimeException("Send mail failed: " + e.getMessage(), e);
+        // log để theo dõi, không nên làm fail checkout
+       // log.error("Send mail failed to={} subject={}", to, subject, e);
     }
-  }
+}
 }

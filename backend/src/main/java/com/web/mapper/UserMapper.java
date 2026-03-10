@@ -1,19 +1,23 @@
 package com.web.mapper;
 
-import com.web.dto.request.auth.UserCreateRequest;
+import com.web.dto.UserAdminEditDTO;
+import com.web.dto.request.auth.UserRegisterRequest;
 import com.web.dto.request.user.UserUpdateRequest;
 import com.web.dto.response.auth.UserDTOResponse;
 import com.web.dto.response.user.UserAdminListResponse;
 import com.web.dto.response.user.UserProfileResponse;
 import com.web.entity.UserEntity;
+import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapping;
 import org.mapstruct.Mapper;
+import org.mapstruct.MappingTarget;
+import org.mapstruct.NullValuePropertyMappingStrategy;
 
 @Mapper(componentModel = "spring")
 public interface UserMapper {
 
     @Mapping(target = "retype_password", ignore = true)
-    UserCreateRequest toDTO(UserEntity userEntity);
+    UserRegisterRequest toDTO(UserEntity userEntity);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "phoneNumber", ignore = true)
@@ -30,7 +34,23 @@ public interface UserMapper {
     @Mapping(target = "vnd", ignore = true)
     @Mapping(target = "googleId", ignore = true)
     @Mapping(target = "provider", ignore = true)
-    UserEntity toEntity(UserCreateRequest userDTO);
+    UserEntity toEntity(UserRegisterRequest userDTO);
+
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "roles", ignore = true)
+    @Mapping(target = "orders", ignore = true)
+    @Mapping(target = "bankAccounts", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
+    @Mapping(target = "cart", ignore = true)
+    @Mapping(target = "googleId", ignore = true)
+    @Mapping(target = "provider", ignore = true)
+    @Mapping(target = "password", ignore = true)
+    void updateEntityFromDto(UserAdminEditDTO dto, @MappingTarget UserEntity entity);
+
+    @Mapping(target = "roleIds",ignore = true)
+    UserAdminEditDTO toUserAdminEditDTO(UserEntity userEntity);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "username", ignore = true)

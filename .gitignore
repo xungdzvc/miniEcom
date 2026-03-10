@@ -1,0 +1,43 @@
+# env
+.env
+.env.*
+!.env.example
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# runtime uploads
+uploads/
+
+# backend
+backend/target/
+backend/*.log
+backend/out/
+
+# secret config backend
+backend/src/main/resources/application-local.properties
+backend/src/main/resources/application-secret.properties
+
+# frontend
+frontend/node_modules/
+frontend/dist/
+frontend/.angular/
+frontend/coverage/
+
+# logs / temp
+*.log
+*.pid
+tmp/
+temp/
+
+# keys / certs
+*.jks
+*.p12
+*.pem
+*.key

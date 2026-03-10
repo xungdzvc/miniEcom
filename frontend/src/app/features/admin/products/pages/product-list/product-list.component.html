@@ -1,0 +1,121 @@
+<div class="admin-container">
+
+  <app-admin-page-header
+    title="📦 Quản lý Sản phẩm"
+    subtitle="Danh sách sản phẩm dành cho quản trị"
+  >
+  <div class="admin-search">
+    <input
+      type="text"
+      placeholder="Tìm sản phẩm..."
+      [(ngModel)]="q"
+      (input)="onSearchChange()"
+    />
+  </div>
+    <button class="admin-btn admin-btn-secondary" (click)="reloadElastic()">🔄 Rebuild elastic</button>
+    <button class="admin-btn admin-btn-secondary" (click)="reload()">🔄 Tải lại</button>
+    <button class="admin-btn admin-btn-primary" (click)="goAddProduct()">➕ Thêm Sản Phẩm</button>
+  </app-admin-page-header>
+
+  @if (isLoading) {
+    <div class="admin-loading">
+      <div class="spinner"></div>
+      <p>Đang tải danh sách sản phẩm...</p>
+    </div>
+  }
+
+  @else if (products.length === 0) {
+    <div class="admin-empty">
+      <span class="admin-empty-icon">📭</span>
+      <h3>Chưa có sản phẩm nào</h3>
+      <button class="admin-btn admin-btn-primary" (click)="goAddProduct()">+ Thêm sản phẩm</button>
+    </div>
+  }
+
+  @else {
+    <div class="admin-card admin-fade-in">
+      <app-admin-table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Thumbnail</th>
+            <th>Tên sản phẩm</th>
+            <th>Danh mục</th>
+            <th>Giá</th>
+            <th>Trạng thái</th>
+            <th>Ngày tạo</th>
+            <th>Ngày cập nhật</th>
+            <th class="actions">Thao tác</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          @for (product of pagedProducts; track product.id) {
+            <tr>
+              <td>{{ product.id }}</td>
+              <td>
+                <img
+                  class="thumb-img"
+                  [src]="fileBaseUrl + product.thumbnail"
+                  alt="thumb"
+                />
+              </td>
+              <td>{{ product.name }}</td>
+              <td>{{ product.categoryName }}</td>
+              <td>{{ product.price | number:'1.0-0' }}₫</td>
+              <td>
+                <app-status-badge
+                  [on]="product.status"
+                  onText="Đang kinh doanh"
+                  offText="Ngừng kinh doanh"
+                ></app-status-badge>
+              </td>
+              <td>{{ product.createdAt | date:'HH:mm:ss dd/MM/yyyy' }}</td>
+              <td>{{ product.updatedAt | date:'HH:mm:ss dd/MM/yyyy' }}</td>
+              <td class="actions">
+                <button class="admin-btn admin-btn-secondary" (click)="editProduct(product.id)">Sửa</button>
+                <button class="admin-btn admin-btn-danger" (click)="deleteProduct(product)">Xóa</button>
+                <button *ngIf="product.status === true" class="admin-btn admin-btn-warning" (click)="changeStatus(product)">
+                  Ngừng kinh doanh
+              </button>
+              <button *ngIf="product.pin === true" class="admin-btn admin-btn-warning" (click)="pin(product)">
+                  Bỏ ghim
+              </button>
+              <button *ngIf="product.status === false" class="admin-btn admin-btn-success" (click)="changeStatus(product)">
+                  Mở bán
+              </button>
+              <button *ngIf="product.pin === false" class="admin-btn admin-btn-success" (click)="pin(product)">
+                  Ghim
+              </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </app-admin-table>
+      <div class="admin-pagination">
+
+  <button 
+    class="admin-btn admin-btn-secondary"
+    (click)="prevPage()"
+    [disabled]="page === 1">
+
+    ← Trước
+  </button>
+
+  <span class="page-info">
+    Trang {{ page }} / {{ totalPages }}
+  </span>
+
+  <button 
+    class="admin-btn admin-btn-secondary"
+    (click)="nextPage()"
+    [disabled]="page === totalPages">
+
+    Sau →
+  </button>
+
+</div>
+    </div>
+  }
+
+</div>

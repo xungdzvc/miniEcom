@@ -11,9 +11,9 @@ import lombok.Setter;
 
 public class UserLoginRequest {
 
-    @NotBlank(message = "Username must be not empty")
+    @NotBlank(message = "Tài khoản không được để trống")
     private String username;
 
-    @NotBlank(message = "Password must be not empty")
+    @NotBlank(message = "Mật khẩu không được để trống")
     private String password;
 }

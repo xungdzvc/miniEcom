@@ -17,4 +17,5 @@ public class ProductViewerListResponse {
     private Long saleCount;
     private Integer discount;
     private String slug;
+    private Boolean pin;
 }

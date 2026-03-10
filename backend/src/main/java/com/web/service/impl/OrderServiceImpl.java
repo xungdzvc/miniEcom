@@ -25,7 +25,10 @@ import com.web.repository.SystemBankAccountRepository;
 import com.web.repository.UserRepository;
 import com.web.security.SecurityUtil;
 import com.web.service.ICartService;
+import com.web.service.ICouponService;
+import com.web.service.IMailService;
 import com.web.service.IOrderService;
+import com.web.util.MailTemplates;
 import com.web.util.Utils;
 
 import java.time.LocalDate;
@@ -33,6 +36,7 @@ import java.time.LocalDateTime;
 
 import jakarta.transaction.Transactional;
 import java.math.BigDecimal;
+import java.time.Month;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cglib.core.Local;
@@ -41,6 +45,9 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
+import org.springframework.beans.factory.annotation.Value;
+
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 
@@ -48,31 +55,38 @@ import org.springframework.scheduling.annotation.Scheduled;
 @RequiredArgsConstructor
 public class OrderServiceImpl implements IOrderService {
 
-    @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private OrderRepository orderRepository;
-    @Autowired
-    private CartRepository cartRepository;
+    private final ICouponService couponService;
+    private final UserRepository userRepository;
+    private final OrderRepository orderRepository;
+    private final CartRepository cartRepository;
     private final SystemBankAccountRepository systemBankAccountRepository;
-
+    private final IMailService mailService;
     private final ICartService cartService;
     private final CartMapper cartMapper;
     private final OrderMapper orderMapper;
     private final ProductRepository productRepository;
 
+    @Value("${baseUrl.web}")
+    private String baseUrl;
     @Transactional
     @Override
     public OrderCheckoutResponse checkoutByBankOrWallet(OrderCheckoutRequest orderCheckoutRequest) {
+        if (orderCheckoutRequest.getPaymentMethod() == null) {
+            throw new MyException("Chưa chọn phương thức thanh toán");
+        }
         CartEntity cartEntity = cartRepository.findById(orderCheckoutRequest.getCartId())
                 .orElseThrow(() -> new MyException("Giỏ hàng không tồn tại"));
 
-        if (cartEntity.getCartItems() == null) {
+        Long userId = SecurityUtil.getUserId();
+        if (!Objects.equals(cartEntity.getUser().getId(), userId)) {
+            throw new MyException("Bạn không thể thực hiện thao tác này");
+        }
+        if (cartEntity.getCartItems() == null || cartEntity.getCartItems().isEmpty()) {
             throw new MyException("Giỏ hàng trống");
         }
-        Long userId = SecurityUtil.getUserId();
+
         UserEntity user = userRepository.findUserById(userId);
-        if(user == null){
+        if (user == null) {
             throw new MyException("Nguười dùng không hợp lệ");
         }
         SystemBankAccountEntity bank = systemBankAccountRepository.findFristByIsDefaultTrue();
@@ -88,13 +102,15 @@ public class OrderServiceImpl implements IOrderService {
             totalPrice += Utils.calsubPercent(item.getPrice(), item.getDiscount()) * item.getQuantity();
         }
 
-        int couponPercent = cartService.getCouponDiscount(orderCheckoutRequest.getCouponCode());
-
+        int couponPercent = couponService.getCouponDiscount(orderCheckoutRequest.getCouponCode());
+        couponPercent = Math.max(0, Math.min(100, couponPercent));
         long finalPrice = Utils.calsubPercent(totalPrice, couponPercent);
+
+        finalPrice = Math.max(0, finalPrice);
 
         orderEntity.setOrderDate(now);
         orderEntity.setTotal(finalPrice);
-        orderEntity.setUser(cartEntity.getUser());
+        orderEntity.setUser(user);
         orderEntity.setPaymentMethod(orderCheckoutRequest.getPaymentMethod());
         for (CartItemDTO item : cartDTO.getItems()) {
             ProductEntity productEntity = productRepository.findByIdAndStatusTrue(item.getProductId());
@@ -126,15 +142,29 @@ public class OrderServiceImpl implements IOrderService {
         }
         orderRepository.saveAndFlush(orderEntity);
         OrderCheckoutResponse checkoutResponse = new OrderCheckoutResponse();
-        
+
         checkoutResponse = orderMapper.toOrderCheckoutResponse(orderEntity);
         if (isBank) {
+            String transferContent = "HD" + now.getYear() + orderEntity.getId();
+            checkoutResponse.setTransferContent(transferContent);
             checkoutResponse.setQRCodeUrl(Utils.getInstance().
                     buildVietQrQuickLink(
                             bank.getBankCode(),
                             bank.getAccountNumber(),
-                            "qr_only", checkoutResponse.getTotal(), "HD" + now.getYear() + orderEntity.getId(), bank.getAccountName()));
-  
+                            "qr_only", checkoutResponse.getTotal(), transferContent, bank.getAccountName()));
+            mailService.sendHtml(
+                    user.getEmail(),
+                    "Hướng dẫn thanh toán đơn #" + orderEntity.getId(),
+                    MailTemplates.bankPending(user, orderEntity, bank, checkoutResponse.getQRCodeUrl(), transferContent)
+            );
+
+        } else {
+            String orderUrl = baseUrl +"/order/" + orderEntity.getId()+"/detail"; // đổi theo route của bạn
+            mailService.sendHtml(
+                    user.getEmail(),
+                    "Thanh toán thành công đơn #" + orderEntity.getId(),
+                    MailTemplates.paymentSuccess(user, orderEntity, orderUrl)
+            );
         }
 
         return checkoutResponse;
@@ -142,7 +172,7 @@ public class OrderServiceImpl implements IOrderService {
 
     @Override
     public OrderCheckoutResponse updateOrder(OrderDTO orderDTO) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
@@ -196,20 +226,21 @@ public class OrderServiceImpl implements IOrderService {
 
         return item.getProduct().getProductDetail().getDownloadUrl();
     }
+
     @Transactional
     @Override
     public OrderCheckoutResponse checkoutByDirectBankOrWallet(DirectCheckoutRequest directCheckoutRequest) {
         ProductEntity product = productRepository.findById(directCheckoutRequest.getProductId()).orElseThrow(() -> new MyException("Sản phẩm không tồn tại"));
         Long userId = SecurityUtil.getUserId();
         UserEntity user = userRepository.findUserById(userId);
-        if(user == null){
+        if (user == null) {
             throw new MyException("Nguời dùng không hợp lệ");
         }
 
         OrderEntity order = new OrderEntity();
         LocalDateTime now = LocalDateTime.now();
         long totalPrice = Utils.calsubPercent(product.getPrice() * directCheckoutRequest.getQuantity(), product.getProductDetail().getDiscount());
-        int couponPercent = cartService.getCouponDiscount(directCheckoutRequest.getCouponCode());
+        int couponPercent = couponService.getCouponDiscount(directCheckoutRequest.getCouponCode());
 
         long finalPrice = Utils.calsubPercent(totalPrice, couponPercent);
         boolean isBanking = false;
@@ -271,6 +302,32 @@ public class OrderServiceImpl implements IOrderService {
         }
         return false;
 
+    }
+
+    @Override
+    public long getMonthRevenue() {
+        LocalDate now = LocalDate.now();
+        LocalDateTime start = now.withDayOfMonth(1).atStartOfDay();
+        LocalDateTime end = LocalDateTime.now();
+        return orderRepository.sumRevenueBetween(start, end);
+    }
+
+    @Override
+    public long getQuarterRevenue() {
+        LocalDate now = LocalDate.now();
+        int currentMonth = now.getMonthValue();
+        int quarterStartMonth = ((currentMonth - 1 ) / 3) * 3 + 1;
+        LocalDateTime start = LocalDate.of(now.getYear(), quarterStartMonth,1).atStartOfDay();
+        LocalDateTime end = LocalDateTime.now();
+        return orderRepository.sumRevenueBetween(start, end);
+    }
+
+    @Override
+    public long getYearRevenue() {
+        LocalDate now= LocalDate.now();
+        LocalDateTime start = LocalDate.of(now.getYear(), 1, 1).atStartOfDay();
+        LocalDateTime end = LocalDateTime.now();
+        return orderRepository.sumRevenueBetween(start, end);
     }
 
 }

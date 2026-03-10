@@ -12,4 +12,7 @@ import java.util.Optional;
 public interface CouponRepository extends JpaRepository<CouponEntity, Long> {
     @Query("select c.discount from CouponEntity c where c.couponCode  = :couponCode ")
     Optional<Integer> findDiscountPercentByCouponCode(@Param("couponCode") String id);
+    
+    
+    
 }

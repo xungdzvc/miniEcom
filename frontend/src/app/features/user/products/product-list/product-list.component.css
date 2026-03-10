@@ -1,0 +1,160 @@
+/* Bao bọc toàn bộ nội dung, cách lề trên */
+.wrap { 
+  margin-top: 40px; 
+  padding-bottom: 80px;
+}
+
+/* Kế thừa class .container từ Global Design System */
+.container {
+  width: min(var(--container), calc(100vw - 32px));
+  margin-inline: auto;
+}
+
+/* --- Header giống Home --- */
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.section-header h2 {
+  font-size: 24px;
+  font-weight: 900;
+  margin: 0;
+  color: var(--text);
+}
+
+.section-header p {
+  margin: 6px 0 0;
+  color: var(--muted);
+  font-size: 15px;
+}
+
+/* --- Toolbar (Danh mục và Lọc) --- */
+.filter-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32px;
+  gap: 24px;
+  flex-wrap: wrap; /* Cho phép rớt dòng trên điện thoại */
+}
+
+/* Đảm bảo tab group có nền và padding chuẩn */
+.sort-tabs {
+  background: var(--surface-1);
+  padding: 4px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  display: flex;
+  gap: 2px;
+}
+
+/* --- Lưới sản phẩm --- */
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 1fr));
+  gap: 24px; /* Khoảng cách 24px tạo sự thoáng đãng */
+}
+/* Pagination - Design tokens (light/dark auto) */
+.xl-pagination{
+  margin-top: 28px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+.xl-page-btn{
+  height: 40px;
+  min-width: 40px;
+  padding: 0 12px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background: var(--surface-1);
+  color: var(--text);
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  transition: transform .15s ease, box-shadow .15s ease, background .15s ease,
+              border-color .15s ease, color .15s ease, opacity .15s ease;
+}
+
+.xl-page-btn:hover:not(:disabled){
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: color-mix(in srgb, var(--accent) 35%, var(--border));
+}
+
+.xl-page-btn:active:not(:disabled){
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+.xl-page-btn:disabled{
+  opacity: .55;
+  cursor: not-allowed;
+}
+
+/* Active page */
+.xl-page-btn.is-active{
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+  box-shadow: var(--shadow-md);
+}
+
+.xl-page-info{
+  margin-left: 6px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+/* Optional: make pagination centered on small screens */
+@media (max-width: 520px){
+  .xl-pagination{
+    justify-content: center;
+  }
+  .xl-page-info{
+    width: 100%;
+    text-align: center;
+    margin-left: 0;
+    margin-top: 6px;
+  }
+}
+/* ==========================================================================
+   RESPONSIVE (Mobile)
+   ========================================================================== */
+@media (max-width: 900px) {
+  .filter-toolbar {
+    flex-direction: column;
+    align-items: flex-start; /* Canh lề trái khi trên mobile */
+    gap: 16px;
+  }
+  
+  /* Cho phép scroll ngang nếu danh mục quá dài */
+  .sort-tabs {
+    width: 100%;
+    overflow-x: auto;
+    /* Ẩn thanh cuộn nhưng vẫn vuốt được */
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .sort-tabs::-webkit-scrollbar {
+    display: none;
+  }
+  
+  /* Căng đều các tab sắp xếp */
+  .filter-toolbar .sort-tabs:last-child .tab {
+    flex: 1;
+    text-align: center;
+  }
+}

@@ -1,0 +1,128 @@
+<section class="full-width-hero">
+  <div class="hero-ambient-glow"></div>
+
+  <div class="hero-inner-container">
+    
+    <div class="hero-main-row">
+      
+      <div class="hero-content fade-in-up">
+        <div class="badge-new">
+          <span class="pulse"></span> Version 2.0 Live
+        </div>
+        
+        <h1 class="hero-title">
+          Professional Source Code <br />
+          <span class="text-gradient">for Developers</span>
+        </h1>
+        
+        <p class="hero-desc">
+          Sở hữu kho mã nguồn cấu trúc sạch (Clean Architecture), sẵn sàng triển khai. Tiết kiệm 80% thời gian phát triển dự án thực tế.
+        </p>
+        
+        <div class="hero-actions">
+          <button class="btn btn-primary btn-lg btn-glow">
+            Khám phá ngay <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+          </button>
+          <button class="btn btn-ghost btn-lg">
+            Tài liệu Setup
+          </button>
+        </div>
+      </div>
+
+      <div class="hero-visual fade-in-up delay-1">
+        <div class="visual-glow"></div> <div class="css-architecture-mockup floating">
+          <div class="cube api-layer">API</div>
+          <div class="cube domain-layer">Domain</div>
+          <div class="cube data-layer">Data</div>
+          <div class="connection-line"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-stats-bar fade-in-up delay-2 glass-panel">
+      <div class="stat-item">
+        <span class="stat-val text-gradient">50+</span>
+        <span class="stat-lbl">Mã Nguồn</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-item">
+        <span class="stat-val text-gradient">2k+</span>
+        <span class="stat-lbl">Developers</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-item">
+        <span class="stat-val text-gradient">24/7</span>
+        <span class="stat-lbl">Hỗ Trợ</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-item">
+        <span class="stat-val text-gradient">99%</span>
+        <span class="stat-lbl">Hài Lòng</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section-container">
+  
+  <header class="section-header">
+    <div class="header-content">
+      <h2>Sản phẩm nổi bật</h2>
+      <p>Các dự án được cộng đồng quan tâm nhất</p>
+    </div>
+    
+    <a routerLink="/products" class="link-view-all">Xem tất cả kho <i class="arrow-right">→</i></a>
+  </header>
+
+  <div class="filter-toolbar">
+    <!-- <div class="sort-tabs">
+      <button class="tab" 
+        *ngFor="let c of categories"
+        [class.active]="(c==='Tất cả' && !activeCategory) || activeCategory===c"
+        (click)="setCategory(c)">
+        {{ c }}
+      </button>
+    </div> -->
+
+    <!-- <div class="sort-tabs">
+      <button class="tab" [class.active]="sort==='newest'" (click)="setSort('newest')">Mới nhất</button>
+      <button class="tab" [class.active]="sort==='views'" (click)="setSort('views')">Xem nhiều</button>
+      <button class="tab" [class.active]="sort==='sales'" (click)="setSort('sales')">Bán chạy</button>
+      <button class="tab" [class.active]="sort==='free'" (click)="setSort('free')">Miễn phí</button>
+    </div> -->
+  </div>
+
+ <div class="product-grid" *ngIf="!isLoading">
+  <app-product-card
+    *ngFor="let p of pagedFeatured"
+    [product]="p"
+    ctaText="Xem Code">
+  </app-product-card>
+</div>
+
+<nav class="xl-pagination" *ngIf="!isLoading && totalPages > 1" aria-label="Phân trang">
+  <button class="xl-page-btn" type="button"
+          (click)="goToPage(currentPage - 1)"
+          [disabled]="currentPage === 1">‹ Trước</button>
+
+  <button class="xl-page-btn" type="button"
+          *ngFor="let page of pages"
+          [class.is-active]="page === currentPage"
+          (click)="goToPage(page)">{{ page }}</button>
+
+  <button class="xl-page-btn" type="button"
+          (click)="goToPage(currentPage + 1)"
+          [disabled]="currentPage === totalPages">Sau ›</button>
+
+  <span class="xl-page-info">Trang {{ currentPage }} / {{ totalPages }}</span>
+</nav>
+
+</section>
+
+<app-steps revealOnScroll [revealDelay]="0"></app-steps>
+
+<app-faq revealOnScroll [revealDelay]="120"></app-faq>
+
+<app-cta revealOnScroll [revealDelay]="240"></app-cta>
+
+<app-support-launcher></app-support-launcher>

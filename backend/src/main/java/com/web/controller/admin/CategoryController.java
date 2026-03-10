@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("api/admin/categories")
+@RequestMapping("/api/admin/categories")
 public class CategoryController {
     @Autowired
     ICategoryService categoryService;
@@ -44,6 +44,7 @@ public class CategoryController {
 
         return ResponseEntity.ok(categoryService.getAllCategories());
     }
+
 
 
 }

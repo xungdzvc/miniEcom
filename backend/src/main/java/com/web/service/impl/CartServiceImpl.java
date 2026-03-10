@@ -27,9 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class CartServiceImpl implements ICartService {
 
     private final CartMapper cartMapper;
-    @Autowired
-    CartRepository cartRepository;
-    private final CouponRepository couponRepository;
+    private final CartRepository cartRepository;
     private final CartItemRepository cartItemRepository;
     private final UserRepository userRepository;
     @Autowired
@@ -115,10 +113,7 @@ public class CartServiceImpl implements ICartService {
         return cartResponse;
     }
 
-    @Override
-    public int getCouponDiscount(String code) {
-        return couponRepository.findDiscountPercentByCouponCode(code).orElse(0);
-    }
+    
 
     @Transactional
     @Override

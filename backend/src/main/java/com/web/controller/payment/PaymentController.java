@@ -27,7 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @author ZZ
  */
 @RestController
-@RequestMapping("api")
+@RequestMapping("/api")
 @Configuration
 @RequiredArgsConstructor
 public class PaymentController {

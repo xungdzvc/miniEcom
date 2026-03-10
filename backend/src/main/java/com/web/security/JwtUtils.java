@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
+import java.util.UUID;
 
 @Component
 public class JwtUtils {
@@ -26,6 +27,7 @@ public class JwtUtils {
     public String generateAccessToken(CustomUserDetails user) {
         return Jwts.builder()
                 .setSubject(String.valueOf(user.getUserId()))
+                .claim("type", "access")
                 .claim("role", user.getAuthorities())
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + 15 * 60 * 1000))
@@ -36,6 +38,7 @@ public class JwtUtils {
     public String generateRefreshToken(CustomUserDetails user) {
         return Jwts.builder()
                 .setSubject(String.valueOf(user.getUserId()))
+                .setId(UUID.randomUUID().toString())
                 .claim("type", "refresh")
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + 7L * 24 * 60 * 60 * 1000))
@@ -43,15 +46,32 @@ public class JwtUtils {
                 .compact();
     }
 
+    public Claims parse(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(getSigningKey())
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+    }
+
     public Long getUserId(String token) {
-        return Long.parseLong(
-                Jwts.parserBuilder()
-                        .setSigningKey(getSigningKey())
-                        .build()
-                        .parseClaimsJws(token)
-                        .getBody()
-                        .getSubject()
-        );
+        return Long.valueOf(parse(token).getSubject());
+    }
+
+    public String getType(String token) {
+        return parse(token).get("type", String.class);
+    }
+
+    public String getJti(String token) {
+        return parse(token).getId();
+    }
+
+    public boolean isRefreshToken(String token) {
+        return "refresh".equals(getType(token));
+    }
+
+    public boolean isAccessToken(String token) {
+        return "access".equals(getType(token));
     }
 
     public boolean isExpired(String token) {

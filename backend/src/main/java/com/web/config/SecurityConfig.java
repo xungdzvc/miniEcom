@@ -87,15 +87,22 @@ public class SecurityConfig {
                         "/api/products/reviews/*/list",
                         "/api/search",
                         "/api/callback",
+                        "/api/categories",
+                        "/uploads/products/**",
                         "/error").permitAll()
+                .requestMatchers("/api/admin/elastic/sync").hasAnyRole(Role.ADMIN.roleName())
+                .requestMatchers("/api/admin/*/staff").hasAnyRole(Role.ADMIN.roleName())
+                .requestMatchers("/api/admin/roles").hasAnyRole(Role.ADMIN.roleName())
+                .requestMatchers("/api/admin/users/**").hasAnyRole(Role.ADMIN.roleName())
+                .requestMatchers("/api/admin/coupons/**").hasAnyRole(Role.ADMIN.roleName())
                 .requestMatchers("/api/admin/products").hasAnyRole(Role.ADMIN.roleName(), Role.STAFF.roleName())
+                .requestMatchers("/api/admin/products/**").hasAnyRole(Role.ADMIN.roleName(), Role.STAFF.roleName())
                 .requestMatchers("/api/admin/products/change-status/**").hasAnyRole(Role.ADMIN.roleName(), Role.STAFF.roleName())
                 .requestMatchers("/api/topup").hasAnyRole(Role.ADMIN.roleName(), Role.STAFF.roleName(), Role.USER.roleName())
                 .requestMatchers("/api/order/checkout").hasAnyRole(Role.ADMIN.roleName(), Role.STAFF.roleName(), Role.USER.roleName())
                 .requestMatchers("/api/order").hasAnyRole(Role.ADMIN.roleName(), Role.STAFF.roleName(), Role.USER.roleName())
                 .requestMatchers("/api/order/status/**").hasAnyRole(Role.ADMIN.roleName(), Role.STAFF.roleName(), Role.USER.roleName())
                 .requestMatchers("/api/order/**").hasAnyRole(Role.ADMIN.roleName(), Role.STAFF.roleName(), Role.USER.roleName())
-                .requestMatchers("/api/admin/users").hasAnyRole(Role.ADMIN.roleName(), Role.STAFF.roleName())
                 .requestMatchers("/api/admin/categories").hasAnyRole(Role.ADMIN.roleName(), Role.STAFF.roleName())
                 .requestMatchers("/api/auth/fresh-token").hasAnyRole(Role.ADMIN.roleName(), Role.STAFF.roleName(), Role.USER.roleName())
                 .requestMatchers("/api/auth/me").hasAnyRole(Role.USER.roleName(), Role.ADMIN.roleName(), Role.STAFF.roleName())

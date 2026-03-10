@@ -1,0 +1,64 @@
+<section class="wrap container">
+  <header class="section-header">
+    <div class="header-content">
+      <h2>Mã nguồn</h2>
+      <p>Chọn danh mục và sắp xếp theo ý bạn.</p>
+    </div>
+  </header>
+
+  <div class="filter-toolbar">
+    <!-- Category tabs -->
+    <div class="sort-tabs">
+      <button
+        class="tab"
+        *ngFor="let c of categories"
+        [class.active]="(c === 'Tất cả' && !activeCategory) || activeCategory === c"
+        (click)="setCategory(c)">
+        {{ c }}
+      </button>
+    </div>
+
+    <!-- Sort tabs -->
+    <div class="sort-tabs">
+      <button class="tab" [class.active]="sort === 'newest'" (click)="setSort('newest')">Mới nhất</button>
+      <button class="tab" [class.active]="sort === 'views'" (click)="setSort('views')">Xem nhiều</button>
+      <button class="tab" [class.active]="sort === 'sales'" (click)="setSort('sales')">Bán chạy</button>
+      <button class="tab" [class.active]="sort === 'free'" (click)="setSort('free')">Miễn phí</button>
+    </div>
+  </div>
+
+  <!-- Loading (tuỳ bạn có UI skeleton thì thay) -->
+  <div *ngIf="isLoading" class="loading">Đang tải...</div>
+
+  <!-- Grid -->
+  <div class="product-grid" *ngIf="!isLoading">
+    <app-product-card
+      *ngFor="let p of pagedProducts ; trackBy: trackById"
+      [product]="p"
+      ctaText="Xem Code">
+    </app-product-card>
+  </div>
+
+  <!-- Empty state -->
+  <div *ngIf="!isLoading && pagedProducts.length === 0" class="empty">
+    Không có sản phẩm phù hợp.
+  </div>
+
+  <!-- Pagination -->
+  <nav class="xl-pagination" *ngIf="!isLoading && totalPages > 1" aria-label="Phân trang">
+    <button class="xl-page-btn" type="button"
+            (click)="goToPage(currentPage - 1)"
+            [disabled]="currentPage === 1">‹ Trước</button>
+
+    <button class="xl-page-btn" type="button"
+            *ngFor="let page of pages"
+            [class.is-active]="page === currentPage"
+            (click)="goToPage(page)">{{ page }}</button>
+
+    <button class="xl-page-btn" type="button"
+            (click)="goToPage(currentPage + 1)"
+            [disabled]="currentPage === totalPages">Sau ›</button>
+
+    <span class="xl-page-info">Trang {{ currentPage }} / {{ totalPages }}</span>
+  </nav>
+</section>

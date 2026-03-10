@@ -1,0 +1,69 @@
+<app-form-layout title="✏️ Cập nhật người dùng">
+  <form [formGroup]="form" (ngSubmit)="submit()">
+    <app-form-field label="Username">
+      <input class="form-control" formControlName="username" readonly />
+    </app-form-field>
+
+    <app-form-field label="Họ tên" [required]="true" [control]="form.get('fullName')">
+      <input class="form-control" formControlName="fullName" />
+    </app-form-field>
+
+    <app-form-field label="Email" [required]="true" [control]="form.get('email')">
+      <input class="form-control" formControlName="email" />
+    </app-form-field>
+
+    <app-form-field label="Số điện thoại">
+      <input class="form-control" formControlName="phoneNumber" />
+    </app-form-field>
+
+    <app-form-field label="Địa chỉ">
+      <input class="form-control" formControlName="address" />
+    </app-form-field>
+
+    <app-form-field label="Số dư VND">
+      <input type="number" class="form-control" formControlName="vnd" />
+    </app-form-field>
+
+    <app-form-field label="Tổng VND nạp">
+      <input type="number" class="form-control" formControlName="totalVnd" />
+    </app-form-field>
+
+    <app-form-field label="Trạng thái">
+      <select class="form-control" formControlName="isActive">
+        <option [ngValue]="true">Hoạt động</option>
+        <option [ngValue]="false">Bị khóa</option>
+      </select>
+    </app-form-field>
+
+    <div class="role-box">
+      <label>Vai trò</label>
+
+      <!-- Role mặc định -->
+      <div class="role-fixed">
+        <label class="role-item disabled">
+          <input type="checkbox" checked disabled />
+          <span>User (mặc định)</span>
+        </label>
+      </div>
+
+      <!-- Chỉ cho sửa STAFF / MANAGER -->
+      <div class="roles">
+        <label *ngFor="let r of editableRoles" class="role-item">
+          <input
+            type="checkbox"
+            [checked]="isChecked(r.id)"
+            (change)="toggleRole(r.id, $any($event.target).checked)"
+          />
+          <span>{{ getNameOfRole(r.name) }}</span>
+        </label>
+      </div>
+    </div>
+
+    <app-form-actions submitText="Cập nhật" [disabled]="form.invalid || isLoading">
+    </app-form-actions>
+
+    <div class="actions-row">
+      <button type="button" class="btn btn-outline" (click)="cancel()">Hủy</button>
+    </div>
+  </form>
+</app-form-layout>

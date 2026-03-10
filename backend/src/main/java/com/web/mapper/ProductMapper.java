@@ -38,7 +38,10 @@ public interface ProductMapper {
     @Mapping(source = "productDetail.demoUrl", target = "demoUrl")
     @Mapping(source = "productDetail.technology", target = "technology")
     @Mapping(source = "productDetail.installTutorial", target = "installTutorial")
+    @Mapping(source = "productDetail.downloadUrl", target = "downloadUrl")
     @Mapping(source = "productDetail.quantity", target = "quantity")
+    @Mapping(source = "productDetail.pin", target = "pin")
+    @Mapping(source = "productDetail.shareBy", target = "shareBy")
     @Mapping(source = "category.id", target = "categoryId")
     @Mapping(source = "user.id", target = "userId")
     @Mapping(target = "imageUrls",
@@ -48,12 +51,14 @@ public interface ProductMapper {
     /* ===================== RESPONSE ===================== */
     @Mapping(source = "productDetail.discount", target = "discount")
     @Mapping(source = "productDetail.quantity", target = "quantity")
+    @Mapping(source = "productDetail.pin", target = "pin")
     @Mapping(source = "category.name", target = "categoryName")
     ProductAdminListResponse toProductAdminListResponse(ProductEntity entity);
 
     @Mapping(source = "productDetail.viewCount", target = "viewCount")
     @Mapping(source = "productDetail.saleCount", target = "saleCount")
     @Mapping(source = "productDetail.discount", target = "discount")
+    @Mapping(source = "productDetail.pin", target = "pin")
     @Mapping(source = "category.name", target = "categoryName")
     ProductViewerListResponse toProductViewerListResponse(ProductEntity entity);
 

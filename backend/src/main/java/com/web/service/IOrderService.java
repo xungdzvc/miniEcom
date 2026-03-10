@@ -8,8 +8,10 @@ import com.web.dto.response.order.OrderDetailResponse;
 import com.web.dto.response.order.OrderListResponse;
 import com.web.enums.OrderStatus;
 import com.web.enums.PaymentStatus;
+import java.time.LocalDateTime;
 
 import java.util.List;
+import org.springframework.data.jpa.repository.Query;
 
 public interface IOrderService {
     List<OrderDetailResponse> getOrderByUserId(Long id);
@@ -27,5 +29,9 @@ public interface IOrderService {
     String getDownloadUrl(Long id, Long itemId);
     
     boolean existsByUserIdAndProductId(Long userId, Long productId);
+    
+    long getMonthRevenue();
+    long getQuarterRevenue();
+    long getYearRevenue();
     
 }
