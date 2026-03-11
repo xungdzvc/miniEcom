@@ -90,7 +90,7 @@ public class AuthController {
     public ResponseEntity<?> logout() {
         ResponseCookie cookie = ResponseCookie.from("refresh_token", "")
                 .httpOnly(true)
-                .secure(false)
+                .secure(true)
                 .path("/")
                 .maxAge(0)
                 .build();
@@ -117,7 +117,7 @@ public class AuthController {
 
         ResponseCookie cookie = ResponseCookie.from("refresh_token", result.getRefreshToken())
                 .httpOnly(true)
-                .secure(false)
+                .secure(true)
                 .sameSite("Lax")
                 .path("/")
                 .maxAge(7 * 24 * 60 * 60)

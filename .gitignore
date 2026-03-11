@@ -12,9 +12,6 @@
 .DS_Store
 Thumbs.db
 
-# runtime uploads
-uploads/
-
 # backend
 backend/target/
 backend/*.log

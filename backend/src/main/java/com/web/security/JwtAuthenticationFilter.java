@@ -37,9 +37,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             HttpServletResponse response,
             FilterChain filterChain
     ) throws ServletException, IOException {
-        System.out.println(request.getServletPath());
         if (isBypassToken(request)) {
-            System.out.println("isbypass"+request.getServletPath());
             filterChain.doFilter(request, response);
             return;
         }
@@ -91,7 +89,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 Pair.of("/api/products/reviews/*/list", "GET"),
                 Pair.of("/api/categories", "GET"),
                 Pair.of("/api/search", "GET"),
-                Pair.of("/uploads/product/**", "GET"),
+                Pair.of("/uploads/products/**", "GET"),
+                Pair.of("/api/products/slug/**", "PUT"),
                 Pair.of("/api/callback", "POST")
 
         );
