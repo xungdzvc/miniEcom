@@ -19,14 +19,17 @@ public class ProductDetailResponse {
 
     private Long categoryId;
     private String categoryName;
-
+    private Integer quantity;
     private String thumbnail;
     private String description;
-    private boolean status;
-    private int discount;
-    private Long viewCount;
-    private Long saleCount;
     private String youtubeUrl;
     private String demoUrl;
+    private Integer viewCount;
+    private Integer saleCount;
+    private Integer discount;
+    private String technology;
+    private String installTutorial;
+    private Boolean pin;
+    private String shareBy;
     private List<String> imageUrls;
 }

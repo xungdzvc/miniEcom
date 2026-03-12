@@ -48,7 +48,7 @@ public class ProductAdminController {
 
     @GetMapping("/{id}")
     public ApiResponse<?> getProductById(@PathVariable Long id) {
-        return ApiResponse.success(productService.getProduct(id));
+        return ApiResponse.success(productService.getProductForAdmin(id));
     }
 
     @DeleteMapping("/{id}")

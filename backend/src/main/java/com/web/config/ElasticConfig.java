@@ -24,7 +24,7 @@ public class ElasticConfig {
     public ElasticsearchClient elasticsearchClient() {
 
         RestClient restClient = RestClient.builder(
-                new HttpHost("localhost", 9200)
+                new HttpHost("ecommerce_es", 9200)
         ).build();
 
         ElasticsearchTransport transport =

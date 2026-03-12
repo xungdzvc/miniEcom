@@ -1,13 +1,13 @@
 services:
+
   db:
     image: mysql:8.0
     container_name: ecommerce_db
     restart: always
+    env_file:
+      - .env
     environment:
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      MYSQL_USER: ${MYSQL_USER}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      TZ: Asia/Ho_Chi_Minh
     ports:
       - "3306:3306"
     volumes:
@@ -41,12 +41,14 @@ services:
 
   backend:
     build: ./backend
-    env_file:
-      - .env
-    ports:
-      - "8080:8080"
     container_name: ecommerce_backend
     restart: always
+    env_file:
+      - .env
+    environment:
+      - TZ=Asia/Ho_Chi_Minh
+    ports:
+      - "8080:8080"
     depends_on:
       db:
         condition: service_healthy
@@ -55,10 +57,12 @@ services:
 
   frontend:
     build: ./frontend
-    ports:
-      - "4200:80"
     container_name: ecommerce_frontend
     restart: always
+    environment:
+      - TZ=Asia/Ho_Chi_Minh
+    ports:
+      - "4200:80"
     depends_on:
       - backend
 

@@ -114,11 +114,11 @@ export class AuthService {
   }
 
   refreshToken() {
-    return this.http.post(`${this.API}/fresh-token`, {}, {
-      responseType: 'text',
+    return this.http.post<any>(`${this.API}/fresh-token`, {}, {
       withCredentials: true
     }).pipe(
-      tap(token => {
+      tap(res => {
+        const token = res.accessToken;
         const session = AuthStorage.get();
         if (session?.user && token) {
           AuthStorage.set({   

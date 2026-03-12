@@ -92,6 +92,7 @@ public class AuthService implements IAuthService{
         user.setRefreshToken(refreshToken);
         
         RefreshTokenEntity freshE = new RefreshTokenEntity();
+
         LocalDateTime now = LocalDateTime.now();
         freshE.setJti(jwtUtils.getJti(refreshToken));
         freshE.setUser(userDetails.getUser());
@@ -111,10 +112,10 @@ public class AuthService implements IAuthService{
         String jti = jwtUtils.getJti(refreshToken);
         RefreshTokenEntity refreshTokenEntity = refreshTokenRepository.findByJti(jti).orElseThrow(()-> new MyException("Lỗi refreshToken"));
         if(refreshTokenEntity.isRevoked()){
-            throw new MyException("Token đã hết hạn");
+            throw new MyException("Token đã bị đóng");
         }
         LocalDateTime now = LocalDateTime.now();
-        if(refreshTokenEntity.getExpiredAt().isAfter(now)){
+        if(refreshTokenEntity.getExpiredAt().isBefore(now)){
             throw new MyException("Token đã hết hạn");
         }
         
@@ -129,10 +130,11 @@ public class AuthService implements IAuthService{
         
         
         RefreshTokenEntity newRefreshTokenEntity = new RefreshTokenEntity();
+        String newJti = jwtUtils.getJti(newRefreshToken);
         newRefreshTokenEntity.setCreatedAt(now);
         newRefreshTokenEntity.setExpiredAt(now.plusDays(7));
         newRefreshTokenEntity.setUser(userE);
-        newRefreshTokenEntity.setJti(jti);
+        newRefreshTokenEntity.setJti(newJti);
         
         refreshTokenRepository.save(refreshTokenEntity);
         refreshTokenRepository.save(newRefreshTokenEntity);

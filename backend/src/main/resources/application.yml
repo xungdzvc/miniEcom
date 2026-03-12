@@ -1,0 +1,48 @@
+spring:
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:local}
+
+  jackson:
+    time-zone: Asia/Ho_Chi_Minh
+    mapper:
+      accept-case-insensitive-enums: true
+
+  servlet:
+    multipart:
+      max-file-size: 20MB
+      max-request-size: 20MB
+
+  jpa:
+    hibernate:
+      ddl-auto: none
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+
+server:
+  servlet:
+    session:
+      cookie:
+        same-site: none
+        secure: false
+
+api:
+  prefix: api
+
+app:
+  storage: local
+  upload-url-prefix: /uploads
+  mail:
+    fromName: XungLord.com
+    async:
+      corePoolSize: 4
+      maxPoolSize: 8
+      queueCapacity: 500
+
+minio:
+  url: https://minio1.webtui.vn:9000
+  bucket: bucket-xungdeptry
+
+urlApiCharging: https://doithe1s.vn/chargingws/v2

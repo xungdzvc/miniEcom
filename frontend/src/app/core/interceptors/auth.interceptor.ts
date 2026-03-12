@@ -34,6 +34,7 @@ export const AuthInterceptor: HttpInterceptorFn = (req, next) => {
         return throwError(() => error);
       }
 
+      
       // ✅ chỉ refresh token khi 401
       if (error.status !== 401) {
         return throwError(() => error);
@@ -41,9 +42,9 @@ export const AuthInterceptor: HttpInterceptorFn = (req, next) => {
 
       // 🔁 refresh token
       return auth.refreshToken().pipe(
-        switchMap((newToken: string) => {
-
-          if (!newToken) {
+        switchMap((res: any) => {
+          const accessToken = res.accessToken;
+          if (!accessToken) {
             auth.logout().subscribe();
             router.navigate(['/login']);
             return throwError(() => error);
@@ -52,7 +53,7 @@ export const AuthInterceptor: HttpInterceptorFn = (req, next) => {
           return next(
             req.clone({
               setHeaders: {
-                Authorization: `Bearer ${newToken}`
+                Authorization: `Bearer ${accessToken}`
               }
             })
           );

@@ -28,7 +28,6 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/api")
-@Configuration
 @RequiredArgsConstructor
 public class PaymentController {
 

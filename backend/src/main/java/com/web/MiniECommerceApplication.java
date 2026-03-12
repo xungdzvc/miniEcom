@@ -9,6 +9,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 public class MiniECommerceApplication {
 
 	public static void main(String[] args) {
+		System.out.println("---Backend Service Started---");
 		SpringApplication.run(MiniECommerceApplication.class, args);
 	}
 

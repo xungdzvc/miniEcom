@@ -6,6 +6,7 @@ import com.web.dto.response.product.ProductAdminListResponse;
 import com.web.dto.response.product.ProductResponse;
 import com.web.dto.response.product.ProductViewerListResponse;
 import com.web.dto.response.reviews.ReviewResponse;
+import com.web.dto.response.product.ProductDetailResponse;
 
 import java.util.List;
 
@@ -16,8 +17,9 @@ public interface IProductService {
     void changePinStatusProduct(Long id,boolean status);
     List<ProductAdminListResponse> getProductsForAdmin();
     List<ProductViewerListResponse> getProductsForPreview();
-    ProductResponse getProduct(Long id);
-    ProductResponse getProductBySlug(String slug);
+    ProductResponse getProductForAdmin(Long id);
+    ProductDetailResponse getProduct(Long id);
+    ProductDetailResponse getProductBySlug(String slug);
     void updateViewProductBySlug(String slug);
     int getCountTotal();
     int getCountProductActive();

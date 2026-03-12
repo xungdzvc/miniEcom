@@ -103,7 +103,6 @@ export class ProductFormComponent {
     this.productService.getProductById(this.productId).subscribe({
       next: res => {
         const product = res.data as ProductAddOrUpdate;
-        console.log('Loaded product:', product);
         this.patchForm(product);
 
         this.thumbnailExisting = product.thumbnail ? [product.thumbnail] : [];

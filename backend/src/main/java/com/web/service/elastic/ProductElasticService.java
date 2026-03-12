@@ -1,6 +1,7 @@
 package com.web.service.elastic;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.elasticsearch.core.BulkResponse;
 import com.web.elastic.document.ProductDocument;
 import com.web.entity.ProductEntity;
 import com.web.repository.ProductRepository;
@@ -71,52 +72,42 @@ public class ProductElasticService {
     }
 
     public String fullReIndex() {
-
         try {
-
-            // 1. Xóa index cũ
-            try {
+            // Bước 1: Xóa index cũ nếu tồn tại
+            if (client.indices().exists(e -> e.index(INDEX)).value()) {
                 client.indices().delete(d -> d.index(INDEX));
-            } catch (Exception e) {
-                System.out.println("Index chưa tồn tại, bỏ qua.");
+                System.out.println("Đã xóa index cũ.");
             }
 
-            // 2. Tạo index mới
+            // Bước 2: Tạo index mới với Mapping (Quan trọng!)
+            // Phải chắc chắn hàm này chạy thành công
             elasticIndexService.createProductIndex();
+            System.out.println("Đã tạo index mới với mapping.");
 
-            // 3. Lấy dữ liệu DB
+            // Bước 3: Lấy dữ liệu từ DB và đẩy vào ES
             List<ProductEntity> products = productRepository.findAll();
-
             if (products.isEmpty()) {
-                return "Database trống!";
+                return "DB trống, không có gì để reindex!";
             }
 
-            // 4. Bulk index
-            client.bulk(b -> {
-
+            BulkResponse bulkResponse = client.bulk(b -> {
                 for (ProductEntity p : products) {
-
-                    ProductDocument doc = map(p);
-
                     b.operations(op -> op
-                            .index(i -> i
-                            .index(INDEX)
-                            .id(p.getId().toString())
-                            .document(doc)
-                            )
+                            .index(idx -> idx.index(INDEX).id(p.getId().toString()).document(map(p)))
                     );
                 }
-
                 return b;
             });
 
-            // 5. Refresh index để search thấy ngay
-            client.indices().refresh(r -> r.index(INDEX));
+            if (bulkResponse.errors()) {
+                return "Reindex có lỗi ở một số bản ghi!";
+            }
 
-            return "Đã reindex " + products.size() + " sản phẩm!";
+            return "Thành công! Đã reindex " + products.size() + " sản phẩm.";
 
         } catch (Exception e) {
-            return "Reindex thất bại: " + e.getMessage();
+            e.printStackTrace();
+            return "Lỗi: " + e.getMessage();
         }
     }
 

@@ -1,5 +1,5 @@
 package com.web.service.impl;
-
+import com.web.dto.response.product.ProductDetailResponse;
 import com.web.dto.request.product.ProductCreateOrUpdateRequest;
 import com.web.dto.response.common.ApiResponse;
 import com.web.dto.response.product.ProductAdminListResponse;
@@ -151,15 +151,15 @@ public class ProductServiceImpl implements IProductService {
     }
 
     @Override
-    public ProductResponse getProduct(Long id) {
+    public ProductDetailResponse getProduct(Long id) {
         ProductEntity productEntity = productRepository.findById(id).orElseThrow(() -> new MyException("Sản phẩm không tồn tại"));
-        return productMapper.toResponse(productEntity);
+        return productMapper.toResponseDetail(productEntity);
     }
 
     @Override
-    public ProductResponse getProductBySlug(String slug) {
+    public ProductDetailResponse getProductBySlug(String slug) {
         ProductEntity productEntity = productRepository.findBySlug(slug);
-        return productMapper.toResponse(productEntity);
+        return productMapper.toResponseDetail(productEntity);
     }
 
     String toSlug(String input) {
@@ -261,6 +261,12 @@ public class ProductServiceImpl implements IProductService {
         productEntity.getProductDetail().setPin(status);
         productRepository.save(productEntity);
 
+    }
+
+    @Override
+    public ProductResponse getProductForAdmin(Long id) {
+        ProductEntity productEntity = productRepository.findById(id).orElseThrow(() -> new MyException("Sản phẩm không tồn tại"));
+        return productMapper.toResponse(productEntity);
     }
 
 }

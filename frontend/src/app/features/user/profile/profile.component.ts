@@ -98,7 +98,7 @@ export class ProfileComponent  implements  OnInit {
       next: (res) => {
         console.log(res.data);
         const topup = res.data;
-        const payment: PaymentViewModel = {
+        const paymentView: PaymentViewModel = {
         type: 'TOPUP',
         title: 'Nạp tiền chuyển khoản',
         amount: topup.amount,
@@ -107,7 +107,7 @@ export class ProfileComponent  implements  OnInit {
         topupId: topup.topupId
       };
         this.notifiService.success("Tạo yêu cầu nạp tiền thành công");
-        this.router.navigate(['/payment'], { state: { payment } });
+        this.router.navigate(['/payment'], { state: { paymentView } });
  
         this.isShowModal = false;
         this.amount = 0;

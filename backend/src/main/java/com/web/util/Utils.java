@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.multipart.MultipartFile;
+import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.File;
 import java.io.IOException;
@@ -124,6 +125,11 @@ public class Utils {
     
     public static long calsubPercent(long value,int percent){
         return (value - (value * percent/100));
+    }
+    public static void handleException(HttpServletResponse response, String message) throws IOException {
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        response.setContentType("application/json;charset=UTF-8");
+        response.getWriter().write("{\"error\": \"" + message + "\"}");
     }
 
 

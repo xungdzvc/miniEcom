@@ -74,13 +74,14 @@
       <div class="specs">
 
         <!-- ✅ Chỉ hiện Hỗ trợ nếu sản phẩm có giá > 0 -->
-        <div class="spec" *ngIf="(product?.price || 0) > 0">
+        <!-- ✅ Chỉ hiện Hỗ trợ nếu sản phẩm có giá > 0 -->
+        <div class="spec" *ngIf="(calcNewPrice(product?.price, product?.discount) || 0) > 0">
           <span class="k">📦 Hỗ trợ</span>
           <b class="v">6 tháng</b>
         </div>
 
         <!-- ✅ Nếu giá = 0: Không có bảo hành/hỗ trợ (bạn có thể bỏ block này nếu muốn ẩn hoàn toàn) -->
-        <div class="spec" *ngIf="(product?.price || 0) === 0">
+        <div class="spec" *ngIf="(calcNewPrice(product?.price, product?.discount) || 0) === 0">
           <span class="k">📦 Hỗ trợ</span>
           <b class="v">Không áp dụng</b>
         </div>

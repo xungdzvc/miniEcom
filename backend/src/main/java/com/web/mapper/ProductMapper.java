@@ -62,6 +62,22 @@ public interface ProductMapper {
     @Mapping(source = "category.name", target = "categoryName")
     ProductViewerListResponse toProductViewerListResponse(ProductEntity entity);
 
+    @Mapping(source = "category.id", target = "categoryId")
+    @Mapping(source = "category.name", target = "categoryName")
+    @Mapping(source = "productDetail.viewCount", target = "viewCount")
+    @Mapping(source = "productDetail.saleCount", target = "saleCount")
+    @Mapping(source = "productDetail.discount", target = "discount")
+    @Mapping(source = "productDetail.youtubeUrl", target = "youtubeUrl")
+    @Mapping(source = "productDetail.demoUrl", target = "demoUrl")
+    @Mapping(source = "productDetail.technology", target = "technology")
+    @Mapping(source = "productDetail.installTutorial", target = "installTutorial")
+    @Mapping(source = "productDetail.quantity", target = "quantity")
+    @Mapping(source = "productDetail.pin", target = "pin")
+    @Mapping(source = "productDetail.shareBy", target = "shareBy")
+    @Mapping(target = "imageUrls",
+            expression = "java(this.mapImageUrls(entity))")
+    ProductDetailResponse toResponseDetail(ProductEntity entity);
+
     @Mapping(target = "product", ignore = true)
     ProductDetailEntity toDetailEntity(ProductDetailDTO dto);
 

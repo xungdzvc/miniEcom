@@ -41,7 +41,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
             return;
         }
-
+    
         String authHeader = request.getHeader("Authorization");
         String token = null;
 
@@ -54,24 +54,27 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
         try {
-            Long userId = jwtUtils.getUserId(token);
-            UserEntity user = userRepository.findById(userId)
-                    .orElseThrow();
+            if(jwtUtils.isAccessToken(token)){
+                Long userId = jwtUtils.getUserId(token);
+                UserEntity user = userRepository.findById(userId)
+                        .orElseThrow();
 
-            CustomUserDetails userDetails = new CustomUserDetails(user);
-            UsernamePasswordAuthenticationToken authentication
-                    = new UsernamePasswordAuthenticationToken(
-                            userDetails, null, userDetails.getAuthorities()
-                    );
+                CustomUserDetails userDetails = new CustomUserDetails(user);
+                UsernamePasswordAuthenticationToken authentication
+                        = new UsernamePasswordAuthenticationToken(
+                                userDetails, null, userDetails.getAuthorities()
+                        );
 
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+            }
+            
 
         } catch (ExpiredJwtException e) {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            Utils.handleException(response, "token hết hạn");
             return;
 
         } catch (Exception e) {
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            Utils.handleException(response, "Xác thực không thành công");
             return;
         }
 
