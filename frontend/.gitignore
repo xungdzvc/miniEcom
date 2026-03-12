@@ -11,6 +11,10 @@
 npm-debug.log
 yarn-error.log
 
+# uploads
+backend/uploads/
+uploads/
+
 # IDEs and editors
 .idea/
 .project
