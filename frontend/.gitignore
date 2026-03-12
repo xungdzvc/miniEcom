@@ -65,6 +65,7 @@ Thumbs.db
 
 # =========================
 # Cache
+# =========================
 .angular/cache
 .sass-cache
 .history

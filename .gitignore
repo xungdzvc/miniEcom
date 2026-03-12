@@ -1,40 +1,47 @@
-# env
+# =========================
+# ENV
+# =========================
 .env
 .env.*
 !.env.example
 
-# IDE
-.idea/
-.vscode/
-*.iml
+# =========================
+# Uploads
+# =========================
+uploads/
+backend/uploads/
 
-# OS
-.DS_Store
-Thumbs.db
-
-# backend
+# =========================
+# Backend (Spring Boot)
+# =========================
 backend/target/
-backend/*.log
 backend/out/
+backend/*.log
 
-# secret config backend
-backend/src/main/resources/application-local.properties
-backend/src/main/resources/application-secret.properties
-
-# frontend
+# =========================
+# Frontend (Angular)
+# =========================
 frontend/node_modules/
 frontend/dist/
 frontend/.angular/
 frontend/coverage/
 
-# logs / temp
+# =========================
+# Logs
+# =========================
 *.log
-*.pid
-tmp/
-temp/
+npm-debug.log*
+yarn-error.log*
 
-# keys / certs
-*.jks
-*.p12
-*.pem
-*.key
+# =========================
+# IDE
+# =========================
+.idea/
+.vscode/
+*.iml
+
+# =========================
+# OS
+# =========================
+.DS_Store
+Thumbs.db
