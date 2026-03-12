@@ -1,45 +1,72 @@
-# See https://docs.github.com/get-started/getting-started-with-git/ignoring-files for more about ignoring files.
+# =========================
+# ENV
+# =========================
+.env
+.env.*
+!.env.example
 
-# Compiled output
-/dist
-/tmp
-/out-tsc
-/bazel-out
-
-# Node
-/node_modules
-npm-debug.log
-yarn-error.log
-
-# uploads
+# =========================
+# Uploads (runtime files)
+# =========================
 uploads/
+backend/uploads/
 
-# IDEs and editors
+# =========================
+# Backend (Spring Boot)
+# =========================
+backend/target/
+backend/out/
+backend/*.log
+
+# =========================
+# Frontend (Angular)
+# =========================
+frontend/node_modules/
+frontend/dist/
+frontend/.angular/
+frontend/coverage/
+
+# Angular build
+dist/
+out-tsc/
+tmp/
+bazel-out/
+
+# =========================
+# Logs
+# =========================
+*.log
+npm-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# =========================
+# IDE
+# =========================
 .idea/
+.vscode/
+*.iml
 .project
 .classpath
-.c9/
-*.launch
 .settings/
-*.sublime-workspace
+.c9/
 
-# Visual Studio Code
-.vscode/*
+# VSCode optional configs
 !.vscode/settings.json
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
-.history/*
 
-# Miscellaneous
-/.angular/cache
-.sass-cache/
-/connect.lock
-/coverage
-/libpeerconnection.log
-testem.log
-/typings
-
-# System files
+# =========================
+# OS files
+# =========================
 .DS_Store
 Thumbs.db
+
+# =========================
+# Cache
+# =========================
+.angular/cache
+.sass-cache
+.history
+coverage
