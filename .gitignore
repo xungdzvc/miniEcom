@@ -18,6 +18,10 @@ backend/target/
 backend/out/
 backend/*.log
 
+# local config
+application-local.yml
+backend/src/main/resources/application-local.yml
+
 # =========================
 # Frontend (Angular)
 # =========================

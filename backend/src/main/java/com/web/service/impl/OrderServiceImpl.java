@@ -68,6 +68,7 @@ public class OrderServiceImpl implements IOrderService {
 
     @Value("${baseUrl.web}")
     private String baseUrl;
+
     @Transactional
     @Override
     public OrderCheckoutResponse checkoutByBankOrWallet(OrderCheckoutRequest orderCheckoutRequest) {
@@ -159,7 +160,7 @@ public class OrderServiceImpl implements IOrderService {
             );
 
         } else {
-            String orderUrl = baseUrl +"/order/" + orderEntity.getId()+"/detail"; // đổi theo route của bạn
+            String orderUrl = baseUrl + "/order/" + orderEntity.getId() + "/detail"; // đổi theo route của bạn
             mailService.sendHtml(
                     user.getEmail(),
                     "Thanh toán thành công đơn #" + orderEntity.getId(),
@@ -264,13 +265,14 @@ public class OrderServiceImpl implements IOrderService {
         order.setExpiresAt(now.plusMinutes(15));
 
         order.setUser(user);
-
+        String orderUrl = baseUrl + "/order/" + order.getId() + "/detail";
         if (!isBanking) {
             order.setPaymentMethod(PaymentMethod.WALLET);
             order.setTotal(finalPrice);
             user.subVnd(finalPrice);
             order.setStatus(OrderStatus.SUCCESS);
             userRepository.save(user);
+
         } else {
             order.setPaymentMethod(PaymentMethod.ORDER_BANKING);
             order.setTotal(finalPrice);
@@ -280,11 +282,23 @@ public class OrderServiceImpl implements IOrderService {
         orderRepository.saveAndFlush(order);
         OrderCheckoutResponse checkoutResponse = orderMapper.toOrderCheckoutResponse(order);
         if (isBanking) {
+            String transferContent = "HD" + now.getYear() + order.getId();
             checkoutResponse.setQRCodeUrl(Utils.getInstance().
                     buildVietQrQuickLink(
                             bank.getBankCode(),
                             bank.getAccountNumber(),
-                            "qr_only", checkoutResponse.getTotal(), "HD" + now.getYear() + order.getId(), bank.getAccountName()));
+                            "qr_only", checkoutResponse.getTotal(),transferContent, bank.getAccountName()));
+            mailService.sendHtml(
+                    user.getEmail(),
+                    "Hướng dẫn thanh toán đơn #" + order.getId(),
+                    MailTemplates.bankPending(user, order, bank, checkoutResponse.getQRCodeUrl(), transferContent)
+            );
+        } else {
+            mailService.sendHtml(
+                    user.getEmail(),
+                    "Thanh toán thành công đơn #" + order.getId(),
+                    MailTemplates.paymentSuccess(user, order, orderUrl)
+            );
         }
 
         return checkoutResponse;
@@ -316,15 +330,15 @@ public class OrderServiceImpl implements IOrderService {
     public long getQuarterRevenue() {
         LocalDate now = LocalDate.now();
         int currentMonth = now.getMonthValue();
-        int quarterStartMonth = ((currentMonth - 1 ) / 3) * 3 + 1;
-        LocalDateTime start = LocalDate.of(now.getYear(), quarterStartMonth,1).atStartOfDay();
+        int quarterStartMonth = ((currentMonth - 1) / 3) * 3 + 1;
+        LocalDateTime start = LocalDate.of(now.getYear(), quarterStartMonth, 1).atStartOfDay();
         LocalDateTime end = LocalDateTime.now();
         return orderRepository.sumRevenueBetween(start, end);
     }
 
     @Override
     public long getYearRevenue() {
-        LocalDate now= LocalDate.now();
+        LocalDate now = LocalDate.now();
         LocalDateTime start = LocalDate.of(now.getYear(), 1, 1).atStartOfDay();
         LocalDateTime end = LocalDateTime.now();
         return orderRepository.sumRevenueBetween(start, end);

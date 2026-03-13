@@ -120,30 +120,38 @@ export class OrderDetailComponent implements OnInit, OnDestroy {
   }
 
   download(orderItemId: number): void {
-  if (!this.order) return;
-  if (!this.canDownload()) {
-    alert('Đơn hàng chưa thanh toán thành công. Không thể tải xuống.');
-    return;
-  }
+    if (!this.order) return;
+    if (!this.canDownload()) {
+      alert('Đơn hàng chưa thanh toán thành công. Không thể tải xuống.');
+      return;
+    }
 
-  this.isDownloadingId = orderItemId;
+    this.isDownloadingId = orderItemId;
 
-  this.orderService.downloadOrderItemFile(this.orderId, this.isDownloadingId).subscribe({
-    next: (res) => {
-      const url = res?.data;
-      if (!url) {
-        this.noti.error('Không nhận được link tải xuống.');
+    this.orderService.downloadOrderItemFile(this.orderId, this.isDownloadingId).subscribe({
+      next: (res) => {
+        const url = res?.data;
+        if (!url) {
+          this.noti.error('Không nhận được link tải xuống.');
+          this.isDownloadingId = null;
+          return;
+        }
+        const downloadUrl = this.convertDriveUrl(url);
+      window.location.href = downloadUrl;
         this.isDownloadingId = null;
-        return;
-      }
-      window.open(url, '_blank');
-      this.isDownloadingId = null;
-    },
-    error: (err) => {
-      this.noti.error(err?.error?.message ?? 'Chúng tôi gặp lỗi khi tải file sản phẩm.');
-      this.isDownloadingId = null;
-    },
-  });
-}
+      },
+      error: (err) => {
+        this.noti.error(err?.error?.message ?? 'Chúng tôi gặp lỗi khi tải file sản phẩm.');
+        this.isDownloadingId = null;
+      },
+    });
+  }
+    convertDriveUrl(url: string): string {
+    const match = url.match(/\/d\/(.*?)\//);
+    if (!match) return url;
+
+    const fileId = match[1];
+    return `https://drive.google.com/uc?export=download&id=${fileId}`;
+  }
   
 }
