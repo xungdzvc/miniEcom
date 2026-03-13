@@ -22,10 +22,12 @@ spring:
         debug: false
 
 jwt:
-  secret: dev-secret-key
+  secret: ajD82js9Dkd82js9Dkd82Jd9s8Fjs9Fjs8Fjs1Dks9Dks9Fjs0Dks
 
 app:
   upload-dir: G:/MINI-E-Commerce/uploads
+  mail:
+    from: xunglord.dev@mail.com
 
 baseUrl:
   web: http://localhost:4200
@@ -42,7 +44,4 @@ partnerKey: dev-key
 minio:
   accessKey: dev-access
   secretKey: dev-secret
-
-app:
-  mail:
-    from: dev@mail.com
+  

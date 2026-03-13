@@ -42,7 +42,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
             return;
         }
-    
+
         String authHeader = request.getHeader("Authorization");
         String token = null;
 
@@ -55,7 +55,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
         try {
-            if(jwtUtils.isAccessToken(token)){
+            if (jwtUtils.isAccessToken(token)) {
                 Long userId = jwtUtils.getUserId(token);
                 UserEntity user = userRepository.findById(userId)
                         .orElseThrow();
@@ -68,7 +68,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
-            
 
         } catch (ExpiredJwtException e) {
             Utils.handleException(response, "token hết hạn");
@@ -96,7 +95,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 Pair.of("/uploads/products/**", "GET"),
                 Pair.of("/api/products/slug/**", "PUT"),
                 Pair.of("/api/callback", "POST")
-
         );
 
         String path = request.getServletPath();
