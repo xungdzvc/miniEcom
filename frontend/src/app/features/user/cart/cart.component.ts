@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 
-import { environment } from '../../../../enviroments/environment';import { CartResponse } from '../../../shared/models/core/cart/cart.model';
+import { environment } from '../../../../environments/environment';import { CartResponse } from '../../../shared/models/core/cart/cart.model';
 import { Order } from '../../../shared/models/core/checkout/order.model';
 
 import { CartService } from '../../../shared/data-access/cart.service';

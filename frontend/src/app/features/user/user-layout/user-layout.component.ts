@@ -9,7 +9,7 @@ import { Subject, of } from 'rxjs';
 import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
 import { FormsModule } from '@angular/forms';
 import { ElasticSearchItem } from '../../../shared/models/elastic.model';
-import { environment } from '../../../../enviroments/environment';
+import { environment } from '../../../../environments/environment';
 import { FooterComponent } from '../../../shared/footer/footer.component';
 import { CategoryService } from '../../../shared/data-access/category.service';
 import { Category } from '../../../shared/models/cartegory.model';

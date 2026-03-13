@@ -10,7 +10,7 @@ import {
 import { FormsModule, NgForm } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { environment } from '../../../../enviroments/environment';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-auth-form',

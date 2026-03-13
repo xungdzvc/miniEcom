@@ -11,7 +11,7 @@ import { AdminToastService } from '../../../shared/services/admin-toast.service'
 
 import { ProductAdminList } from '../../../../../shared/models/core/product/product-admin-list.model';
 import { ProductAdminService } from '../../../../../shared/data-access/products/admin-product.service';
-import { environment } from '../../../../../../enviroments/environment';
+import { environment } from '../../../../../../environments/environment';
 import { FormsModule } from '@angular/forms';
 @Component({
   selector: 'app-product-list',

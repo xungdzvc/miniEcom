@@ -5,7 +5,7 @@ import { distinctUntilChanged, finalize, map } from 'rxjs';
 
 import { ProductCardComponent } from '../../../../shared/ui/product-card/product-card.component';
 import { ProductViewerListDetail } from '../../../../shared/models/core/product/product-viewer-list.model';
-import { environment } from '../../../../../enviroments/environment';
+import { environment } from '../../../../../environments/environment';
 import { ProductService } from '../../../../shared/data-access/products/product.service';
 
 type SortKey = 'newest' | 'views' | 'sales' | 'free';

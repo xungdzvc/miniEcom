@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap ,BehaviorSubject, map} from 'rxjs';
 import { CartResponse } from '../models/core/cart/cart.model';
-import { environment } from '../../../enviroments/environment';@Injectable({
+import { environment } from '../../../environments/environment';@Injectable({
   providedIn: 'root'
 })
 export class CartService{

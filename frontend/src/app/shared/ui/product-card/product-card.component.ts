@@ -1,7 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ProductViewerListDetail } from '../../models/core/product/product-viewer-list.model';
-import { environment } from '../../../../enviroments/environment';
+import { environment } from '../../../../environments/environment';
 import { Router } from '@angular/router';
 import { ProductService } from '../../data-access/products/product.service';
 import { take } from 'rxjs/operators';
