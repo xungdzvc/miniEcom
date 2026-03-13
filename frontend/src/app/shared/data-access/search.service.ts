@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { environment } from '../../../../enviroments/environment';
+import { environment } from '../../../enviroments/environment';
 @Injectable({ providedIn: 'root' })
 export class SearchService {
   private api = environment.apiBaseUrl + '/search';

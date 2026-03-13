@@ -10,7 +10,7 @@ import { UserService } from '../../../shared/data-access/user.service';
 import { tap } from 'rxjs';
 import { NotificationService } from '../../../core/services/notification.service';
 import { topupResponse } from '../../../shared/models/core/payment/topup-model';
-import { environment } from '../../../../../enviroments/environment';import { PaymentService } from '../../../shared/data-access/payment.service';
+import { environment } from '../../../../enviroments/environment';import { PaymentService } from '../../../shared/data-access/payment.service';
 import { PaymentViewModel } from '../../../shared/models/core/payment/payment-view.model';
 
 type AccountMenu =

@@ -14,7 +14,7 @@ import { FormFieldComponent } from '../../../shared/form/form-field/form-field.c
 import { FormActionsComponent } from '../../../shared/form/form-actions/form-actions.component';
 import { ImageUploaderComponent } from '../../../shared/ui/image-uploader/image-uploader.component';
 import { AdminToastService } from '../../../shared/services/admin-toast.service';
-import { environment } from '../../../../../../../enviroments/environment';@Component({
+import { environment } from '../../../../../../enviroments/environment';@Component({
   selector: 'app-product-form',
   standalone: true,
   imports: [

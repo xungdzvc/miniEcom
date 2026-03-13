@@ -6,7 +6,7 @@ import { AuthSession } from '../../features/auth/auth.storage';
 import { AuthUser } from '../../shared/models/core/user/user-auth.model';
 import { UserService } from '../../shared/data-access/user.service';
 import { ErrorPageComponent } from '../../shared/error-page/error-page.component';
-import { environment } from '../../../../enviroments/environment';@Injectable({ providedIn: 'root' })
+import { environment } from '../../../enviroments/environment';@Injectable({ providedIn: 'root' })
 export class AuthService {
 
   private API = `${environment.apiBaseUrl}/auth`;

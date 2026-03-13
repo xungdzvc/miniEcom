@@ -8,7 +8,7 @@ import { CouponService } from '../../../shared/data-access/coupon.service';
 import { Router } from '@angular/router';
 import { OrderCheckoutResponse } from '../../../shared/models/core/order/order-response.model';
 import { AuthService } from '../../../core/services/auth.service';
-import { environment } from '../../../../../enviroments/environment';@Component({
+import { environment } from '../../../../enviroments/environment';@Component({
   selector: 'app-checkout-modal',
   standalone: true,
   imports: [CommonModule, FormsModule],

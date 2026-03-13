@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule, CurrencyPipe } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { environment } from '../../../../../../enviroments/environment';import { switchMap, take } from 'rxjs';
+import { environment } from '../../../../../enviroments/environment';import { switchMap, take } from 'rxjs';
 import { ProductService } from '../../../../shared/data-access/products/product.service';
 import { ProductViewerDetail } from '../../../../shared/models/core/product/product-viewer-detail.model';
 import { ProductViewerListDetail } from '../../../../shared/models/core/product/product-viewer-list.model';

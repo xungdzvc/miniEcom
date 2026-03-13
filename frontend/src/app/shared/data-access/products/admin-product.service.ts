@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { environment } from '../../../../../enviroments/environment';
+import { environment } from '../../../../enviroments/environment';
 import { ProductAdminList } from '../../models/core/product/product-admin-list.model';
 import { ProductAddOrUpdate } from '../../models/core/product/product-add-or-update.model';
 

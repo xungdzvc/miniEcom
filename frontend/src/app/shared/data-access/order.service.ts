@@ -4,7 +4,7 @@ import { Observable, tap ,BehaviorSubject, map} from 'rxjs';
 import { CartResponse } from '../models/core/cart/cart.model';
 import { Order } from '../models/core/checkout/order.model';
 import { OrderResponse } from '../models/core/order/order-list.model';
-import { environment } from '../../../../enviroments/environment';@Injectable({
+import { environment } from '../../../enviroments/environment';@Injectable({
   providedIn: 'root'
 })
 export class OrderService{
