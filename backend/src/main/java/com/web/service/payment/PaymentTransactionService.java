@@ -22,6 +22,7 @@ import com.web.repository.*;
 import com.web.security.SecurityUtil;
 import com.web.service.IMailService;
 import com.web.service.IPaymentTransactionService;
+import com.web.service.IProductService;
 import com.web.util.MailTemplates;
 import com.web.util.Utils;
 import java.time.LocalDateTime;
@@ -53,6 +54,7 @@ public class PaymentTransactionService implements IPaymentTransactionService {
     private final PaymentTransactionRepository paymentTransactionRepository;
     private final TopupIntentRepository topupIntentRepository;
     private final CartRepository cartRepository;
+    private final IProductService productService;
     private final IMailService mailService;
     private static final int CURRENT_YEAR = java.time.Year.now().getValue();
     private static final Pattern ORDER_PATTERN = Pattern.compile(
@@ -72,9 +74,10 @@ public class PaymentTransactionService implements IPaymentTransactionService {
 
     @Value("${urlApiCharging}")
     private String urlApiCharging;
-    
+
     @Value("${baseUrl.web}")
     private String baseUrl;
+
     @Override
     public void processTransaction(WebhookRequest webhookRequest) {
         PaymentTransactionEntity paymentTransactionEntity = paymentTransactionRepository.findByPaymentRef(webhookRequest.getReferenceCode());
@@ -99,7 +102,6 @@ public class PaymentTransactionService implements IPaymentTransactionService {
             Long topupId = Utils.getInstance().extractId(TOPUP_PATTERN, paymentTransactionEntity.getTransactionContent());
             if (topupId != null) {
                 handleTopUpPayment(paymentTransactionEntity, topupId);
-                return;
             }
         } else {
             throw new MyException("Giao dịch đã tồn tại");
@@ -117,6 +119,10 @@ public class PaymentTransactionService implements IPaymentTransactionService {
 
         }
         CartEntity cartEntity = cartRepository.findByUserId(orderEntity.getUser().getId());
+        for (CartItemEntity icart : cartEntity.getCartItems()) {
+            productService.updateSalecount(icart.getProduct(), icart.getQuantity());
+
+        }
         cartEntity.getCartItems().clear();
         UserEntity user = cartEntity.getUser();
         paymentTransactionEntity.setOrderId(orderId);
@@ -144,6 +150,8 @@ public class PaymentTransactionService implements IPaymentTransactionService {
         TopupIntentEntity topupIntent = topupIntentRepository.findByIdAndStatus(topupId, PaymentStatus.PENDING);
         if (topupIntent == null) {
             paymentTransactionEntity.setPaymentStatus(PaymentStatus.UNMATCH);
+            paymentTransactionRepository.save(paymentTransactionEntity);
+            return;
         }
         UserEntity userEntity = userRepository.findUserById(topupIntent.getUserId());
         if (userEntity == null) {
@@ -208,31 +216,31 @@ public class PaymentTransactionService implements IPaymentTransactionService {
             switch (status) {
                 case 99:
                     message = "Gửi thẻ thành công chờ xử lí";
-                    paymentStatus = paymentStatus.PENDING;
+                    paymentStatus = PaymentStatus.PENDING;
                     break;
                 case 1:
                     message = "Nạp tiền thành công";
-                    paymentStatus = paymentStatus.SUCCESS;
+                    paymentStatus = PaymentStatus.SUCCESS;
                     break;
                 case 2:
                     message = "Thẻ nạp sai mệnh giá. Bạn sẽ bị trừ 50% giá trị thực";
-                    paymentStatus = paymentStatus.WRONG_AMOUNT;
+                    paymentStatus = PaymentStatus.WRONG_AMOUNT;
                     break;
                 case 3:
                     message = "Thẻ cào lỗi vui lòng kiểm tra lại seri hoặc mã thẻ";
-                    paymentStatus = paymentStatus.FAILED;
+                    paymentStatus = PaymentStatus.FAILED;
                     break;
                 case 4:
                     message = "Hệ thống nạp thẻ bảo trì xin vui lòng thử lại sau";
-                    paymentStatus = paymentStatus.FAILED;
+                    paymentStatus = PaymentStatus.FAILED;
                     break;
                 case 5:
                     message = "Gửi thẻ thất bại ";
-                    paymentStatus = paymentStatus.FAILED;
+                    paymentStatus = PaymentStatus.FAILED;
                     break;
                 default:
                     message = "Hệ thống xảy ra lỗi xin vui lòng thử lại sau";
-                    paymentStatus = paymentStatus.FAILED;
+                    paymentStatus = PaymentStatus.FAILED;
                     break;
             }
             PaymentTransactionEntity payment = new PaymentTransactionEntity();
@@ -243,13 +251,12 @@ public class PaymentTransactionService implements IPaymentTransactionService {
             payment.setPaymentStatus(paymentStatus);
             payment.setPaymentRef(requestId);
             handleTopUpWallet(payment, userId);
-            ApiResponse.success(null, message);
+            return ApiResponse.success(null, message);
 
         } catch (Exception e) {
             throw new RuntimeException(e);
 
         }
-        return ApiResponse.error("Có lỗi xảy ra");
     }
 
     @Override

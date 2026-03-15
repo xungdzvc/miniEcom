@@ -1,4 +1,5 @@
 package com.web.service.impl;
+
 import com.web.dto.response.product.ProductDetailResponse;
 import com.web.dto.request.product.ProductCreateOrUpdateRequest;
 import com.web.dto.response.common.ApiResponse;
@@ -92,7 +93,7 @@ public class ProductServiceImpl implements IProductService {
         productDetail.setShareBy(productDTO.getShareBy());
         productDetail.setProduct(product);
         product.setProductDetail(productDetail);
-        replaceImage(productDTO.getImageUrls(), product);
+        Utils.replaceImage(productDTO.getImageUrls(), product);
 
         productRepository.save(product);
         productElasticService.updateProduct(product);
@@ -160,35 +161,6 @@ public class ProductServiceImpl implements IProductService {
     public ProductDetailResponse getProductBySlug(String slug) {
         ProductEntity productEntity = productRepository.findBySlug(slug);
         return productMapper.toResponseDetail(productEntity);
-    }
-
-    String toSlug(String input) {
-        return Normalizer.normalize(input, Normalizer.Form.NFD)
-                .replaceAll("\\p{InCombiningDiacriticalMarks}+", "")
-                .toLowerCase()
-                .replaceAll("[^a-z0-9]+", "-")
-                .replaceAll("(^-|-$)", "");
-    }
-
-    void replaceImage(
-            List<String> urls,
-            ProductEntity productEntity
-    ) {
-        if (urls == null || urls.isEmpty()) {
-            return;
-        }
-        List<ProductImageEntity> currentImages = productEntity.getProductImages();
-        if (currentImages == null) {
-            currentImages = new ArrayList<>();
-            productEntity.setProductImages(currentImages);
-        }
-        currentImages.clear();
-        for (String url : urls) {
-            ProductImageEntity img = new ProductImageEntity();
-            img.setImageUrl(url);
-            img.setProduct(productEntity);
-            currentImages.add(img);
-        }
     }
 
     @Override
@@ -267,6 +239,13 @@ public class ProductServiceImpl implements IProductService {
     public ProductResponse getProductForAdmin(Long id) {
         ProductEntity productEntity = productRepository.findById(id).orElseThrow(() -> new MyException("Sản phẩm không tồn tại"));
         return productMapper.toResponse(productEntity);
+    }
+
+    @Override
+    public void updateSalecount(ProductEntity product, Integer soLuongThem) {
+        int soLuong = product.getProductDetail().getSaleCount() == null ? 0 : product.getProductDetail().getSaleCount();
+        product.getProductDetail().setSaleCount(soLuong + soLuongThem);
+        productRepository.save(product);
     }
 
 }

@@ -15,7 +15,7 @@ public class SecurityUtil {
     public static Long getUserId() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null || !(auth.getPrincipal() instanceof CustomUserDetails cud) || cud.getUserId() == null) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized");
+            return null;
         }
         return cud.getUserId();
     }

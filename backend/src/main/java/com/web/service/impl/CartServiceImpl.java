@@ -30,11 +30,8 @@ public class CartServiceImpl implements ICartService {
     private final CartRepository cartRepository;
     private final CartItemRepository cartItemRepository;
     private final UserRepository userRepository;
-    @Autowired
-    ProductRepository productRepository;
-    @Autowired
-    CartItemRepository CartItemRepository;
-
+    private final ProductRepository productRepository;
+    
     @Override
     public CartResponse addProductToCart(String slug) {
         Long userId = SecurityUtil.getUserId();
@@ -43,13 +40,14 @@ public class CartServiceImpl implements ICartService {
             UserEntity user = userRepository.getReferenceById(userId);
             cartEntity = new CartEntity();
             cartEntity.setUser(user);
+            cartRepository.saveAndFlush(cartEntity);
 
         }
         ProductEntity productEntity = productRepository.findBySlug(slug);
         if (productEntity == null) {
             throw new MyException("Sản phẩm không tồn tại");
         }
-        CartItemEntity existProduct = CartItemRepository.findByCartIdAndProductId(cartEntity.getId(), productEntity.getId());
+        CartItemEntity existProduct = cartItemRepository.findByCartIdAndProductId(cartEntity.getId(), productEntity.getId());
 
         if (existProduct != null) {
             existProduct.setQuantity(existProduct.getQuantity() + 1);
@@ -91,11 +89,11 @@ public class CartServiceImpl implements ICartService {
         }
         cartRepository.save(cartEntity);
         CartResponse cartResponse = cartMapper.toCartResponse(cartEntity);
-        float toltalPriceProduct = 0;
+        long totalPriceProduct = 0;
         for (CartItemResponse cart : cartResponse.getCartItems()) {
-            toltalPriceProduct += Utils.calsubPercent(cart.getPrice(), cart.getDiscount());
+            totalPriceProduct += Utils.calsubPercent(cart.getPrice(), cart.getDiscount());
         }
-        cartResponse.setToltalPrice(toltalPriceProduct);
+        cartResponse.setToltalPrice(totalPriceProduct);
         return cartResponse;
 
     }

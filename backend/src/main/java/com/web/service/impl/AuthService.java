@@ -45,7 +45,7 @@ public class AuthService implements IAuthService{
     
     @Override
     public UserDTOResponse register(UserRegisterRequest userDTO) {
-        if (!userDTO.getRetype_password().endsWith(userDTO.getPassword())) {
+        if (!userDTO.getRetype_password().equals(userDTO.getPassword())) {
             throw new MyException("Mật khẩu bạn nhập không khớp");
         }
         if (userRepository.existsByEmail(userDTO.getEmail())) {
@@ -146,6 +146,18 @@ public class AuthService implements IAuthService{
         
         
         return userLoginResponse;
+    }
+
+    @Override
+    public void logout(String refreshToken) {
+        String jti = jwtUtils.getJti(refreshToken);
+        RefreshTokenEntity refreshTokenEntity = refreshTokenRepository.findByJti(jti).orElseThrow(()-> new MyException("Lỗi refreshToken"));
+        if(refreshTokenEntity.isRevoked()){
+            throw new MyException("Token đã bị đóng");
+        }
+        refreshTokenEntity.setRevoked(true);
+        refreshTokenEntity.setRevokedAt(LocalDateTime.now());
+        refreshTokenRepository.save(refreshTokenEntity);
     }
     
 }

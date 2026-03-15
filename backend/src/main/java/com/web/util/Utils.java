@@ -1,5 +1,7 @@
 package com.web.util;
 
+import com.web.entity.ProductEntity;
+import com.web.entity.ProductImageEntity;
 import com.web.exception.MyException;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -17,6 +19,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.text.Normalizer;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.regex.*;
 
@@ -35,6 +39,27 @@ public class Utils {
         Matcher m = pattern.matcher(content);
         if (!m.find()) return null;
         return Long.valueOf(m.group(1));
+    }
+    public static void replaceImage(
+            List<String> urls,
+            ProductEntity productEntity
+    ) {
+        
+        List<ProductImageEntity> currentImages = productEntity.getProductImages();
+        if (currentImages == null) {
+            currentImages = new ArrayList<>();
+            productEntity.setProductImages(currentImages);
+        }
+        if (urls == null) {
+            return;
+        }
+        currentImages.clear();
+        for (String url : urls) {
+            ProductImageEntity img = new ProductImageEntity();
+            img.setImageUrl(url);
+            img.setProduct(productEntity);
+            currentImages.add(img);
+        }
     }
     public String buildVietQrQuickLink(
             String bankId,      // ví dụ: "970415" hoặc "ICB"...

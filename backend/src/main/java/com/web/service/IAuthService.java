@@ -19,4 +19,5 @@ public interface IAuthService {
     UserDTOResponse register(UserRegisterRequest userDTO);
     UserLoginResponse login(UserLoginRequest userLoginRequest);
     UserLoginResponse refreshToken(String refreshToken);
+    void logout(String refreshToken);
 }

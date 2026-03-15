@@ -11,14 +11,10 @@ import com.web.dto.response.order.OrderListResponse;
 import com.web.entity.*;
 import com.web.enums.OrderStatus;
 import com.web.enums.PaymentMethod;
-import com.web.enums.PaymentStatus;
-import com.web.enums.PaymentType;
 import com.web.exception.MyException;
 import com.web.mapper.CartMapper;
 import com.web.mapper.OrderMapper;
-import com.web.repository.BankAccountRepository;
 import com.web.repository.CartRepository;
-import com.web.repository.CouponRepository;
 import com.web.repository.OrderRepository;
 import com.web.repository.ProductRepository;
 import com.web.repository.SystemBankAccountRepository;
@@ -28,6 +24,7 @@ import com.web.service.ICartService;
 import com.web.service.ICouponService;
 import com.web.service.IMailService;
 import com.web.service.IOrderService;
+import com.web.service.IProductService;
 import com.web.util.MailTemplates;
 import com.web.util.Utils;
 
@@ -35,21 +32,16 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import jakarta.transaction.Transactional;
-import java.math.BigDecimal;
-import java.time.Month;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cglib.core.Local;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import org.springframework.beans.factory.annotation.Value;
-
-import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.scheduling.annotation.Scheduled;
 
 @Service
 @RequiredArgsConstructor
@@ -61,11 +53,10 @@ public class OrderServiceImpl implements IOrderService {
     private final CartRepository cartRepository;
     private final SystemBankAccountRepository systemBankAccountRepository;
     private final IMailService mailService;
-    private final ICartService cartService;
     private final CartMapper cartMapper;
     private final OrderMapper orderMapper;
     private final ProductRepository productRepository;
-
+    private final IProductService productService;
     @Value("${baseUrl.web}")
     private String baseUrl;
 
@@ -118,6 +109,9 @@ public class OrderServiceImpl implements IOrderService {
             if (productEntity == null) {
                 throw new MyException("Có sản phẩm không tồn tại hoặc đã ngừng kinh doanh");
             }
+            if (productEntity.getProductDetail().getQuantity() < item.getQuantity()) {
+                throw new MyException(productEntity.getName() + " không đủ số lượng trong kho vui lòng giảm số lượng hoặc chọn sản phẩm khác");
+            }
             OrderItemEntity iOrder = new OrderItemEntity();
             iOrder.setProduct(productEntity);
             iOrder.setOrder(orderEntity);
@@ -136,15 +130,17 @@ public class OrderServiceImpl implements IOrderService {
             }
             orderEntity.setStatus(OrderStatus.SUCCESS);
             user.subVnd(orderEntity.getTotal());
+            for (CartItemEntity item : cartEntity.getCartItems()) {
+                productService.updateSalecount(item.getProduct(), item.getQuantity());
+            }
             cartEntity.getCartItems().clear();
             cartRepository.save(cartEntity);
             userRepository.save(user);
+
             isBank = false;
         }
         orderRepository.saveAndFlush(orderEntity);
-        OrderCheckoutResponse checkoutResponse = new OrderCheckoutResponse();
-
-        checkoutResponse = orderMapper.toOrderCheckoutResponse(orderEntity);
+        OrderCheckoutResponse checkoutResponse = orderMapper.toOrderCheckoutResponse(orderEntity);
         if (isBank) {
             String transferContent = "HD" + now.getYear() + orderEntity.getId();
             checkoutResponse.setTransferContent(transferContent);
@@ -169,11 +165,6 @@ public class OrderServiceImpl implements IOrderService {
         }
 
         return checkoutResponse;
-    }
-
-    @Override
-    public OrderCheckoutResponse updateOrder(OrderDTO orderDTO) {
-        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
@@ -204,11 +195,6 @@ public class OrderServiceImpl implements IOrderService {
     @Override
     public OrderStatus getStatusById(Long id) {
         return orderRepository.getStatusById(id).getStatus();
-    }
-
-    @Override
-    public List<OrderDetailResponse> getOrderByUserId(Long id) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 
     @Override
@@ -272,6 +258,7 @@ public class OrderServiceImpl implements IOrderService {
             user.subVnd(finalPrice);
             order.setStatus(OrderStatus.SUCCESS);
             userRepository.save(user);
+            productService.updateSalecount(product, 1);
 
         } else {
             order.setPaymentMethod(PaymentMethod.ORDER_BANKING);
@@ -287,7 +274,7 @@ public class OrderServiceImpl implements IOrderService {
                     buildVietQrQuickLink(
                             bank.getBankCode(),
                             bank.getAccountNumber(),
-                            "qr_only", checkoutResponse.getTotal(),transferContent, bank.getAccountName()));
+                            "qr_only", checkoutResponse.getTotal(), transferContent, bank.getAccountName()));
             mailService.sendHtml(
                     user.getEmail(),
                     "Hướng dẫn thanh toán đơn #" + order.getId(),

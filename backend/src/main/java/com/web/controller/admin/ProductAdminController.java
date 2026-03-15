@@ -57,7 +57,7 @@ public class ProductAdminController {
     }
     @PutMapping("/pin/{id}")
     public void changePinStatus(@PathVariable Long id,@RequestBody ProductChangePinStatus productChangePinStatus){
-        productService.changePinStatusProduct(id, true);
+        productService.changePinStatusProduct(id, productChangePinStatus.getStatus());
         
     }
 

@@ -39,8 +39,12 @@ public class ReviewService implements IReviewService {
     @Override
     public ReviewResponse addReview(ReviewRequest reviewRequest) {
         Long userId = SecurityUtil.getUserId();
-        ReviewEntity review = new ReviewEntity();
-        if (reviewRequest.getRate() != null && reviewRequest.getRate() > 0) {
+        ReviewEntity review = reviewRepository.findByProductIdAndUserId(reviewRequest.getProductId(),userId);
+        if(review != null){
+            throw new MyException("Bạn đã đánh giá sản phẩm này rồi");
+        }
+        review = new ReviewEntity();
+        if (reviewRequest.getRate() != null && reviewRequest.getRate() > 0 && reviewRequest.getRate()<=5) {
             if (!canRate( reviewRequest.getProductId())) {
                 throw new MyException("Bạn chỉ có thể đánh giá khi đã mua sản phẩm");
             }
@@ -61,6 +65,9 @@ public class ReviewService implements IReviewService {
     @Override
     public boolean canRate(Long productId) {
         Long userId = SecurityUtil.getUserId();
+        if(userId == null){
+            return false;
+        }
         return iOrderService.existsByUserIdAndProductId(userId, productId);
     }
 
@@ -79,6 +86,9 @@ public class ReviewService implements IReviewService {
         response.setComment(review.getComment());
         response.setCreatedAt(review.getCreatedAt());
         response.setProductId(review.getProduct().getId());
+        response.setFullName(review.getUser().getFullName());
+        response.setUserName(review.getUser().getUsername());
+        response.setRate(review.getRate());
         return response;
     }
 

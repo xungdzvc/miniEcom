@@ -2,13 +2,9 @@ package com.web.service.impl;
 
 import com.web.dto.PasswordDTO;
 import com.web.dto.UserAdminEditDTO;
-import com.web.dto.request.auth.UserRegisterRequest;
-import com.web.dto.request.auth.UserLoginRequest;
-import com.web.dto.request.user.ChangeStaffRequest;
 import com.web.dto.request.user.UserUpdateRequest;
 import com.web.dto.request.user.ChangeStatusRequest;
 import com.web.dto.response.user.UserAdminListResponse;
-import com.web.entity.CartEntity;
 import com.web.entity.RoleEntity;
 import com.web.entity.UserEntity;
 import com.web.exception.MyException;
@@ -19,20 +15,14 @@ import com.web.security.CustomUserDetails;
 import com.web.security.JwtUtils;
 import com.web.service.IUserService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import com.web.dto.response.auth.UserLoginResponse;
 import com.web.dto.response.auth.UserDTOResponse;
-import com.web.dto.response.auth.UserLoginResponse;
 import com.web.dto.response.user.UserProfileResponse;
-import com.web.entity.RefreshTokenEntity;
-import com.web.enums.Role;
 import java.time.LocalDate;
 
 import java.time.LocalDateTime;
@@ -52,13 +42,6 @@ public class UserServiceImpl implements IUserService {
     private final JwtUtils jwtUtils;
 
     @Transactional
-    @Override
-    public UserDTOResponse update(Long id, UserUpdateRequest userDTO) {
-        UserEntity userEntity = userRepository.findById(id).orElseThrow(() -> new MyException("Người dùng không tồn tại"));
-        userEntity = userMapper.toEntity(userDTO);
-        userRepository.save(userEntity);
-        return userMapper.toDTORSP(userEntity);
-    }
 
     @Override
     public Long getCurrentUserId() {
@@ -69,14 +52,12 @@ public class UserServiceImpl implements IUserService {
 
     @Override
     public UserDTOResponse delete(Long id) {
-        UserEntity userEntity = userRepository.findById(id).get();
-        if (userEntity != null) {
-            userEntity.setIsActive(false);
-            userRepository.save(userEntity);
-            return userMapper.toDTORSP(userEntity);
-        } else {
-            throw new MyException(userEntity.getUsername() + " not exists");
-        }
+        UserEntity userEntity = userRepository.findById(id).orElseThrow(() -> new MyException("Dùng dùng không tồn tại"));
+
+        userEntity.setIsActive(false);
+        userRepository.save(userEntity);
+        return userMapper.toDTORSP(userEntity);
+
     }
 
     @Override
@@ -110,16 +91,12 @@ public class UserServiceImpl implements IUserService {
         return userEntities.stream().map(userMapper::toUserAdminListResponse).toList();
     }
 
-    
-
     @Override
     public void changeStatus(Long Id, ChangeStatusRequest req) {
         UserEntity userEntity = userRepository.findById(Id).orElseThrow(() -> new MyException("Tài khoản không tồn tại"));
         userEntity.setIsActive(req.isStatus());
         userRepository.save(userEntity);
     }
-
-    
 
     @Override
     public int getCount() {
@@ -137,7 +114,7 @@ public class UserServiceImpl implements IUserService {
         UserEntity userE = userRepository.findById(userId).orElseThrow(() -> new MyException("Người dùng không tồn tại"));
         UserAdminEditDTO dto = userMapper.toUserAdminEditDTO(userE);
         dto.setRoleIds(new ArrayList<>());
-        for(RoleEntity role :userE.getRoles() ){
+        for (RoleEntity role : userE.getRoles()) {
             dto.getRoleIds().add(role.getId());
         }
         return dto;
@@ -150,11 +127,11 @@ public class UserServiceImpl implements IUserService {
 
     @Override
     public void updateUser(Long userId, UserAdminEditDTO dto) {
-        
+
         UserEntity userE = userRepository.findById(userId).orElseThrow(() -> new MyException("Người dùng không tồn tại"));
-        if(dto.getRoleIds() != null){
+        if (dto.getRoleIds() != null) {
             List<RoleEntity> roles = new ArrayList<>();
-            for(Long id :dto.getRoleIds()){
+            for (Long id : dto.getRoleIds()) {
                 roles.add(roleRepository.findById(id).get());
             }
 

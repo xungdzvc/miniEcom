@@ -14,9 +14,6 @@ import java.util.List;
 import org.springframework.data.jpa.repository.Query;
 
 public interface IOrderService {
-    List<OrderDetailResponse> getOrderByUserId(Long id);
-    OrderCheckoutResponse updateOrder(OrderDTO orderDTO);
-
     OrderCheckoutResponse checkoutByBankOrWallet(OrderCheckoutRequest orderCheckoutRequest);
     OrderCheckoutResponse checkoutByDirectBankOrWallet(DirectCheckoutRequest directCheckoutRequest);
     

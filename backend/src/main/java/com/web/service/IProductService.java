@@ -7,6 +7,7 @@ import com.web.dto.response.product.ProductResponse;
 import com.web.dto.response.product.ProductViewerListResponse;
 import com.web.dto.response.reviews.ReviewResponse;
 import com.web.dto.response.product.ProductDetailResponse;
+import com.web.entity.ProductEntity;
 
 import java.util.List;
 
@@ -26,6 +27,7 @@ public interface IProductService {
     int getCountProductInActive();
     List<ProductViewerListResponse> getProductByCategory(Long categoryId);
     List<ReviewResponse> getReviewsByProductId(Long productId);
+    void updateSalecount(ProductEntity product, Integer soluong);
     
 
 

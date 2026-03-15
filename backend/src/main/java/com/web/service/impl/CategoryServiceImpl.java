@@ -27,11 +27,11 @@ public class CategoryServiceImpl implements ICategoryService {
     @Override
     public CategoryDTO addCategory(CategoryDTO categoryDTO) {
         if (categoryDTO.getName().equals("")) {
-            throw new MyException("category name is not empty");
+            throw new MyException("Tên danh mục không được để trống");
         }
         LocalDateTime now = LocalDateTime.now();
         categoryDTO.setCreatedAt(now);
-        categoryDTO.setCreatedAt(now);
+        categoryDTO.setUpdatedAt(now);
         CategoryEntity categoryEntity = mapper.toEntity(categoryDTO);
         categoryRepository.save(categoryEntity);
         return mapper.toDTO(categoryEntity);
@@ -39,36 +39,27 @@ public class CategoryServiceImpl implements ICategoryService {
 
     @Override
     public CategoryDTO removeCategory(Long id) {
-        CategoryEntity categoryEntity = categoryRepository.findById(id).orElseThrow(() -> new MyException("Category not found"));
+        CategoryEntity categoryEntity = categoryRepository.findById(id).orElseThrow(() -> new MyException("Danh mục không tồn tại"));
 
-        if (categoryEntity != null) {
-            categoryRepository.delete(categoryEntity);
-            return mapper.toDTO(categoryEntity);
-        } else {
-            throw new MyException("Category not exists");
-        }
+        categoryRepository.delete(categoryEntity);
+        return mapper.toDTO(categoryEntity);
+
     }
 
     @Override
     public CategoryDTO updateCategory(Long id, CategoryDTO categoryDTO) {
-        CategoryEntity categoryEntity = categoryRepository.findById(id).orElseThrow(() -> new MyException("Category not found"));
-        if (categoryEntity != null) {
-            categoryEntity.setName(categoryDTO.getName());
-            categoryEntity.setUpdatedAt(LocalDateTime.now());
-            categoryRepository.save(categoryEntity);
-            return mapper.toDTO(categoryEntity);
-        } else {
-            throw new MyException("Category not exists");
-        }
+        CategoryEntity categoryEntity = categoryRepository.findById(id).orElseThrow(() -> new MyException("Danh mục không tồn tại"));
+        categoryEntity.setName(categoryDTO.getName());
+        categoryEntity.setUpdatedAt(LocalDateTime.now());
+        categoryRepository.save(categoryEntity);
+        return mapper.toDTO(categoryEntity);
 
     }
 
     @Override
     public CategoryDTO getCategoryById(Long id) {
-        CategoryEntity categoryEntity = categoryRepository.findById(id).orElseThrow(() -> new MyException("Category not found"));
-        if (categoryEntity == null) {
-            throw new MyException("Category not exists");
-        } else {
+        CategoryEntity categoryEntity = categoryRepository.findById(id).orElseThrow(() -> new MyException("Danh mục không tồn tại"));
+        {
             return mapper.toDTO(categoryEntity);
         }
     }
@@ -76,7 +67,7 @@ public class CategoryServiceImpl implements ICategoryService {
     @Override
     public List<CategoryDTO> getAllCategories() {
         List<CategoryEntity> categories = categoryRepository.findAll();
-        List<CategoryDTO> categoriesDTO = new ArrayList<CategoryDTO>();
+        List<CategoryDTO> categoriesDTO = new ArrayList<>();
 
         for (CategoryEntity categoryEntity : categories) {
             CategoryDTO categoryDTO = mapper.toDTO(categoryEntity);

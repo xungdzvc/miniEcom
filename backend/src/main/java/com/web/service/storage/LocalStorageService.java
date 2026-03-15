@@ -37,8 +37,6 @@ public class LocalStorageService implements IStorageService {
 
     @Override
     public StorageFileDTO save(MultipartFile file, String folder) {
-        System.out.println("WORKING_DIR = " + System.getProperty("user.dir"));
-        System.out.println("UPLOAD_DIR_ABS = " + java.nio.file.Paths.get(uploadDir).toAbsolutePath().normalize());
         if (file == null || file.isEmpty()) {
             throw new MyException("File rỗng");
         }

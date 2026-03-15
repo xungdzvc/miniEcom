@@ -51,5 +51,8 @@ public class ProductDetailEntity {
     @JoinColumn(name="product_id",nullable = false)
     private ProductEntity product;
     
+    public void addSalecount(int sl){
+        this.saleCount += sl;
+    }
     
 }

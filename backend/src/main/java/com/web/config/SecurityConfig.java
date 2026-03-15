@@ -6,6 +6,7 @@ import com.web.exception.MyException;
 import com.web.repository.UserRepository;
 import com.web.security.CustomUserDetails;
 import com.web.security.JwtAuthenticationFilter;
+import com.web.security.SecurityConstants;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -83,57 +84,19 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http,
-                                           JwtAuthenticationFilter jwtAuthenticationFilter) throws Exception {
+            JwtAuthenticationFilter jwtAuthenticationFilter) throws Exception {
 
         http
                 .csrf(csrf -> csrf.disable())
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        .requestMatchers(
-                                "/api/auth/login",
-                                "/api/auth/register",
-                                "/api/auth/logout",
-                                "/api/auth/fresh-token",
-                                "/api/auth/google-login",
-                                "/api/webhook",
-                                "/files/**",
-                                "/api/products",
-                                "/api/products/**",
-                                "/api/products/slug/**",
-                                "/api/cart/coupon/**",
-                                "/api/products/category/**",
-                                "/api/products/*/reviews",
-                                "/api/products/reviews/*/list",
-                                "/api/search",
-                                "/api/callback",
-                                "/api/categories",
-                                "/uploads/products/**",
-                                "/error"
-                        ).permitAll()
-                        .requestMatchers("/api/admin/elastic/sync").hasAnyRole(Role.ADMIN.roleName())
-                        .requestMatchers("/api/admin/*/staff").hasAnyRole(Role.ADMIN.roleName())
-                        .requestMatchers("/api/admin/roles").hasAnyRole(Role.ADMIN.roleName())
-                        .requestMatchers("/api/admin/users/**").hasAnyRole(Role.ADMIN.roleName())
-                        .requestMatchers("/api/admin/coupons/**").hasAnyRole(Role.ADMIN.roleName())
-                        .requestMatchers("/api/admin/products").hasAnyRole(Role.ADMIN.roleName(), Role.STAFF.roleName())
-                        .requestMatchers("/api/admin/products/**").hasAnyRole(Role.ADMIN.roleName(), Role.STAFF.roleName())
-                        .requestMatchers("/api/admin/products/change-status/**").hasAnyRole(Role.ADMIN.roleName(), Role.STAFF.roleName())
-                        .requestMatchers("/api/topup").hasAnyRole(Role.ADMIN.roleName(), Role.STAFF.roleName(), Role.USER.roleName())
-                        .requestMatchers("/api/order/checkout").hasAnyRole(Role.ADMIN.roleName(), Role.STAFF.roleName(), Role.USER.roleName())
-                        .requestMatchers("/api/order").hasAnyRole(Role.ADMIN.roleName(), Role.STAFF.roleName(), Role.USER.roleName())
-                        .requestMatchers("/api/order/status/**").hasAnyRole(Role.ADMIN.roleName(), Role.STAFF.roleName(), Role.USER.roleName())
-                        .requestMatchers("/api/order/**").hasAnyRole(Role.ADMIN.roleName(), Role.STAFF.roleName(), Role.USER.roleName())
-                        .requestMatchers("/api/admin/categories").hasAnyRole(Role.ADMIN.roleName(), Role.STAFF.roleName())
-                        .requestMatchers("/api/auth/me").hasAnyRole(Role.USER.roleName(), Role.ADMIN.roleName(), Role.STAFF.roleName())
-                        .requestMatchers("/api/users/topup-history").hasAnyRole(Role.USER.roleName(), Role.ADMIN.roleName(), Role.STAFF.roleName())
-                        .requestMatchers("/api/cart/update-qty").hasAnyRole(Role.USER.roleName(), Role.ADMIN.roleName(), Role.STAFF.roleName())
-                        .requestMatchers("/api/cart").hasAnyRole(Role.USER.roleName(), Role.ADMIN.roleName(), Role.STAFF.roleName())
-                        .requestMatchers("/api/cart/add").hasAnyRole(Role.USER.roleName(), Role.ADMIN.roleName(), Role.STAFF.roleName())
-                        .requestMatchers("/api/products/reviews/can-rate/**").hasAnyRole(Role.USER.roleName(), Role.ADMIN.roleName(), Role.STAFF.roleName())
-                        .requestMatchers("/api/charging").hasAnyRole(Role.USER.roleName(), Role.ADMIN.roleName(), Role.STAFF.roleName())
-                        .anyRequest().authenticated()
+                .requestMatchers(SecurityConstants.PUBLIC_URLS).permitAll()
+                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                .requestMatchers(SecurityConstants.ADMIN_URLS).hasRole(Role.ADMIN.roleName())
+                .requestMatchers(SecurityConstants.ADMIN_STAFF_URLS).hasAnyRole(Role.ADMIN.roleName(), Role.STAFF.roleName())
+                .requestMatchers(SecurityConstants.ADMIN_USER_STAFF_URLS).hasAnyRole(Role.ADMIN.roleName(), Role.STAFF.roleName(), Role.USER.roleName())
+                .anyRequest().authenticated()
                 )
                 .authenticationProvider(authenticationProvider())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

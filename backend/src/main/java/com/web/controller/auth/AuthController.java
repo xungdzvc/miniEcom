@@ -79,7 +79,7 @@ public class AuthController {
 
     @PostMapping("/fresh-token")
     public ResponseEntity<?> refresh(
-            @CookieValue("refresh_token") String refreshToken) {
+            @CookieValue(value = "refresh_token",required = false) String refreshToken) {
 
         UserLoginResponse userLoginResponse = authService.refreshToken(refreshToken);
 
@@ -87,14 +87,15 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<?> logout() {
+    public ResponseEntity<?> logout(@CookieValue(value = "refresh_token") String refreshToken) {
+        authService.logout(refreshToken);
         ResponseCookie cookie = ResponseCookie.from("refresh_token", "")
                 .httpOnly(true)
                 .secure(true)
                 .path("/")
                 .maxAge(0)
                 .build();
-
+        
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, cookie.toString())
                 .build();

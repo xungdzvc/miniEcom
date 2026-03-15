@@ -17,7 +17,6 @@ import com.web.entity.UserEntity;
 import java.util.List;
 
 public interface IUserService {
-    UserDTOResponse update(Long Id,UserUpdateRequest userDTO);
     void changeStatus(Long Id, ChangeStatusRequest req);
     Long getCurrentUserId();
     UserDTOResponse delete(Long Id);

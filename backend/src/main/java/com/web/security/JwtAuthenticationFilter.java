@@ -39,6 +39,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             FilterChain filterChain
     ) throws ServletException, IOException {
         if (isBypassToken(request)) {
+            System.out.println("bypass");
             filterChain.doFilter(request, response);
             return;
         }
@@ -82,27 +83,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     private boolean isBypassToken(@NonNull HttpServletRequest request) {
-        final List<Pair<String, String>> bypassTokens = Arrays.asList(
-                Pair.of("/api/auth/logout", "POST"),
-                Pair.of("/api/auth/google-login", "POST"),
-                Pair.of("/api/auth/login", "POST"),
-                Pair.of("/api/auth/register", "POST"),
-                Pair.of("/api/auth/fresh-token", "POST"),
-                Pair.of("/api/products", "GET"),
-                Pair.of("/api/products/reviews/*/list", "GET"),
-                Pair.of("/api/categories", "GET"),
-                Pair.of("/api/search", "GET"),
-                Pair.of("/uploads/products/**", "GET"),
-                Pair.of("/api/products/slug/**", "PUT"),
-                Pair.of("/api/callback", "POST")
-        );
-
         String path = request.getServletPath();
-        String method = request.getMethod();
-
-        for (Pair<String, String> bypass : bypassTokens) {
-            if (pathMatcher.match(bypass.getFirst(), path)
-                    && method.equalsIgnoreCase(bypass.getSecond())) {
+        System.out.println(path);
+        for (String bypass : SecurityConstants.PUBLIC_URLS) {
+            if (pathMatcher.match(bypass, path)) {
                 return true;
             }
         }
