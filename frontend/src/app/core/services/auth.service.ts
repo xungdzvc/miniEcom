@@ -68,11 +68,10 @@ export class AuthService {
       )
       .pipe(
         tap(res => {
-          if (!res?.data?.accessToken || !res?.data?.user) {
-            throw new Error('Invalid google login response');
-          }
-          console.log('Google login response:', res);
-          AuthStorage.set({ accessToken: res.data.accessToken, user: res.data.user });
+            AuthStorage.set({
+            accessToken: res.accessToken,
+            user: res.user
+          });
           this.userSubject.next(res.user);
         })
       );

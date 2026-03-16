@@ -80,15 +80,9 @@ public class AuthController {
     @PostMapping("/fresh-token")
     public ResponseEntity<?> refresh(
             @CookieValue(value = "refresh_token", required = false) String refreshToken) {
-        
+
         UserLoginResponse userLoginResponse = authService.refreshToken(refreshToken);
 
-        return buildAuthResponse(userLoginResponse);
-    }
-    
-    @PostMapping("/google-login")
-    public ResponseEntity<?> loginWithGoogle(@RequestBody UserGoogleLoginRequest userGoogleLoginRequest) {
-        UserLoginResponse userLoginResponse = googleAuthService.loginWithGoogle(userGoogleLoginRequest.getIdToken());
         return buildAuthResponse(userLoginResponse);
     }
 
@@ -109,7 +103,12 @@ public class AuthController {
                 .build();
     }
 
-    
+    @PostMapping("/google-login")
+    public ResponseEntity<?> loginWithGoogle(@RequestBody UserGoogleLoginRequest userGoogleLoginRequest) {
+        UserLoginResponse userLoginResponse = googleAuthService.loginWithGoogle(userGoogleLoginRequest.getIdToken());
+        return buildAuthResponse(userLoginResponse);
+        //return ApiResponse.success(googleAuthService.loginWithGoogle(userGoogleLoginRequest.getIdToken()));
+    }
 
     @PostMapping("/google-link")
     public void linkWithGoogle(@RequestBody UserGoogleLoginRequest userGoogleLoginRequest) {
