@@ -6,12 +6,14 @@ import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.gson.GsonFactory;
 import com.web.dto.response.auth.UserLoginResponse;
 import com.web.entity.CartEntity;
+import com.web.entity.RefreshTokenEntity;
 import com.web.entity.RoleEntity;
 import com.web.entity.UserEntity;
 import com.web.enums.Provider;
 import com.web.enums.Role;
 import com.web.exception.MyException;
 import com.web.mapper.UserMapper;
+import com.web.repository.RefreshTokenRepository;
 import com.web.repository.RoleRepository;
 import com.web.repository.UserRepository;
 import com.web.security.CustomUserDetails;
@@ -36,6 +38,7 @@ public class GoogleAuthService {
     private final JwtUtils jwtUtils;
     private final UserMapper userMapper;
     private final RoleRepository roleRepository;
+    private final RefreshTokenRepository refreshTokenRepository;
     public GoogleIdToken.Payload verify(String idTokenString) {
         try {
             GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(
@@ -85,6 +88,17 @@ public class GoogleAuthService {
         CustomUserDetails userDetail = new CustomUserDetails(user);
         String accessToken = jwtUtils.generateAccessToken(userDetail);
         String freshToken = jwtUtils.generateRefreshToken(userDetail);
+        
+        RefreshTokenEntity freshE = new RefreshTokenEntity();
+        LocalDateTime now = LocalDateTime.now();
+        freshE.setJti(jwtUtils.getJti(freshToken));
+        freshE.setUser(userDetail.getUser());
+        freshE.setCreatedAt(now);
+        freshE.setExpiredAt(now.plusDays(7));
+        freshE.setRevoked(false);
+        
+        refreshTokenRepository.save(freshE);
+        
         UserLoginResponse userResponse = new UserLoginResponse();
         userResponse.setAccessToken(accessToken);
         userResponse.setRefreshToken(freshToken);

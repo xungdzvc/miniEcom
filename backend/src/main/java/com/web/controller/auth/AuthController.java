@@ -79,32 +79,37 @@ public class AuthController {
 
     @PostMapping("/fresh-token")
     public ResponseEntity<?> refresh(
-            @CookieValue(value = "refresh_token",required = false) String refreshToken) {
-
+            @CookieValue(value = "refresh_token", required = false) String refreshToken) {
+        
         UserLoginResponse userLoginResponse = authService.refreshToken(refreshToken);
 
         return buildAuthResponse(userLoginResponse);
     }
+    
+    @PostMapping("/google-login")
+    public ResponseEntity<?> loginWithGoogle(@RequestBody UserGoogleLoginRequest userGoogleLoginRequest) {
+        UserLoginResponse userLoginResponse = googleAuthService.loginWithGoogle(userGoogleLoginRequest.getIdToken());
+        return buildAuthResponse(userLoginResponse);
+    }
 
     @PostMapping("/logout")
-    public ResponseEntity<?> logout(@CookieValue(value = "refresh_token") String refreshToken) {
-        authService.logout(refreshToken);
+    public ResponseEntity<?> logout(@CookieValue(value = "refresh_token", required = false) String refreshToken) {
+        if (refreshToken != null && !refreshToken.isBlank()) {
+            authService.logout(refreshToken);
+        }
         ResponseCookie cookie = ResponseCookie.from("refresh_token", "")
                 .httpOnly(true)
                 .secure(true)
                 .path("/")
                 .maxAge(0)
                 .build();
-        
+
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, cookie.toString())
                 .build();
     }
 
-    @PostMapping("/google-login")
-    public ApiResponse<?> loginWithGoogle(@RequestBody UserGoogleLoginRequest userGoogleLoginRequest) {
-        return ApiResponse.success(googleAuthService.loginWithGoogle(userGoogleLoginRequest.getIdToken()));
-    }
+    
 
     @PostMapping("/google-link")
     public void linkWithGoogle(@RequestBody UserGoogleLoginRequest userGoogleLoginRequest) {
