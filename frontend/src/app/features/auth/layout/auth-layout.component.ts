@@ -9,7 +9,7 @@ import { CommonModule } from '@angular/common';
   styleUrls: ['./auth-layout.component.css'],
 })
 export class AuthLayoutComponent {
-  @Input() brand = 'TuanBinh Enterprise';
+  @Input() brand = 'Xunglord Enterprise';
   @Input() badgeText = 'Trusted Platform';
 
   // nội dung bên trái (bạn có thể đổi tuỳ shop)

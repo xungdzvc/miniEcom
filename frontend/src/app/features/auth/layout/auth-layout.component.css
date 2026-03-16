@@ -1,18 +1,24 @@
+* {
+  box-sizing: border-box;
+}
+
 :host { display: block; }
 
-.auth-page{
+.auth-page {
   min-height: 100vh;
-  padding: 24px;
-  display: grid;
-  place-items: center;
+  padding: 16px; /* Giảm padding trên mobile */
+  display: flex;
+  align-items: center;
+  justify-content: center;
   background:
     radial-gradient(900px 420px at 20% 10%, rgba(16,185,129,.14), transparent 60%),
     radial-gradient(760px 420px at 90% 10%, rgba(59,130,246,.10), transparent 55%),
     #0b1220;
 }
 
-.auth-grid{
-  width: min(1080px, 100%);
+.auth-grid {
+  width: 100%;
+  max-width: 1080px;
   min-height: 620px;
   border-radius: 22px;
   overflow: hidden;
@@ -20,19 +26,23 @@
   background: rgba(255,255,255,.03);
   backdrop-filter: blur(10px);
   display: grid;
-  grid-template-columns: 1.25fr .9fr;
+  grid-template-columns: 1.25fr 0.9fr;
 }
 
-.hero{
-  padding: 42px 42px;
+.hero {
+  padding: 42px;
   color: rgba(255,255,255,.92);
   background:
     radial-gradient(900px 520px at 30% 10%, rgba(16,185,129,.22), transparent 58%),
     linear-gradient(135deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
-.hero-inner{ max-width: 560px; }
-
+.hero-inner { 
+  max-width: 100%; /* Đổi từ 560px sang 100% để linh hoạt hơn */
+}
 .badge{
   display: inline-flex;
   align-items: center;
@@ -118,19 +128,37 @@
 .panel{
   display: grid;
   place-items: center;
-  padding: 28px;
+  padding: 12px;
   background: rgba(255,255,255,.02);
 }
 
 /* responsive: mobile -> hero lên trên, form xuống dưới */
-@media (max-width: 900px){
-  .auth-grid{
-    grid-template-columns: 1fr;
+@media (max-width: 900px) {
+  .auth-page {
+    padding: 10px;
   }
-  .hero{
-    padding: 28px 22px;
+  .auth-grid {
+    grid-template-columns: 1fr; /* Chuyển sang 1 cột */
+    min-height: auto;
+    margin: 20px 0;
   }
-  .panel{
-    padding: 22px;
+  .hero {
+    padding: 32px 24px;
+    text-align: center; /* Căn giữa nội dung trên mobile cho đẹp */
+  }
+  .hero-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .bullets {
+    text-align: left;
+    margin: 18px auto 0;
+  }
+  .panel {
+    padding: 32px 16px; /* Tăng padding để form không sát mép */
+  }
+  .hero-footer {
+    grid-template-columns: 1fr; /* Card mini xếp chồng trên mobile */
   }
 }

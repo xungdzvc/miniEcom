@@ -5,7 +5,6 @@
   </div>
 
   <form (ngSubmit)="submitForm(f)" #f="ngForm" novalidate>
-    <!-- Username -->
     <div class="form-group">
       <label>Tên đăng nhập</label>
       <input
@@ -15,6 +14,7 @@
         name="username"
         class="form-control"
         required
+        autocomplete="username"
         #username="ngModel"
       />
       @if (username.invalid && (username.dirty || username.touched)) {
@@ -22,7 +22,6 @@
       }
     </div>
 
-    <!-- Email (Register only) -->
     @if (mode === 'register') {
       <div class="form-group slide-in">
         <label>Email</label>
@@ -34,6 +33,7 @@
           class="form-control"
           required
           email
+          autocomplete="email"
           #emailModel="ngModel"
         />
         @if (emailModel.invalid && (emailModel.dirty || emailModel.touched)) {
@@ -45,7 +45,6 @@
       </div>
     }
 
-    <!-- Password -->
     <div class="form-group">
       <label>Mật khẩu</label>
 
@@ -57,6 +56,7 @@
           name="password"
           class="form-control has-suffix"
           required
+          autocomplete="current-password"
           #password="ngModel"
         />
 
@@ -67,13 +67,11 @@
           [attr.aria-label]="showPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'"
         >
           @if (!showPassword) {
-            <!-- eye -->
             <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
               <path d="M12 5c-7 0-10 7-10 7s3 7 10 7 10-7 10-7-3-7-10-7zm0 12a5 5 0 1 1 0-10 5 5 0 0 1 0 10z" fill="currentColor"/>
               <path d="M12 9a3 3 0 1 0 0 6 3 3 0 0 0 0-6z" fill="currentColor"/>
             </svg>
           } @else {
-            <!-- eye-off -->
             <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
               <path d="M2 5.27 3.28 4 20 20.72 18.73 22l-3.2-3.2c-1.1.44-2.3.7-3.53.7-7 0-10-7-10-7a18.6 18.6 0 0 1 5.05-5.73L2 5.27zM12 7c7 0 10 7 10 7a18.6 18.6 0 0 1-3.9 4.8l-2.03-2.03A5 5 0 0 0 9.23 8.1L7.74 6.6A11.7 11.7 0 0 1 12 7z" fill="currentColor"/>
             </svg>
@@ -86,7 +84,6 @@
       }
     </div>
 
-    <!-- Retype password (Register only) -->
     @if (mode === 'register') {
       <div class="form-group slide-in">
         <label>Nhập lại mật khẩu</label>
@@ -99,6 +96,7 @@
             name="retype_password"
             class="form-control has-suffix"
             required
+            autocomplete="new-password"
             #retype="ngModel"
           />
 
@@ -130,7 +128,6 @@
         }
       </div>
 
-      <!-- Terms (Register only) -->
       <div class="terms-row slide-in">
         <label class="terms">
           <input
@@ -141,7 +138,7 @@
             #agree="ngModel"
           />
           <span>
-            Toi dong tinh với
+            Tôi đồng ý với
             <a class="link" [routerLink]="termsPath" (click)="$event.stopPropagation()">Điều khoản dịch vụ</a>
             và
             <a class="link" [routerLink]="privacyPath" (click)="$event.stopPropagation()">Chính sách bảo mật</a>
@@ -167,20 +164,16 @@
       {{ buttonText }}
     </button>
 
-    <!-- Divider -->
     <div class="auth-divider">
       <span>Hoặc</span>
     </div>
 
-    <!-- Google Login -->
     <div class="google-login-wrapper">
       <div #googleBtn></div>
     </div>
 
-    <!-- Extra actions -->
     <ng-content></ng-content>
 
-    <!-- Extra actions: forgot password + switch login/register -->
     @if (mode === 'login' && showLoginExtras) {
       <div class="aux-row">
         <a class="link" [routerLink]="forgotPasswordPath">Quên mật khẩu?</a>
