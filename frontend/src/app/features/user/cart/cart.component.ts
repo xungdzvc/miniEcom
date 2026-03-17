@@ -221,16 +221,29 @@ export class CartComponent implements OnInit {
   private updateQty(it: any, qty: number): void {
     if (!this.cartItems?.cartItems) return;
 
+    const currentCart = this.cartItems;
+    const oldQty = it.quantity;
+
     this.cartItems = {
-      ...this.cartItems,
-      cartItems: this.cartItems.cartItems.map((x) =>
+      ...currentCart,
+      cartItems: currentCart.cartItems.map((x) =>
         x.id === it.id ? { ...x, quantity: qty } : x
       ),
     };
 
-    this.cartService.updateQty(it.id, qty).subscribe(
+    this.cartService.updateQty(it.id, qty).subscribe({
+      next: () => {},
+      error: (err) => {
+        this.cartItems = {
+          ...currentCart,
+          cartItems: currentCart.cartItems.map((x) =>
+            x.id === it.id ? { ...x, quantity: oldQty } : x
+          ),
+        };
 
-    );
+        this.notifi.error(err?.error?.message ?? 'Lỗi khi cập nhật số lượng');
+      },
+    });
   }
 
   // ===== actions =====

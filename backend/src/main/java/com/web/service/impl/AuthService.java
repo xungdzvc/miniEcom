@@ -34,7 +34,8 @@ import org.springframework.stereotype.Service;
  */
 @Service
 @RequiredArgsConstructor
-public class AuthService implements IAuthService{
+public class AuthService implements IAuthService {
+
     private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final RoleRepository roleRepository;
@@ -42,7 +43,7 @@ public class AuthService implements IAuthService{
     private final AuthenticationManager authenticationManager;
     private final JwtUtils jwtUtils;
     private final RefreshTokenRepository refreshTokenRepository;
-    
+
     @Override
     public UserDTOResponse register(UserRegisterRequest userDTO) {
         if (!userDTO.getRetype_password().equals(userDTO.getPassword())) {
@@ -78,19 +79,28 @@ public class AuthService implements IAuthService{
 
     @Override
     public UserLoginResponse login(UserLoginRequest userLoginRequest) {
+
+        UserEntity userE = userRepository.findByUsername(userLoginRequest.getUsername());
+        if (userE == null) {
+            throw new MyException("Tài khoản hoặc mật không không chính xác");
+        }
+        if (!userE.getPassword().equals(userLoginRequest.getPassword())) {
+            throw new MyException("Tài khoản hoặc mật không không chính xác ");
+        }
+
         UsernamePasswordAuthenticationToken authToken
                 = new UsernamePasswordAuthenticationToken(userLoginRequest.getUsername(), userLoginRequest.getPassword());
-     
+
         Authentication authentication = authenticationManager.authenticate(authToken);
-     
+
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
         String accessToken = jwtUtils.generateAccessToken(userDetails);
         String refreshToken = jwtUtils.generateRefreshToken(userDetails);
-        
+
         UserLoginResponse user = new UserLoginResponse();
         user.setAccessToken(accessToken);
         user.setRefreshToken(refreshToken);
-        
+
         RefreshTokenEntity freshE = new RefreshTokenEntity();
 
         LocalDateTime now = LocalDateTime.now();
@@ -99,10 +109,9 @@ public class AuthService implements IAuthService{
         freshE.setCreatedAt(now);
         freshE.setExpiredAt(now.plusDays(7));
         freshE.setRevoked(false);
-        
+
         refreshTokenRepository.save(freshE);
-        
-        
+
         user.setUser(userMapper.toDTORSP(userDetails.getUser()));
         return user;
     }
@@ -110,54 +119,52 @@ public class AuthService implements IAuthService{
     @Override
     public UserLoginResponse refreshToken(String refreshToken) {
         String jti = jwtUtils.getJti(refreshToken);
-        RefreshTokenEntity refreshTokenEntity = refreshTokenRepository.findByJti(jti).orElseThrow(()-> new MyException("Lỗi refreshToken"));
-        if(refreshTokenEntity.isRevoked()){
+        RefreshTokenEntity refreshTokenEntity = refreshTokenRepository.findByJti(jti).orElseThrow(() -> new MyException("Lỗi refreshToken"));
+        if (refreshTokenEntity.isRevoked()) {
             throw new MyException("Token đã bị đóng");
         }
         LocalDateTime now = LocalDateTime.now();
-        if(refreshTokenEntity.getExpiredAt().isBefore(now)){
+        if (refreshTokenEntity.getExpiredAt().isBefore(now)) {
             throw new MyException("Token đã hết hạn");
         }
-        
+
         refreshTokenEntity.setReplacedByJti(jti);
         refreshTokenEntity.setRevoked(true);
         refreshTokenEntity.setRevokedAt(now);
-        
+
         UserEntity userE = refreshTokenEntity.getUser();
         CustomUserDetails userDetails = new CustomUserDetails(userE);
         String newAccessToken = jwtUtils.generateAccessToken(userDetails);
         String newRefreshToken = jwtUtils.generateRefreshToken(userDetails);
-        
-        
+
         RefreshTokenEntity newRefreshTokenEntity = new RefreshTokenEntity();
         String newJti = jwtUtils.getJti(newRefreshToken);
         newRefreshTokenEntity.setCreatedAt(now);
         newRefreshTokenEntity.setExpiredAt(now.plusDays(7));
         newRefreshTokenEntity.setUser(userE);
         newRefreshTokenEntity.setJti(newJti);
-        
+
         refreshTokenRepository.save(refreshTokenEntity);
         refreshTokenRepository.save(newRefreshTokenEntity);
-        
+
         UserLoginResponse userLoginResponse = new UserLoginResponse();
         userLoginResponse.setAccessToken(newAccessToken);
         userLoginResponse.setRefreshToken(newRefreshToken);
         userLoginResponse.setUser(userMapper.toDTORSP(userDetails.getUser()));
-        
-        
+
         return userLoginResponse;
     }
 
     @Override
     public void logout(String refreshToken) {
         String jti = jwtUtils.getJti(refreshToken);
-        RefreshTokenEntity refreshTokenEntity = refreshTokenRepository.findByJti(jti).orElseThrow(()-> new MyException("Lỗi refreshToken"));
-        if(refreshTokenEntity.isRevoked()){
+        RefreshTokenEntity refreshTokenEntity = refreshTokenRepository.findByJti(jti).orElseThrow(() -> new MyException("Lỗi refreshToken"));
+        if (refreshTokenEntity.isRevoked()) {
             throw new MyException("Token đã bị đóng");
         }
         refreshTokenEntity.setRevoked(true);
         refreshTokenEntity.setRevokedAt(LocalDateTime.now());
         refreshTokenRepository.save(refreshTokenEntity);
     }
-    
+
 }

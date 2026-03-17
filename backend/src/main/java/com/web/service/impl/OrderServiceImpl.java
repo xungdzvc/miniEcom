@@ -110,7 +110,7 @@ public class OrderServiceImpl implements IOrderService {
                 throw new MyException("Có sản phẩm không tồn tại hoặc đã ngừng kinh doanh");
             }
             if (productEntity.getProductDetail().getQuantity() < item.getQuantity()) {
-                throw new MyException(productEntity.getName() + " không đủ số lượng trong kho vui lòng giảm số lượng hoặc chọn sản phẩm khác");
+                throw new MyException(productEntity.getName() + " Chỉ còn " + productEntity.getProductDetail().getQuantity() + " trong kho hãy giảm số lượng xuống hoặc chọn mặt hàng khác thay thế");
             }
             OrderItemEntity iOrder = new OrderItemEntity();
             iOrder.setProduct(productEntity);
@@ -223,7 +223,9 @@ public class OrderServiceImpl implements IOrderService {
         if (user == null) {
             throw new MyException("Nguời dùng không hợp lệ");
         }
-
+        if (product.getProductDetail().getQuantity() < 1) {
+            throw new MyException(product.getName() + " Chỉ còn " + product.getProductDetail().getQuantity() + " trong kho hãy giảm số lượng xuống hoặc chọn mặt hàng khác thay thế");
+        }
         OrderEntity order = new OrderEntity();
         LocalDateTime now = LocalDateTime.now();
         long totalPrice = Utils.calsubPercent(product.getPrice() * directCheckoutRequest.getQuantity(), product.getProductDetail().getDiscount());

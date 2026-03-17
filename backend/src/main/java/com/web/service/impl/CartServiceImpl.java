@@ -31,12 +31,12 @@ public class CartServiceImpl implements ICartService {
     private final CartItemRepository cartItemRepository;
     private final UserRepository userRepository;
     private final ProductRepository productRepository;
-    
+
     @Override
     public CartResponse addProductToCart(String slug) {
         Long userId = SecurityUtil.getUserId();
         CartEntity cartEntity = cartRepository.findByUserId(userId);
-        if(cartEntity == null){
+        if (cartEntity == null) {
             UserEntity user = userRepository.getReferenceById(userId);
             cartEntity = new CartEntity();
             cartEntity.setUser(user);
@@ -73,10 +73,10 @@ public class CartServiceImpl implements ICartService {
     public CartResponse removeProductFromCart(Long cartItemId) {
         Long userId = SecurityUtil.getUserId();
         CartEntity cartEntity = cartRepository.findByUserId(userId);
-        if(cartEntity == null){
+        if (cartEntity == null) {
             throw new MyException("Giỏ hàng không tồn tại");
         }
-       
+
         CartItemEntity existProduct = cartEntity.getCartItems().stream()
                 .filter(item -> item.getId().equals(cartItemId))
                 .findFirst().orElse(null);
@@ -111,24 +111,23 @@ public class CartServiceImpl implements ICartService {
         return cartResponse;
     }
 
-    
-
     @Transactional
     @Override
     public CartResponse updateProductQuantityFromCart(Long cartItemId, Integer quantity) {
+        CartItemEntity cartI = cartItemRepository.findById(cartItemId).orElseThrow(() -> new MyException("Không tồn tại item này"));
+        if (cartI.getProduct().getProductDetail().getQuantity() < quantity) {
+            throw new MyException(cartI.getProduct().getName() + " Chỉ còn " + cartI.getProduct().getProductDetail().getQuantity() + " trong kho hãy giảm số lượng xuống hoặc chọn mặt hàng khác thay thế");
+        }
         Long userId = SecurityUtil.getUserId();
         if (quantity == null || quantity < 1) {
             throw new MyException("Số lượng phải >= 1");
         }
-
         int updated = cartItemRepository.updateQty(userId, cartItemId, quantity);
         if (updated == 0) {
             throw new MyException("Không tìm thấy sản phẩm trong giỏ");
         }
 
-        CartEntity cart = cartRepository.findByUserId(userId);
-
-        return cartMapper.toCartResponse(cart);
+        return cartMapper.toCartResponse(cartI.getCart());
     }
 
     @Override

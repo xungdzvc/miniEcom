@@ -41,7 +41,7 @@ public class SecurityConfig {
         return username -> {
             UserEntity user = userRepository.findByUsername(username);
             if (user == null) {
-                throw new MyException(username + " not exists");
+                throw new MyException("Thông tin tài khoản hoặc mật khẩu không chính xác");
             }
             return new CustomUserDetails(user);
         };

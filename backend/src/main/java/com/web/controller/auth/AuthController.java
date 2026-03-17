@@ -38,18 +38,10 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<?> register(
-            @Valid @RequestBody UserRegisterRequest request,
-            BindingResult bindingResult
+            @Valid @RequestBody UserRegisterRequest request
     ) {
 
-        if (bindingResult.hasErrors()) {
 
-            String message = bindingResult.getFieldErrors()
-                    .get(0)
-                    .getDefaultMessage();
-
-            return ResponseEntity.badRequest().body(message);
-        }
 
         UserDTOResponse userResponse = authService.register(request);
 
@@ -65,13 +57,8 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@Valid @RequestBody UserLoginRequest userLoginRequest, BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            String message = bindingResult.getFieldErrors()
-                    .get(0)
-                    .getDefaultMessage();
-            return ResponseEntity.badRequest().body(message);
-        }
+    public ResponseEntity<?> login(@Valid @RequestBody UserLoginRequest userLoginRequest) {
+        
         UserLoginResponse userLoginResponse = authService.login(userLoginRequest);
 
         return buildAuthResponse(userLoginResponse);

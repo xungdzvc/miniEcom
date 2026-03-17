@@ -5,15 +5,17 @@ import com.web.dto.request.order.OrderCheckoutRequest;
 import com.web.dto.response.common.ApiResponse;
 import com.web.service.IOrderService;
 import com.web.service.IUserService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/order")
+@RequiredArgsConstructor
 public class OrderController {
 
-    @Autowired
-    IOrderService iOrderService;
+    
+    private final IOrderService iOrderService;
 
     @PostMapping("/checkout")
     public ApiResponse<?> checkoutByBankOrWallet(@RequestBody OrderCheckoutRequest orderCheckoutRequest) {
