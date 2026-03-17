@@ -23,8 +23,12 @@ import com.web.service.IAuthService;
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.LockedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -82,22 +86,25 @@ public class AuthService implements IAuthService {
 
         UserEntity userE = userRepository.findByUsername(userLoginRequest.getUsername());
         if (userE == null) {
-            throw new MyException("Tài khoản hoặc mật không không chính xác");
+            throw new MyException("Tài khoản không chính xác");
         }
-        if (!userE.getPassword().equals(userLoginRequest.getPassword())) {
-            throw new MyException("Tài khoản hoặc mật không không chính xác ");
-        }
+        UserLoginResponse user = new UserLoginResponse();
 
         UsernamePasswordAuthenticationToken authToken
                 = new UsernamePasswordAuthenticationToken(userLoginRequest.getUsername(), userLoginRequest.getPassword());
 
-        Authentication authentication = authenticationManager.authenticate(authToken);
+        Authentication authentication = null;
+        try{
+            authentication = authenticationManager.authenticate(authToken);
+        }catch(Exception e){
+            throw new MyException("Thông tin tin tài khoản hoặc mật khẩu không chính xác");
+        }
 
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
         String accessToken = jwtUtils.generateAccessToken(userDetails);
         String refreshToken = jwtUtils.generateRefreshToken(userDetails);
 
-        UserLoginResponse user = new UserLoginResponse();
+
         user.setAccessToken(accessToken);
         user.setRefreshToken(refreshToken);
 
@@ -114,6 +121,9 @@ public class AuthService implements IAuthService {
 
         user.setUser(userMapper.toDTORSP(userDetails.getUser()));
         return user;
+
+
+
     }
 
     @Override

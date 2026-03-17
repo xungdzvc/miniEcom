@@ -29,7 +29,7 @@ public class BankAccountEntity {
     @Column(name = "active")
     private  boolean active;
 
-    @Column(name = "create_at")
+    @Column(name = "created_at")
     private LocalDateTime createAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
