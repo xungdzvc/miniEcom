@@ -43,6 +43,8 @@ services:
     build: ./backend
     container_name: ecommerce_backend
     restart: always
+    volumes:
+      - /opt/apps/miniEcom/uploads:/opt/apps/miniEcom/uploads
     env_file:
       - .env
     environment:
