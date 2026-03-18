@@ -194,8 +194,8 @@ public class ProductServiceImpl implements IProductService {
             productEntity.setProductDetail(productDetailEntity);
         }
 
-        int views = productDetailEntity.getViewCount();
-        productDetailEntity.setViewCount(views + 1);
+        int views = (productDetailEntity.getViewCount() == null) ? 0 : productDetailEntity.getViewCount();
+        productDetailEntity.setViewCount( views + 1);
 
         productRepository.save(productEntity);
     }
