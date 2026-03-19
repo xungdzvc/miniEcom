@@ -253,7 +253,7 @@ public class OrderServiceImpl implements IOrderService {
         order.setExpiresAt(now.plusMinutes(15));
 
         order.setUser(user);
-        String orderUrl = baseUrl + "/order/" + order.getId() + "/detail";
+        
         if (!isBanking) {
             order.setPaymentMethod(PaymentMethod.WALLET);
             order.setTotal(finalPrice);
@@ -269,6 +269,7 @@ public class OrderServiceImpl implements IOrderService {
 
         }
         orderRepository.saveAndFlush(order);
+        String orderUrl = baseUrl + "/order/" + order.getId() + "/detail";
         OrderCheckoutResponse checkoutResponse = orderMapper.toOrderCheckoutResponse(order);
         if (isBanking) {
             String transferContent = "HD" + now.getYear() + order.getId();

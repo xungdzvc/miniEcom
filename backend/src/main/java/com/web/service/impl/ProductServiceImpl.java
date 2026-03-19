@@ -48,9 +48,13 @@ public class ProductServiceImpl implements IProductService {
     public ProductResponse addOrUpdateProduct(ProductCreateOrUpdateRequest productDTO, Long productId) {
         Long userId = SecurityUtil.getUserId();
         UserEntity userEntity = userRepository.findById(userId).orElseThrow(() -> new MyException("Người bán không tồn tại"));
+        String slug = Utils.slugify(productDTO.getName());
         ProductEntity product = new ProductEntity();
         LocalDateTime now = LocalDateTime.now();
         if (productId == null) {
+            if(productRepository.existsBySlug(slug)){
+                throw new MyException("Sản phẩm này đã tồn tại trong cửa hàng");
+            }
             product = productMapper.toEntity(productDTO);
             product.setCreatedAt(now);
             product.setUser(userEntity);
@@ -69,7 +73,7 @@ public class ProductServiceImpl implements IProductService {
 
         product.setStatus(productDTO.getStatus());
         product.setThumbnail(productDTO.getThumbnail());
-        product.setSlug(Utils.slugify(productDTO.getName()));
+        product.setSlug(slug);
         product.setName(productDTO.getName());
         product.setDescription(productDTO.getDescription());
         product.setCategory(categoryEntity);

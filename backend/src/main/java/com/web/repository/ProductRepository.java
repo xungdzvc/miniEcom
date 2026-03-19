@@ -16,5 +16,6 @@ public interface ProductRepository extends JpaRepository<ProductEntity,Long> {
     int countByStatusFalse();
     ProductEntity findByIdAndStatusTrue(Long id);
     public List<ProductEntity> findByCategoryId(Long categoryId);
+    boolean existsBySlug(String slug);
     
 }
