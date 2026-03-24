@@ -1,8 +1,10 @@
 package com.web.dto.request.user;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
+@Getter
+@Setter
 public class ChangeProfileRequest {
     private String fullName;
     private String phoneNumber;

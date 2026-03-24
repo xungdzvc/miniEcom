@@ -6,14 +6,15 @@ package com.web.dto.request.auth;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  *
  * @author ZZ
  */
-@Data
+@Getter
+@Setter
 public class UserRegisterRequest {
     
     @Email

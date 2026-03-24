@@ -334,7 +334,7 @@ public class PaymentTransactionService implements IPaymentTransactionService {
 
     @Override
     public PaymentStatus getStatusByTopupId(Long topupId) {
-        TopupIntentEntity topupIntentEntity = topupIntentRepository.findById(topupId).get();
+        TopupIntentEntity topupIntentEntity = topupIntentRepository.findById(topupId).orElseThrow(()-> new MyException("Topup intent không tồn tại"));
         return topupIntentEntity.getStatus();
     }
 

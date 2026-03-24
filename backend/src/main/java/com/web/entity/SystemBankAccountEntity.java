@@ -10,15 +10,17 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import java.time.LocalDateTime;
-import lombok.Data;
+import java.time.LocalDateTime; 
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  *
  * @author ZZ
  */
 @Entity
-@Data
+@Getter
+@Setter
 @Table(name = "system_bank_account")
 public class SystemBankAccountEntity {
 

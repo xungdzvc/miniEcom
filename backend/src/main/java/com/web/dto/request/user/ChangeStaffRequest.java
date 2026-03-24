@@ -4,13 +4,11 @@
  */
 package com.web.dto.request.user;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
-/**
- *
- * @author ZZ
- */
-@Data
+@Getter
+@Setter
 public class ChangeStaffRequest {
     private boolean staff;
 }

@@ -8,10 +8,10 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
-import java.util.stream.Collectors;
-import lombok.Data;
+import java.util.stream.Collectors; 
 
-@Data
+@Getter
+@Setter
 public class CustomUserDetails implements UserDetails {
 
     private UserEntity user;

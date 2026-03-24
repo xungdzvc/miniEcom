@@ -1,9 +1,11 @@
 package com.web.dto;
 
 import java.time.LocalDateTime;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
+@Getter
+@Setter
 public class CategoryDTO {
     private Long id;
     private String name;

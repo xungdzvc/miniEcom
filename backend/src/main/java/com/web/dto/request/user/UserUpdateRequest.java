@@ -6,13 +6,10 @@ package com.web.dto.request.user;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
-import lombok.Data;
-
-/**
- *
- * @author ZZ
- */
-@Data
+import lombok.Getter;
+import lombok.Setter;
+@Getter
+@Setter
 public class UserUpdateRequest {
     private String fullName;
     @NotBlank(message = "Số điện thoại không thể để trống")

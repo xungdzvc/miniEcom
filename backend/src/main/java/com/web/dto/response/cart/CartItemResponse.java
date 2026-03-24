@@ -4,14 +4,11 @@
  */
 package com.web.dto.response.cart;
 
-import java.util.List;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
-/**
- *
- * @author ZZ
- */
-@Data
+@Getter
+@Setter
 public class CartItemResponse {
     private Long id;
     private Long productId;

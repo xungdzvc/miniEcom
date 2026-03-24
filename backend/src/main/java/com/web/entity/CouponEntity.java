@@ -2,12 +2,14 @@ package com.web.entity;
 
 
 import jakarta.persistence.*;
-import java.time.LocalDateTime;
-import lombok.Data;
+import java.time.LocalDateTime; 
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
 @Table(name = "coupon_code")
-@Data
+@Getter
+@Setter
 public class CouponEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

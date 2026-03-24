@@ -132,7 +132,7 @@ public class UserServiceImpl implements IUserService {
         if (dto.getRoleIds() != null) {
             List<RoleEntity> roles = new ArrayList<>();
             for (Long id : dto.getRoleIds()) {
-                roles.add(roleRepository.findById(id).get());
+                roles.add(roleRepository.findById(id).orElseThrow(()-> new MyException("Role không tồn tại")));
             }
 
             userE.setRoles(roles);

@@ -3,14 +3,16 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 package com.web.dto.request.auth;
-
-import lombok.Data;
+ 
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  *
  * @author ZZ
  */
-@Data
+@Getter
+@Setter
 public class UserPasswordUpdateRequest {
     private String oldPassword;
     private String newPassword;

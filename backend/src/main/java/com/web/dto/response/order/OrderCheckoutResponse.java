@@ -1,15 +1,13 @@
 package com.web.dto.response.order;
+ 
+import com.web.enums.PaymentMethod; 
 
-import com.web.dto.OrderItemDTO;
-import com.web.dto.response.cart.CartItemResponse;
-import com.web.enums.PaymentMethod;
-import java.math.BigDecimal;
-import lombok.Data;
+import java.time.LocalDateTime; 
+import lombok.Getter;
+import lombok.Setter;
 
-import java.time.LocalDateTime;
-import java.util.List;
-
-@Data
+@Getter
+@Setter
 public class OrderCheckoutResponse {
     private PaymentMethod paymentMethod;
     private Long orderId;

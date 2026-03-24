@@ -2,9 +2,10 @@ package com.web.dto.request.product;
 
 import jakarta.validation.constraints.NotBlank;
 import java.util.List;
-import lombok.Data;
-
-@Data
+import lombok.Getter;
+import lombok.Setter;
+@Getter
+@Setter
 public class ProductCreateRequest {
     @NotBlank(message = "Tên sản phẩm không được để trống")
     private String name;

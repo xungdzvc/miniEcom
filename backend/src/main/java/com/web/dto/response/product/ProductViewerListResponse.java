@@ -1,10 +1,10 @@
 package com.web.dto.response.product;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-
-@Data
-@AllArgsConstructor
+ 
+import lombok.Getter;
+import lombok.Setter;
+@Getter
+@Setter
 public class ProductViewerListResponse {
 
     private Long id;

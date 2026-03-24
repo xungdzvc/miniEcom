@@ -4,14 +4,11 @@
  */
 package com.web.dto.response.auth;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
-/**
- *
- * @author ZZ
- */
-
-@Data
+@Getter
+@Setter
 public class UserLoginResponse {
     private String accessToken;
     private String refreshToken;

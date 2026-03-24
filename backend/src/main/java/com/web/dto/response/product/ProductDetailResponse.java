@@ -5,13 +5,10 @@
 package com.web.dto.response.product;
 
 import java.util.List;
-import lombok.Data;
-
-/**
- *
- * @author ZZ
- */
-@Data
+import lombok.Getter;
+import lombok.Setter;
+ @Getter
+@Setter
 public class ProductDetailResponse {
     private Long id;
     private String name;

@@ -1,10 +1,11 @@
 package com.web.dto.response.cart;
 
-import lombok.Data;
-
+ 
 import java.util.List;
-
-@Data
+import lombok.Getter;
+import lombok.Setter;
+ @Getter
+@Setter
 public class CartResponse {
 
     private long id;

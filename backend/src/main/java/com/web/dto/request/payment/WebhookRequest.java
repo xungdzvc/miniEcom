@@ -4,15 +4,11 @@
  */
 package com.web.dto.request.payment;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
-import java.time.LocalDateTime;
-
-/**
- *
- * @author ZZ
- */
-@Data
+@Getter
+@Setter
 public class WebhookRequest {
     private Long id;
     private String gateway;

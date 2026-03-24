@@ -5,13 +5,10 @@
 package com.web.dto.request.product;
 
 import java.util.List;
-import lombok.Data;
-
-/**
- *
- * @author ZZ
- */
-@Data
+import lombok.Getter;
+import lombok.Setter;
+@Getter
+@Setter
 public class ProductUpdateRequest {
 
     private Long id;

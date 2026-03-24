@@ -5,13 +5,10 @@
 package com.web.dto.request.order;
 
 import com.web.enums.PaymentMethod;
-import lombok.Data;
-
-/**
- *
- * @author ZZ
- */
-@Data
+import lombok.Getter;
+import lombok.Setter;
+@Getter
+@Setter
 public class OrderCheckoutRequest {
     private Long cartId;
     private String couponCode;

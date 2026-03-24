@@ -1,10 +1,8 @@
 package com.web.entity;
-
-import com.web.enums.ProductStatus;
+ 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import lombok.Data;
+import java.util.ArrayList; 
 import lombok.Getter;
 import lombok.Setter;
 import java.util.List;

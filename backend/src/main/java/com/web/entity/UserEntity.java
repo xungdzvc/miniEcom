@@ -1,15 +1,17 @@
 package com.web.entity;
 
 import com.web.enums.Provider;
-import jakarta.persistence.*;
-import lombok.Data;
+import jakarta.persistence.*; 
 import java.time.LocalDateTime;
 import java.util.*;
+import lombok.Getter;
+import lombok.Setter;
 import org.checkerframework.common.aliasing.qual.Unique;
 
 @Entity
 @Table(name="users")
-@Data
+@Getter
+@Setter
 public class UserEntity {
     @Id
     @GeneratedValue(strategy =  GenerationType.IDENTITY)

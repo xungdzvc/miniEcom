@@ -1,11 +1,11 @@
 package com.web.dto.request.auth;
 
 import jakarta.validation.constraints.NotBlank;
-import lombok.Data;
+ 
 import lombok.Getter;
 import lombok.Setter;
 
-@Data
+
 @Getter
 @Setter
 

@@ -1,15 +1,13 @@
 package com.web.dto.response.product;
 
-import com.web.dto.request.product.ProductDetailDTO;
-import com.web.enums.ProductStatus;
-import lombok.AllArgsConstructor;
-import lombok.Data;
+ 
 
 import java.time.LocalDateTime;
 import java.util.List;
-
-@Data
-@AllArgsConstructor
+import lombok.Getter;
+import lombok.Setter;
+@Getter
+@Setter
 public class ProductResponse {
 
     private Long id;

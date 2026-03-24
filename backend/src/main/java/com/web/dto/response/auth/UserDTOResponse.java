@@ -4,15 +4,11 @@
  */
 package com.web.dto.response.auth;
 
-import lombok.Data;
-import lombok.RequiredArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
 
-/**
- *
- * @author ZZ
- */
-@RequiredArgsConstructor
-@Data
+@Getter
+@Setter
 public class UserDTOResponse {
     private Long id;
     private String fullName;

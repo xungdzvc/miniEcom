@@ -1,11 +1,13 @@
 package com.web.dto;
 
-import lombok.Data;
 
 import java.util.Date;
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
+@Getter
+@Setter
 public class ProductDTO {
 
     private Long id;

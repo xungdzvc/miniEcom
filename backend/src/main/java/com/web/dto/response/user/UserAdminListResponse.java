@@ -1,9 +1,10 @@
 package com.web.dto.response.user;
 
 import java.time.LocalDateTime;
-import lombok.Data;
-
-@Data
+import lombok.Getter;
+import lombok.Setter;
+@Getter
+@Setter
 public class UserAdminListResponse {
     private Long id;
     private String fullName;
