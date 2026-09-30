@@ -237,6 +237,7 @@ public class ProductServiceImpl implements IProductService {
     }
 
     @Override
+    @Transactional
     public void incrementSalesCount(ProductEntity product, Integer soLuongThem) {
         productDetailRepository.incrementSalesCount(product.getProductDetail().getId(), soLuongThem);
     }

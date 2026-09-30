@@ -25,7 +25,7 @@ public interface ProductDetailRepository extends JpaRepository<ProductDetailEnti
             """)
     void releaseStock(@Param("productDetailEntityId") Long productDetailEntityId, @Param("quantity") Integer quantity);
 
-    
+    @Modifying
     @Query("""
            update productDetailEntity pd 
            set pd.saleCount = pd.saleCount + :quantity
