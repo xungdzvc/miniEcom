@@ -22,6 +22,7 @@ public class OrderEntity extends BaseEntity {
     private Long id;
 
     @Version
+    @Column(name = "version", nullable = false)
     private Long version;
     
     @ManyToOne(fetch = FetchType.LAZY)

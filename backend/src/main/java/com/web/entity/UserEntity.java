@@ -12,13 +12,16 @@ import lombok.Setter;
 @Table(name="users")
 @Getter
 public class UserEntity extends BaseEntity{
-    @Version
-    private Long version;
+   
     @Setter
     @Id
     @GeneratedValue(strategy =  GenerationType.IDENTITY)
     private Long id;
 
+    @Version
+    @Column(name = "version", nullable = false)
+    private Long version;
+    
     @Setter
     @Column(name = "fullname")
     private String fullName;

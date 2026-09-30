@@ -24,6 +24,7 @@ public class ProductEntity extends BaseEntity{
     private Long id;
 
     @Version
+    @Column(name = "version", nullable = false)
     private Long version;
 
     @Column(name = "name")
