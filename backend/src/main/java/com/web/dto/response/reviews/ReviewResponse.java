@@ -4,7 +4,7 @@
  */
 package com.web.dto.response.reviews;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -19,9 +19,9 @@ public class ReviewResponse {
     private Long id;
     private Long productId;
     private String fullName;
-    private String userName;
+    private String username;
     private Integer rate;
     private String comment;
     private String userAvatar;
-    private LocalDateTime createdAt;
+    private Instant createdAt;
 }

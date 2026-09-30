@@ -15,16 +15,16 @@ export class CartService{
         return this.http.get<any>(`${this.API}`);
     }
     addProductToCart(slug:string) : Observable<any>{
-        return this.http.post<any>(`${this.API}/add`,{slug});
+        return this.http.post<any>(`${this.API}/items`,{slug});
     }
     updateQty(cartItemId:number, quantity:number) : Observable<any>{
-        return this.http.put<any>(`${this.API}/update-qty`,{cartItemId, quantity});
+        return this.http.put<any>(`${this.API}/items/${cartItemId}`,{quantity});
     }
     removeProductFromCart(cartItemId:number) : Observable<any>{
-        return this.http.delete<any>(`${this.API}/remove/${cartItemId}`);
+        return this.http.delete<any>(`${this.API}/items/${cartItemId}`);
     }
     clearCart() : Observable<any>{
-        return this.http.delete<any>(`${this.API}/clear`);
+        return this.http.delete<any>(`${this.API}/items/clear`);
     }
     getCartItemCount(): Observable<number> {
         return this.getCart().pipe(

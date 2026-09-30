@@ -4,6 +4,7 @@
  */
 package com.web.dto.request.auth;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -14,5 +15,6 @@ import lombok.Setter;
 @Setter
 @Getter
 public class UserGoogleLoginRequest {
+    @NotBlank(message = "idToken không được trống")
     private String idToken;
 }

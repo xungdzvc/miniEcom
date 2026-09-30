@@ -9,16 +9,15 @@ import com.web.dto.response.reviews.ReviewResponse;
 import com.web.entity.ReviewEntity;
 import com.web.entity.UserEntity;
 import com.web.exception.MyException;
-import com.web.repository.OrderRepository;
+import com.web.mapper.ReviewMapper;
 import com.web.repository.ProductRepository;
 import com.web.repository.ReviewRepository;
 import com.web.repository.UserRepository;
 import com.web.security.SecurityUtil;
 import com.web.service.IOrderService;
 import com.web.service.IReviewService;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -34,7 +33,8 @@ public class ReviewService implements IReviewService {
     private final IOrderService iOrderService;
     private final ReviewRepository reviewRepository;
     private final UserRepository userRepository;
-    private final ProductRepository productRepository;
+    private final ProductRepository productRepository; 
+    private final ReviewMapper reviewMapper;
 
     @Override
     public ReviewResponse addReview(ReviewRequest reviewRequest) {
@@ -52,14 +52,13 @@ public class ReviewService implements IReviewService {
         }
 
         review.setComment(reviewRequest.getComment());
-        review.setCreatedAt(LocalDateTime.now());
 
         UserEntity user = userRepository.findById(userId).orElseThrow(()-> new MyException("Tài khoản sảy ra lỗi "));
 
         review.setProduct(productRepository.findById(reviewRequest.getProductId()).orElseThrow(()-> new MyException("sản phẩm lỗi")));
         review.setUser(user);
         reviewRepository.save(review);
-        return toResponse(review);
+        return reviewMapper.toResponse(review);
     }
     
     @Override
@@ -68,29 +67,16 @@ public class ReviewService implements IReviewService {
         if(userId == null){
             return false;
         }
-        return iOrderService.existsByUserIdAndProductId(userId, productId);
+        return iOrderService.existsPurchaseByUserAndProduct(userId, productId);
     }
 
     @Override
     public List<ReviewResponse> getReviewsByProductId(Long productId) {
         List<ReviewEntity> reviewEntities = reviewRepository.findByProductId(productId);
-        List<ReviewResponse> reviewResponses = new ArrayList<>();
-        for(ReviewEntity review : reviewEntities){
-            reviewResponses.add(toResponse(review));
-        }
-        return reviewResponses;
+        return reviewEntities.stream().map(reviewMapper::toResponse).collect(Collectors.toList());
     }
 
-    ReviewResponse toResponse(ReviewEntity review){
-        ReviewResponse response = new ReviewResponse();
-        response.setComment(review.getComment());
-        response.setCreatedAt(review.getCreatedAt());
-        response.setProductId(review.getProduct().getId());
-        response.setFullName(review.getUser().getFullName());
-        response.setUserName(review.getUser().getUsername());
-        response.setRate(review.getRate());
-        return response;
-    }
+    
 
 
 }

@@ -37,8 +37,10 @@ export class ProductListComponent {
   activeCategoryId: number | null = null;    // lấy từ query param categoryId
 
   // pagination
-  pageSize = 8;        // ✅ 8 sản phẩm / trang
+  pageSize = 8;
   currentPage = 1;
+  totalPages = 1;
+  totalElements = 0;
 
   // -----------------------------
   // Derived UI data
@@ -89,18 +91,21 @@ export class ProductListComponent {
   return list;
 }
 
-  get totalPages(): number {
-    return Math.max(1, Math.ceil(this.filtered.length / this.pageSize));
+  get totalPagesSafe(): number {
+    return Math.max(1, this.totalPages || 1);
   }
 
   get pagedProducts(): ProductViewerListDetail[] {
-    const start = (this.currentPage - 1) * this.pageSize;
-    return this.filtered.slice(start, start + this.pageSize);
+    return this.filtered;
+  }
+
+  get pagedProductsSafe(): ProductViewerListDetail[] {
+    return this.pagedProducts ?? [];
   }
   trackById = (_: number, item: any) => item.id;
 
   get pages(): number[] {
-    return Array.from({ length: this.totalPages }, (_, i) => i + 1);
+    return Array.from({ length: this.totalPagesSafe }, (_, i) => i + 1);
   }
 
   // -----------------------------
@@ -114,16 +119,20 @@ export class ProductListComponent {
   setCategory(cat: string) {
     this.activeCategory = cat === 'Tất cả' ? null : cat;
     this.resetPage();
+    this.loadProduct();
   }
 
   setSort(k: SortKey) {
     this.sort = k;
     this.resetPage();
+    this.loadProduct();
   }
 
   goToPage(page: number) {
-    const safe = Math.min(Math.max(page, 1), this.totalPages);
+    const safe = Math.min(Math.max(page, 1), this.totalPagesSafe);
+    if (safe === this.currentPage) return;
     this.currentPage = safe;
+    this.loadProduct();
   }
 
   // -----------------------------
@@ -148,17 +157,21 @@ export class ProductListComponent {
       });
   }
 
-  loadProduct() {
+  loadProduct(): void {
+    this.isLoading = true;
+
     const req$ = this.activeCategoryId
-      ? this.productService.getProductByCategoryId(this.activeCategoryId)
-      : this.productService.getAllProductsForViewer();
-    
+      ? this.productService.getProductByCategoryId(this.activeCategoryId, this.currentPage - 1, this.pageSize)
+      : this.productService.getAllProductsForViewer(this.currentPage - 1, this.pageSize);
+
     req$
       .pipe(finalize(() => (this.isLoading = false)))
       .subscribe({
         next: res => {
-          this.products = res?.data ?? [];
-          this.resetPage();
+          this.products = res?.content ?? [];
+          this.totalPages = Math.max(1, Number(res?.totalPages ?? 1));
+          this.totalElements = Number(res?.totalElements ?? this.products.length ?? 0);
+          this.currentPage = Number(res?.number ?? this.currentPage - 1) + 1;
         },
         error: err => {
           const code = err?.status ?? 500;

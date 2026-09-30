@@ -6,6 +6,7 @@ package com.web.repository;
 
 import com.web.entity.ReviewEntity;
 import java.util.List;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 /**
@@ -13,6 +14,15 @@ import org.springframework.data.jpa.repository.JpaRepository;
  * @author ZZ
  */
 public interface ReviewRepository extends JpaRepository<ReviewEntity,Long>{
+    @EntityGraph(attributePaths = {
+        "product",
+        "user"
+    })
     List<ReviewEntity> findByProductId(Long productId);
+    
+    @EntityGraph(attributePaths = {
+        "product",
+        "user"
+    })
     public ReviewEntity findByProductIdAndUserId(Long productId, Long userId);
 }

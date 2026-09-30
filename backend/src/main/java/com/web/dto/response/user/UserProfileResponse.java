@@ -4,6 +4,7 @@
  */
 package com.web.dto.response.user;
 
+import java.math.BigDecimal;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -16,7 +17,7 @@ public class UserProfileResponse {
     String phoneNumber;
     String address;
     String googleId;
-    float totalVnd;
-    float vnd;
+    BigDecimal totalDeposit;
+    BigDecimal currentBalance;
     
 }

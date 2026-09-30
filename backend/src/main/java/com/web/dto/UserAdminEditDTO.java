@@ -21,7 +21,7 @@ public class UserAdminEditDTO {
     private String username;
     private String phoneNumber;
     private Boolean isActive;
-    private Long vnd;
-    private Long totalVnd;
+    private Long currentBalance;
+    private Long totalDeposit; 
     private List<Long> roleIds;
 }

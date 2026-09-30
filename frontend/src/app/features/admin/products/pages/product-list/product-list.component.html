@@ -4,14 +4,6 @@
     title="📦 Quản lý Sản phẩm"
     subtitle="Danh sách sản phẩm dành cho quản trị"
   >
-  <div class="admin-search">
-    <input
-      type="text"
-      placeholder="Tìm sản phẩm..."
-      [(ngModel)]="q"
-      (input)="onSearchChange()"
-    />
-  </div>
     <button class="admin-btn admin-btn-secondary" (click)="reloadElastic()">🔄 Rebuild elastic</button>
     <button class="admin-btn admin-btn-secondary" (click)="reload()">🔄 Tải lại</button>
     <button class="admin-btn admin-btn-primary" (click)="goAddProduct()">➕ Thêm Sản Phẩm</button>
@@ -50,8 +42,8 @@
         </thead>
 
         <tbody>
-          @for (product of pagedProducts; track product.id) {
-            <tr>
+          @for (product of products; track product.id) {
+            <tr>    
               <td>{{ product.id }}</td>
               <td>
                 <img
@@ -66,8 +58,8 @@
               <td>
                 <app-status-badge
                   [on]="product.status"
-                  onText="Đang kinh doanh"
-                  offText="Ngừng kinh doanh"
+                  [onText]="'Đang kinh doanh'"
+                  [offText]="'Ngừng kinh doanh'"
                 ></app-status-badge>
               </td>
               <td>{{ product.createdAt | date:'HH:mm:ss dd/MM/yyyy' }}</td>
@@ -93,28 +85,31 @@
         </tbody>
       </app-admin-table>
       <div class="admin-pagination">
+        <div class="admin-pagination-meta">
+          <span class="admin-pagination-label">Điều hướng</span>
+          <div class="admin-pagination-pill">
+            <span class="page-info">
+              Trang <span class="page-current">{{ page }}</span> / <span class="page-total">{{ totalPages }}</span>
+            </span>
+          </div>
+        </div>
 
-  <button 
-    class="admin-btn admin-btn-secondary"
-    (click)="prevPage()"
-    [disabled]="page === 1">
+        <div class="admin-pagination-actions">
+          <button 
+            class="admin-btn admin-btn-secondary admin-page-btn"
+            (click)="prevPage()"
+            [disabled]="page === 1">
+            ← Trước
+          </button>
 
-    ← Trước
-  </button>
-
-  <span class="page-info">
-    Trang {{ page }} / {{ totalPages }}
-  </span>
-
-  <button 
-    class="admin-btn admin-btn-secondary"
-    (click)="nextPage()"
-    [disabled]="page === totalPages">
-
-    Sau →
-  </button>
-
-</div>
+          <button 
+            class="admin-btn admin-btn-secondary admin-page-btn"
+            (click)="nextPage()"
+            [disabled]="page === totalPages">
+            Sau →
+          </button>
+        </div>
+      </div>
     </div>
   }
 

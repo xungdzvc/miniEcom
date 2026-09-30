@@ -1,6 +1,7 @@
 package com.web.entity;
 
 import jakarta.persistence.*;
+import java.math.BigDecimal;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -26,6 +27,6 @@ public class OrderItemEntity {
     private int quantity;
 
     @Column(name = "price")
-    private Long price;
+    private BigDecimal price;
 
 }

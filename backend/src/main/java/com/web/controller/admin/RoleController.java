@@ -16,11 +16,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/admin/roles")
 @RequiredArgsConstructor
 public class RoleController {
-    @Autowired
-    private IRoleService roleService;
+     
+    private final IRoleService roleService;
     
     @GetMapping()
     public ApiResponse<?> getRoles(){
-        return ApiResponse.success(roleService.getAllRole());
+        return ApiResponse.success(roleService.getRoleNotAdmin());
     }
 }

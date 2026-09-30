@@ -21,15 +21,18 @@ import { AdminToastService } from '../../../shared/services/admin-toast.service'
 export class CategoryListComponent implements OnInit {
 
   public categories: Category[] = [];
-  @Output() onAddCategory = new EventEmitter<void>();  // 👈 RẤT QUAN TRỌNG
-  
+  @Output() onAddCategory = new EventEmitter<void>();
+
   isLoading = true;
+  page = 1;
+  pageSize = 5;
+  totalPages = 1;
 
   constructor(
     private categoryService: CategoryService,
     private router : Router,
     private toast: AdminToastService,
-    private confirm: ConfirmService 
+    private confirm: ConfirmService
   ) {}
 
   ngOnInit(): void {
@@ -37,38 +40,32 @@ export class CategoryListComponent implements OnInit {
   }
 
   reload() {
-  this.isLoading = true;
+    this.isLoading = true;
 
-    this.categoryService.getAllCategories()
-      .pipe(
-        finalize(() => {
-          this.isLoading = false; 
-        })
-      )
+    this.categoryService.getAllCategoriesPaged(this.page - 1, this.pageSize)
+      .pipe(finalize(() => this.isLoading = false))
       .subscribe({
-        next: data => {
-          this.categories = data;
+        next: res => {
+          this.categories = res.content;
+          this.totalPages = res.totalPages;
         },
         error: err => {
           const code = err?.status ?? 500;
           this.router.navigate(['/error', code]);
-          
         }
       });
-}
+  }
 
-  
   addCategoryClick() {
       this.router.navigate(['/admin/categories/add']);
-
   }
 
   trackById(index: number, category: Category) {
-  return category.id;
-}
+    return category.id;
+  }
+
   editCategory(category: Category) {
     this.router.navigate([`/admin/categories/edit/${category.id}`]);
-    
   }
 
   async deleteCategory(category: Category) {
@@ -80,7 +77,7 @@ export class CategoryListComponent implements OnInit {
 
     this.categoryService.deleteCategory(category.id).subscribe({
       next: () => {
-        this.categories = this.categories.filter(c => c.id !== category.id);
+        this.reload();
         this.toast.success('Đã xóa danh mục.');
       },
       error: err => {
@@ -92,5 +89,19 @@ export class CategoryListComponent implements OnInit {
         }
       }
     });
+  }
+
+  prevPage() {
+    if (this.page > 1) {
+      this.page--;
+      this.reload();
+    }
+  }
+
+  nextPage() {
+    if (this.page < this.totalPages) {
+      this.page++;
+      this.reload();
+    }
   }
 }

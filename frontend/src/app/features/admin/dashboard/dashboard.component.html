@@ -1,7 +1,7 @@
 <div class="admin-shell" [class.sidebar-collapsed]="!sidebarOpen">
   <aside class="admin-sidebar">
     <div class="side-head">
-      <a class="brand" routerLink="/admin/home">Admin<span>Panel</span></a>
+      <a class="brand" routerLink="/admin/dashboard">Admin<span>Panel</span></a>
 
       <button class="icon-btn" type="button" (click)="toggleSidebar()" title="Thu gọn / Mở">
         {{ sidebarOpen ? '«' : '»' }}
@@ -9,7 +9,7 @@
     </div>
 
     <nav class="nav">
-      <a class="nav-item" routerLink="/admin/home" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}">
+      <a class="nav-item" routerLink="/admin/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}">
         <span class="ico">🏠</span>
         <span class="txt">Tổng quan</span>
       </a>
@@ -51,7 +51,7 @@
         <span class="muted">Quản trị</span>
       </div>
       <div class="actions">
-        <a class="btn btn-ghost btn-sm" routerLink="/admin/home">Dashboard</a>
+        <a class="btn btn-ghost btn-sm" routerLink="/admin/dashboard">Dashboard</a>
       </div>
     </header>
 

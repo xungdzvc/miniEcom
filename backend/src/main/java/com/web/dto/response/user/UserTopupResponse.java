@@ -6,7 +6,7 @@ package com.web.dto.response.user;
 
 import com.web.enums.PaymentStatus;
 import com.web.enums.PaymentType;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -23,6 +23,6 @@ public class UserTopupResponse {
     private String cardType;
     private String cardCode;
     private String cardSerial;
-    private LocalDateTime createdAt; 
+    private Instant createdAt; 
     private Long amount;
 }

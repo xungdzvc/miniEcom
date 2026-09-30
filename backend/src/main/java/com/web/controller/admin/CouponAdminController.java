@@ -7,9 +7,11 @@ package com.web.controller.admin;
 import com.web.dto.request.coupon.CouponAddOrUpdateRequest;
 import com.web.dto.response.common.ApiResponse;
 import com.web.service.ICouponService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -31,7 +33,7 @@ public class CouponAdminController {
 
     @GetMapping
     public ApiResponse<?> getAllCounpon() {
-        return ApiResponse.success(couponService.getAll());
+        return ApiResponse.success(couponService.getAll(),"Lấy thành công danh sách Mã Giảm Giá");
     }
 
     @GetMapping("/{id}")
@@ -39,18 +41,19 @@ public class CouponAdminController {
         return ApiResponse.success(couponService.getById(id));
     }
     
-    @PutMapping("/{id}")
-    public ApiResponse<?> updateCoupon(@PathVariable Long id,@RequestBody CouponAddOrUpdateRequest req) {
-        return ApiResponse.success(couponService.addOrUpdate(id, req));
+    @PatchMapping("/{id}")
+    public ApiResponse<?> updateCoupon(@PathVariable Long id,@Valid @RequestBody CouponAddOrUpdateRequest req) {
+        return ApiResponse.success(couponService.addOrUpdate(id, req),"Cập nhật Mã Giảm Giá thành công");
     }
 
     @PostMapping()
-    public ApiResponse<?> addCoupon(@RequestBody CouponAddOrUpdateRequest req) {
-        return ApiResponse.success(couponService.addOrUpdate(null, req));
+    public ApiResponse<?> addCoupon(@Valid @RequestBody CouponAddOrUpdateRequest req) {
+        return ApiResponse.success(couponService.addOrUpdate(null, req),"Tạo Mã Giảm Giá thành công");
     }
     
     @DeleteMapping("/{id}")
-    public void deleteCoupon(@PathVariable Long id) {
+    public ApiResponse<?> deleteCoupon(@PathVariable Long id) {
         couponService.delete(id);
+        return ApiResponse.success(null,"Xoá Mã Giảm Giá thành công");
     }
 }

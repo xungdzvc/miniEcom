@@ -19,8 +19,8 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class UserController {
 
-    @Autowired
-    IUserService userService;
+     
+    private final IUserService userService;
     private final IPaymentTransactionService iPaymentTransactionService;
 
     @PutMapping("/password-change")
@@ -40,7 +40,7 @@ public class UserController {
     @GetMapping("/topup-history")
     public ApiResponse<?> getTopups() {
         Long id = SecurityUtil.getUserId();
-        return ApiResponse.success(iPaymentTransactionService.getTopup(id));
+        return ApiResponse.success(iPaymentTransactionService.getUserTopupHistory(id));
     }
     
 }

@@ -1,23 +1,25 @@
 package com.web.repository;
 
-import com.web.entity.UserEntity;
-import jakarta.persistence.LockModeType;
-import java.time.LocalDateTime;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Lock;
-import org.springframework.data.jpa.repository.Query;
+import com.web.entity.UserEntity; 
+import java.time.Instant;
+import java.util.List;
+import java.util.Optional; 
+import org.springframework.data.jpa.repository.EntityGraph;
+import org.springframework.data.jpa.repository.JpaRepository; 
 
-public interface UserRepository extends JpaRepository<UserEntity,Long> {
+public interface UserRepository extends JpaRepository<UserEntity,Long> { 
+    @EntityGraph(attributePaths = {"roles"})
+    @Override
+    List<UserEntity> findAll();
     UserEntity findByUsername(String username);
     boolean existsByEmail(String email);
     boolean existsByUsername(String username);
 
-    UserEntity findByEmail(String email);
     UserEntity findByGoogleId(String googleId);
     boolean existsByGoogleId(String googleId);
 
-    @Lock(LockModeType.PESSIMISTIC_WRITE)
-    UserEntity findUserById(Long userId);
+    int countByCreatedAtBetween(Instant start,Instant end);
     
-    int countByCreatedAtBetween(LocalDateTime start,LocalDateTime end);
+    @EntityGraph(attributePaths = {"roles"})
+    Optional<UserEntity> findWithRolesById(Long id);
 }

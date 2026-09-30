@@ -4,13 +4,13 @@ import com.web.dto.request.order.DirectCheckoutRequest;
 import com.web.dto.request.order.OrderCheckoutRequest;
 import com.web.dto.response.common.ApiResponse;
 import com.web.service.IOrderService;
-import com.web.service.IUserService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/order")
+@RequestMapping("/api/orders")
 @RequiredArgsConstructor
 public class OrderController {
 
@@ -18,7 +18,7 @@ public class OrderController {
     private final IOrderService iOrderService;
 
     @PostMapping("/checkout")
-    public ApiResponse<?> checkoutByBankOrWallet(@RequestBody OrderCheckoutRequest orderCheckoutRequest) {
+    public ApiResponse<?> checkoutByBankOrWallet(@Valid @RequestBody OrderCheckoutRequest orderCheckoutRequest) {
         return ApiResponse.success(iOrderService.checkoutByBankOrWallet(orderCheckoutRequest));
     }
 
@@ -37,10 +37,6 @@ public class OrderController {
         return ApiResponse.success(iOrderService.getOrderSuccessById(id));
     }
     
-    @GetMapping("/{id}/detail")
-    public ApiResponse<?> getDetailOrder(@PathVariable Long id){
-        return ApiResponse.success(iOrderService.getOrderSuccessById(id));
-    }
     
     @GetMapping("/{id}/item/{orderItemId}/download")
     public ApiResponse<?> getDownloadUrl(@PathVariable Long id, @PathVariable Long orderItemId){
@@ -48,7 +44,7 @@ public class OrderController {
     }
 
     @PostMapping("/checkout/direct")
-    public ApiResponse<?> checkoutByDirectWallet(@RequestBody DirectCheckoutRequest directCheckoutRequest) {
+    public ApiResponse<?> checkoutByDirectWallet(@Valid @RequestBody DirectCheckoutRequest directCheckoutRequest) {
         return ApiResponse.success(iOrderService.checkoutByDirectBankOrWallet(directCheckoutRequest));
     }
     

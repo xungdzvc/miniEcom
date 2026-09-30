@@ -1,0 +1,22 @@
+# Merge these properties into application-prod.yml.
+# First production adoption:
+#   FLYWAY_BASELINE_ON_MIGRATE=true
+#   FLYWAY_BASELINE_VERSION=1
+# After V4 succeeds, set FLYWAY_BASELINE_ON_MIGRATE=false.
+#
+# Existing local DB already matches the newer schema:
+# either recreate a fresh local DB from V1..V4, or baseline that disposable/local DB at V4 once.
+
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: validate
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    validate-on-migrate: true
+    clean-disabled: true
+    out-of-order: false
+    baseline-on-migrate: ${FLYWAY_BASELINE_ON_MIGRATE:false}
+    baseline-version: ${FLYWAY_BASELINE_VERSION:1}

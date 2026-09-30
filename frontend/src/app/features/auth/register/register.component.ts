@@ -40,7 +40,5 @@ export class RegisterComponent {
             : err.error?.message || "Registration failed!";
       }
     });
-
-    console.log("Register:", data);
   }
 }

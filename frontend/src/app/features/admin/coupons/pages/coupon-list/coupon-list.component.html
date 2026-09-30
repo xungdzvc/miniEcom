@@ -3,15 +3,6 @@
     title="🎟️ Quản lý Coupon"
     subtitle="Thêm, sửa và xóa mã giảm giá"
   >
-    <div class="admin-search">
-      <input
-        type="text"
-        placeholder="Tìm coupon..."
-        [(ngModel)]="q"
-        (input)="onSearchChange()"
-      />
-    </div>
-
     <div class="header-actions">
       <button class="admin-btn admin-btn-primary" (click)="goAddCoupon()">
         ➕ Thêm coupon
@@ -49,7 +40,7 @@
         </thead>
 
         <tbody>
-          <tr *ngFor="let coupon of pagedCoupons">
+          <tr *ngFor="let coupon of coupons">
             <td>{{ coupon.id }}</td>
             <td><strong>{{ coupon.couponCode }}</strong></td>
             <td>{{ coupon.discount }}%</td>
@@ -79,25 +70,32 @@
       </app-admin-table>
 
       <div class="admin-pagination" *ngIf="!isLoading && coupons.length > 0">
-        <button
-          class="admin-btn admin-btn-secondary"
-          (click)="prevPage()"
-          [disabled]="page === 1"
-        >
-          ← Trước
-        </button>
+        <div class="admin-pagination-meta">
+          <span class="admin-pagination-label">Điều hướng</span>
+          <div class="admin-pagination-pill">
+            <span class="page-info">
+              Trang <span class="page-current">{{ page }}</span> / <span class="page-total">{{ totalPages }}</span>
+            </span>
+          </div>
+        </div>
 
-        <span class="page-info">
-          Trang {{ page }} / {{ totalPages }}
-        </span>
+        <div class="admin-pagination-actions">
+          <button
+            class="admin-btn admin-btn-secondary admin-page-btn"
+            (click)="prevPage()"
+            [disabled]="page === 1"
+          >
+            ← Trước
+          </button>
 
-        <button
-          class="admin-btn admin-btn-secondary"
-          (click)="nextPage()"
-          [disabled]="page === totalPages"
-        >
-          Sau →
-        </button>
+          <button
+            class="admin-btn admin-btn-secondary admin-page-btn"
+            (click)="nextPage()"
+            [disabled]="page === totalPages"
+          >
+            Sau →
+          </button>
+        </div>
       </div>
     </div>
   </div>

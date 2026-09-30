@@ -8,6 +8,7 @@ class MiniECommerceApplicationTests {
 
 	@Test
 	void contextLoads() {
+
 	}
 
 }

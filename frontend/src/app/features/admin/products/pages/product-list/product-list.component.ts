@@ -28,6 +28,8 @@ export class ProductListComponent implements OnInit {
   isLoading = true;
   page = 1;
   pageSize = 5;
+  totalPages = 1;
+
   constructor(
     private productService: ProductAdminService,
     private router: Router,
@@ -42,55 +44,38 @@ export class ProductListComponent implements OnInit {
   reload() {
     this.isLoading = true;
 
-    this.productService.getAllProducts()
+    this.productService.getAllProductsPaged(this.page - 1, this.pageSize)
       .pipe(finalize(() => this.isLoading = false))
       .subscribe({
-        next: res =>{this.products = res.data;},
-        
+        next: res => {
+          this.products = res.content;
+          this.totalPages = res.totalPages;
+        },
         error: err => {
           const code = err?.status ?? 500;
           this.router.navigate(['/error', code]);
         }
       });
   }
-  q = '';
 
-get filteredProducts() {
-  const q = (this.q || '').trim().toLowerCase();
-  if (!q) return this.products;
-
-  return this.products.filter(p => {
-    const id = String(p.id ?? '');
-    const name = (p.name ?? '').toLowerCase();
-    const cate = (p.categoryName ?? '').toLowerCase();
-    return id.includes(q) || name.includes(q) || cate.includes(q);
-  });
-}
   goAddProduct() {
     this.router.navigate(['/admin/products/add']);
-  }
-  
-  get totalPages() {
-  return Math.max(1, Math.ceil(this.filteredProducts.length / this.pageSize));
-}
-onSearchChange() {
-  this.page = 1;
-}
-get pagedProducts() {
-  const start = (this.page - 1) * this.pageSize;
-  return this.filteredProducts.slice(start, start + this.pageSize);
-}
-  nextPage() {
-    if (this.page < this.totalPages) {
-      this.page++;
-    }
   }
 
   prevPage() {
     if (this.page > 1) {
       this.page--;
+      this.reload();
     }
   }
+
+  nextPage() {
+    if (this.page < this.totalPages) {
+      this.page++;
+      this.reload();
+    }
+  }
+
   reloadElastic() {
     this.isLoading = true;
 
@@ -119,8 +104,8 @@ get pagedProducts() {
 
     this.productService.deleteProduct(product.id).subscribe({
       next: () => {
-        this.products = this.products.filter(p => p.id !== product.id);
         this.toast.success('Đã xóa sản phẩm.');
+        this.reload();
       },
       error: err => {
         console.error(err);
@@ -132,6 +117,7 @@ get pagedProducts() {
       }
     });
   }
+
   async changeStatus(product: ProductAdminList) {
     const newStatus = !product.status;
     const action = product.status === true  ? 'Ngừng kinh doanh' : 'mở bán';

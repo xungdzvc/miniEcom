@@ -5,7 +5,7 @@
 package com.web.repository;
 
 import com.web.entity.RefreshTokenEntity;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -15,6 +15,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
  */
 public interface RefreshTokenRepository extends JpaRepository<RefreshTokenEntity,Long>{
     Optional<RefreshTokenEntity> findByJti(String jti);
-    void deleteByExpiredAtBefore(LocalDateTime now);
+    void deleteByExpiredAtBefore(Instant now);
     
 }

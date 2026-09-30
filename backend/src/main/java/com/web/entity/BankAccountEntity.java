@@ -1,7 +1,6 @@
 package com.web.entity;
 
-import jakarta.persistence.*;
-import java.time.LocalDateTime;
+import jakarta.persistence.*; 
 import lombok.Getter;
 import lombok.Setter;
 
@@ -9,7 +8,8 @@ import lombok.Setter;
 @Table(name = "bank_accounts")
 @Setter
 @Getter
-public class BankAccountEntity {
+public class BankAccountEntity extends BaseEntity{
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -20,19 +20,18 @@ public class BankAccountEntity {
     @Column(name = "bank_name")
     private String bankName;
 
-    @Column(name ="account_number")
+    @Column(name = "account_number")
     private String accountNumber;
 
     @Column(name = "account_name")
     private String accountName;
 
     @Column(name = "active")
-    private  boolean active;
-
-    @Column(name = "created_at")
-    private LocalDateTime createAt;
+    private boolean active; 
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="user_id",nullable = false)
+    @JoinColumn(name = "user_id", nullable = false)
     private UserEntity user;
+
+    
 }

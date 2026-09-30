@@ -41,7 +41,7 @@ public class ProductElasticService {
                     .document(doc)
             );
         } catch (IOException e) {
-
+            e.printStackTrace();
         }
     }
 
@@ -56,7 +56,7 @@ public class ProductElasticService {
                     .document(doc)
             );
         } catch (IOException e) {
-
+            e.printStackTrace();
         }
     }
 
@@ -72,19 +72,13 @@ public class ProductElasticService {
     }
 
     public String fullReIndex() {
-        try {
-            // Bước 1: Xóa index cũ nếu tồn tại
+        try { 
             if (client.indices().exists(e -> e.index(INDEX)).value()) {
-                client.indices().delete(d -> d.index(INDEX));
-                System.out.println("Đã xóa index cũ.");
+                client.indices().delete(d -> d.index(INDEX)); 
             }
-
-            // Bước 2: Tạo index mới với Mapping (Quan trọng!)
-            // Phải chắc chắn hàm này chạy thành công
-            elasticIndexService.createProductIndex();
-            System.out.println("Đã tạo index mới với mapping.");
-
-            // Bước 3: Lấy dữ liệu từ DB và đẩy vào ES
+ 
+            elasticIndexService.createProductIndex(); 
+ 
             List<ProductEntity> products = productRepository.findAll();
             if (products.isEmpty()) {
                 return "DB trống, không có gì để reindex!";
@@ -105,8 +99,7 @@ public class ProductElasticService {
 
             return "Thành công! Đã reindex " + products.size() + " sản phẩm.";
 
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (Exception e) { 
             return "Lỗi: " + e.getMessage();
         }
     }

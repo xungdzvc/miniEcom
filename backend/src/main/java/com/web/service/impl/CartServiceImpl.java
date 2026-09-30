@@ -1,11 +1,9 @@
 package com.web.service.impl;
 
-import com.web.dto.CartDTO;
-import com.web.dto.CartItemDTO;
-import com.web.dto.response.cart.CartItemResponse;
 import com.web.dto.response.cart.CartResponse;
 import com.web.entity.CartItemEntity;
 import com.web.entity.CartEntity;
+import com.web.entity.ProductDetailEntity;
 import com.web.entity.ProductEntity;
 import com.web.entity.UserEntity;
 import com.web.exception.MyException;
@@ -14,11 +12,10 @@ import com.web.repository.*;
 import com.web.security.SecurityUtil;
 import com.web.service.ICartService;
 import com.web.util.Utils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import java.util.ArrayList;
+import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
+import org.springframework.stereotype.Service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,9 +29,13 @@ public class CartServiceImpl implements ICartService {
     private final UserRepository userRepository;
     private final ProductRepository productRepository;
 
+    @Transactional
     @Override
     public CartResponse addProductToCart(String slug) {
         Long userId = SecurityUtil.getUserId();
+        if(userId == null){
+            throw new MyException("Người dùng chưa đăng nhập hoặc lỗi tài khoản");
+        }
         CartEntity cartEntity = cartRepository.findByUserId(userId);
         if (cartEntity == null) {
             UserEntity user = userRepository.getReferenceById(userId);
@@ -61,21 +62,15 @@ public class CartServiceImpl implements ICartService {
         }
         cartRepository.save(cartEntity);
         CartResponse cartResponse = cartMapper.toCartResponse(cartEntity);
-        long toltalPriceProduct = 0;
-        for (CartItemResponse cart : cartResponse.getCartItems()) {
-            toltalPriceProduct += Utils.calsubPercent(cart.getPrice(), cart.getDiscount());
-        }
-        cartResponse.setToltalPrice(toltalPriceProduct);
+        cartResponse.setToltalPrice(calculateTotal(cartEntity.getCartItems()));
         return cartResponse;
     }
 
+    @Transactional
     @Override
     public CartResponse removeProductFromCart(Long cartItemId) {
-        Long userId = SecurityUtil.getUserId();
-        CartEntity cartEntity = cartRepository.findByUserId(userId);
-        if (cartEntity == null) {
-            throw new MyException("Giỏ hàng không tồn tại");
-        }
+        CartEntity cartEntity = cartRepository.findByIdAndUserId(cartItemId,SecurityUtil.getUserId())
+                .orElseThrow(() -> new MyException("Giỏ hàng không tồn tại"));
 
         CartItemEntity existProduct = cartEntity.getCartItems().stream()
                 .filter(item -> item.getId().equals(cartItemId))
@@ -89,11 +84,7 @@ public class CartServiceImpl implements ICartService {
         }
         cartRepository.save(cartEntity);
         CartResponse cartResponse = cartMapper.toCartResponse(cartEntity);
-        long totalPriceProduct = 0;
-        for (CartItemResponse cart : cartResponse.getCartItems()) {
-            totalPriceProduct += Utils.calsubPercent(cart.getPrice(), cart.getDiscount());
-        }
-        cartResponse.setToltalPrice(totalPriceProduct);
+        cartResponse.setToltalPrice(calculateTotal(cartEntity.getCartItems()));
         return cartResponse;
 
     }
@@ -103,11 +94,7 @@ public class CartServiceImpl implements ICartService {
         Long userId = SecurityUtil.getUserId();
         CartEntity cartEntity = cartRepository.findByUserId(userId);
         CartResponse cartResponse = cartMapper.toCartResponse(cartEntity);
-        float toltalPriceProduct = 0;
-        for (CartItemResponse cart : cartResponse.getCartItems()) {
-            toltalPriceProduct += Utils.calsubPercent(cart.getPrice(), cart.getDiscount());
-        }
-        cartResponse.setToltalPrice(toltalPriceProduct);
+        cartResponse.setToltalPrice(calculateTotal(cartEntity.getCartItems()));
         return cartResponse;
     }
 
@@ -115,13 +102,9 @@ public class CartServiceImpl implements ICartService {
     @Override
     public CartResponse updateProductQuantityFromCart(Long cartItemId, Integer quantity) {
         CartItemEntity cartI = cartItemRepository.findById(cartItemId).orElseThrow(() -> new MyException("Không tồn tại item này"));
-        if (cartI.getProduct().getProductDetail().getQuantity() < quantity) {
-            throw new MyException(cartI.getProduct().getName() + " Chỉ còn " + cartI.getProduct().getProductDetail().getQuantity() + " trong kho hãy giảm số lượng xuống hoặc chọn mặt hàng khác thay thế");
-        }
+        validationProductForUpdateCart(cartI, quantity);
         Long userId = SecurityUtil.getUserId();
-        if (quantity == null || quantity < 1) {
-            throw new MyException("Số lượng phải >= 1");
-        }
+
         int updated = cartItemRepository.updateQty(userId, cartItemId, quantity);
         if (updated == 0) {
             throw new MyException("Không tìm thấy sản phẩm trong giỏ");
@@ -130,6 +113,16 @@ public class CartServiceImpl implements ICartService {
         return cartMapper.toCartResponse(cartI.getCart());
     }
 
+    private void validationProductForUpdateCart(CartItemEntity cartI, Integer quantity) {
+        if (quantity == null || quantity < 1) {
+            throw new MyException("Số lượng phải >= 1");
+        }
+        if (cartI.getProduct().getProductDetail().getQuantity() < quantity) {
+            throw new MyException(cartI.getProduct().getName() + " Chỉ còn " + cartI.getProduct().getProductDetail().getQuantity() + " trong kho hãy giảm số lượng xuống hoặc chọn mặt hàng khác thay thế");
+        }
+    }
+
+    @Transactional
     @Override
     public CartResponse clearCart() {
         Long userId = SecurityUtil.getUserId();
@@ -137,6 +130,18 @@ public class CartServiceImpl implements ICartService {
         cart.getCartItems().clear();
         cartRepository.save(cart);
         return cartMapper.toCartResponse(cart);
+    }
+
+    private BigDecimal calculateTotal(List<CartItemEntity> items) {
+        return items.stream()
+                .map(item -> {
+                    BigDecimal price = item.getProduct().getPrice();
+                    int discount = Optional.ofNullable(item.getProduct().getProductDetail())
+                            .map(ProductDetailEntity::getDiscount)
+                            .orElse(0);
+                    return Utils.calsubPercent(price, discount).multiply(new BigDecimal(item.getQuantity()));
+                })
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
 }

@@ -9,12 +9,12 @@ export const ADMIN_ROUTES: Routes = [
     children: [
       {
         path: '',
-        redirectTo: 'home',
+        redirectTo: 'dashboard',
         pathMatch: 'full'
       },
 
       {
-        path : 'home', component : HomeComponent
+        path : 'dashboard', component : HomeComponent
       },
      
       

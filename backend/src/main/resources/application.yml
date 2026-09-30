@@ -1,4 +1,7 @@
 spring:
+  application:
+    name: MINI-E-Commerce
+
   profiles:
     active: ${SPRING_PROFILES_ACTIVE:local}
 
@@ -15,34 +18,153 @@ spring:
   jpa:
     hibernate:
       ddl-auto: none
-    database-platform: org.hibernate.dialect.MySQL8Dialect
+
     properties:
       hibernate:
         jdbc:
           time_zone: UTC
 
-server:
-  servlet:
-    session:
-      cookie:
-        same-site: none
-        secure: false
+  data:
+    redis:
+      repositories:
+        enabled: false
+
 
 api:
   prefix: api
 
+
 app:
-  storage: local
+  order:
+    pending-ttl: 15m
+    expire-scan-delay: 30s
+    expire-batch-size: 100
+
+  payment:
+    topup-ttl: 15m
+    provider:
+      connect-timeout: 3s
+      read-timeout: 10s
+
+  retry:
+      optimistic-lock:
+        max-attempts: 3
+  instance-id: ${INSTANCE_ID}
+
   upload-url-prefix: /uploads
+
   mail:
     fromName: XungLord.com
+
     async:
       corePoolSize: 4
       maxPoolSize: 8
       queueCapacity: 500
 
+
+  logging:
+
+    request:
+      enabled: true
+      request-id-header: X-Request-ID
+      slow-threshold: 2s
+      exclude-paths:
+        - /favicon.ico
+        - /error
+
+    security:
+
+      sensitive-headers:
+        - Authorization
+        - Cookie
+        - Set-Cookie
+
+      sensitive-fields:
+        - password
+        - retypePassword
+        - accessToken
+        - refreshToken
+        - idToken
+        - otp
+        - secret
+        - partnerKey
+
+
+  rate-limit:
+    enabled: true
+
+    policies:
+
+      global-anonymous:
+        limit: 300
+        window: 1m
+        scope: IP
+        message: "Bạn gửi quá nhiều yêu cầu. Vui lòng thử lại sau."
+
+      global-authenticated:
+        limit: 600
+        window: 1m
+        scope: USER
+        message: "Bạn gửi quá nhiều yêu cầu. Vui lòng thử lại sau."
+
+      login:
+        limit: 30
+        window: 1m
+        scope: IP
+        message: "Bạn đăng nhập quá nhiều lần. Vui lòng thử lại sau."
+
+      register:
+        limit: 5
+        window: 10m
+        scope: IP
+        message: "Bạn đăng ký quá nhiều lần. Vui lòng thử lại sau."
+
+      forgot-password:
+        limit: 3
+        window: 15m
+        scope: IP
+        message: "Bạn yêu cầu đặt lại mật khẩu quá nhiều lần."
+
+      refresh-token:
+        limit: 60
+        window: 1m
+        scope: USER_OR_IP
+        message: "Bạn refresh token quá nhiều lần."
+
+      search:
+        limit: 60
+        window: 1m
+        scope: USER_OR_IP
+        message: "Bạn tìm kiếm quá nhanh."
+
+      payment-create:
+        limit: 10
+        window: 1m
+        scope: USER
+        message: "Bạn tạo giao dịch quá nhiều lần."
+
+      topup-create:
+        limit: 5
+        window: 1m
+        scope: USER
+        message: "Bạn tạo yêu cầu nạp tiền quá nhiều lần."
+
+      comment:
+        limit: 10
+        window: 1m
+        scope: USER_OR_IP
+        message: "Bạn gửi bình luận quá nhanh."
+
+      review:
+        limit: 5
+        window: 10m
+        scope: USER
+        message: "Bạn gửi đánh giá quá nhiều lần."
+
+
 minio:
   url: https://minio1.webtui.vn:9000
   bucket: bucket-xungdeptry
+
 
 urlApiCharging: https://doithe1s.vn/chargingws/v2

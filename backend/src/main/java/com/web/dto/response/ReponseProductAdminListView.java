@@ -1,6 +1,6 @@
 package com.web.dto.response;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 public interface ReponseProductAdminListView {
     Long getId();
@@ -9,6 +9,6 @@ public interface ReponseProductAdminListView {
     String getThumbnail();
     Long getViewCount();
     Long getSoldCount();
-    LocalDateTime getCreatedAt();
-    LocalDateTime getUpdatedAt();
+    Instant getCreatedAt();
+    Instant getUpdatedAt();
 }

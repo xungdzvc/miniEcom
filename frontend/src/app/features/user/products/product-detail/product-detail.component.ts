@@ -46,6 +46,13 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
   userComment: string = '';
 
   relatedProducts: ProductViewerListDetail[] = [];
+
+  // reviews pagination
+  reviewPage = 1;
+  reviewPageSize = 5;
+  reviewTotalPages = 1;
+  reviewTotalElements = 0;
+  isLoadingReviews = false;
   constructor(private route: ActivatedRoute,
     private productService : ProductService,
     private authService : AuthService,
@@ -64,21 +71,43 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
       this.productService.updateViewProductBySlug(slug)
       .pipe(take(1))
       .subscribe({
-      error: (e) => console.log('update view failed', e)
+      error: (e) => console.log('update view failed ', e)
     });
       this.router.navigate(['/products', slug]);
     }
     
-  loadReviews(){
-    if(!this.product?.id) return;
-    this.reviewService.getReviewByProductId(this.product.id).subscribe({
-      next : res =>{
-        this.reviewsData = res.data;
+  loadReviews(): void {
+    if (!this.product?.id) return;
+    this.isLoadingReviews = true;
+    this.reviewService.getReviewByProductIdPaged(
+      this.product.id,
+      this.reviewPage - 1,
+      this.reviewPageSize
+    ).subscribe({
+      next: res => {
+        this.reviewsData = res.content;
+        this.reviewTotalPages = res.totalPages;
+        this.reviewTotalElements = res.totalElements;
+        this.isLoadingReviews = false;
       },
-      error : ()=>{
-        
+      error: () => {
+        this.isLoadingReviews = false;
       }
-    })
+    });
+  }
+
+  prevReviewPage(): void {
+    if (this.reviewPage > 1) {
+      this.reviewPage--;
+      this.loadReviews();
+    }
+  }
+
+  nextReviewPage(): void {
+    if (this.reviewPage < this.reviewTotalPages) {
+      this.reviewPage++;
+      this.loadReviews();
+    }
   }
   checkPermission() {
     if (this.authService.isLoggedIn()) {
@@ -105,16 +134,17 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
   }
 
   loadProductBySlug(){
-    const slug = this.route.snapshot.paramMap.get('slug') ?? '';
     this.route.paramMap.pipe(
       switchMap(params => {
         const slug = params.get('slug') ?? '';
         return this.productService.getProductBySlug(slug);
       })
-    ).subscribe(res => {
-      this.product = res.data;
-      this.galleryImages = this.buildGalleryImages(res.data);
+    ).subscribe(product => {
+      this.product = product ?? null;
+      this.galleryImages = product ? this.buildGalleryImages(product) : [];
+      this.activeIndex = 0;
       this.safeYoutubeUrl = this.getEmbedUrl(this.product?.youtubeUrl ?? '');
+      this.startAuto();
       this.loadProductByCategoryId();
       this.loadReviews();
       this.checkPermission();
@@ -167,9 +197,9 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
   loadProductByCategoryId() {
   if (!this.product) return;
 
-  this.productService.getProductByCategoryId(this.product.categoryId).subscribe({
+  this.productService.getProductByCategoryId(this.product.categoryId, 0, 10).subscribe({
     next: (res) => {
-      const list = res?.data ?? [];
+      const list = res?.content ?? [];
 
       const currentId = this.product?.id; // nếu id của product bạn là field khác thì đổi lại
 

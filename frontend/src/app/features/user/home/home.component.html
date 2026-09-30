@@ -96,11 +96,11 @@
   <app-product-card
     *ngFor="let p of pagedFeatured"
     [product]="p"
-    ctaText="Xem Code">
+    ctaText="Xem chi tiết">
   </app-product-card>
 </div>
 
-<nav class="xl-pagination" *ngIf="!isLoading && totalPages > 1" aria-label="Phân trang">
+<nav class="xl-pagination" *ngIf="!isLoading && totalPagesSafe > 1" aria-label="Phân trang">
   <button class="xl-page-btn" type="button"
           (click)="goToPage(currentPage - 1)"
           [disabled]="currentPage === 1">‹ Trước</button>
@@ -112,9 +112,9 @@
 
   <button class="xl-page-btn" type="button"
           (click)="goToPage(currentPage + 1)"
-          [disabled]="currentPage === totalPages">Sau ›</button>
+          [disabled]="currentPage === totalPagesSafe">Sau ›</button>
 
-  <span class="xl-page-info">Trang {{ currentPage }} / {{ totalPages }}</span>
+  <span class="xl-page-info">Trang {{ currentPage }} / {{ totalPagesSafe }}</span>
 </nav>
 
 </section>

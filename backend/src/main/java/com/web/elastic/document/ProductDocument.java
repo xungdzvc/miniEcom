@@ -1,6 +1,7 @@
 package com.web.elastic.document;
 
 import jakarta.persistence.Id;
+import java.math.BigDecimal;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -14,7 +15,7 @@ public class ProductDocument {
 
     private String categoryName;
 
-    private Long price;
+    private BigDecimal price;
     
     private String slug;
     

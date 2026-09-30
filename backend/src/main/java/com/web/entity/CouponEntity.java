@@ -2,7 +2,7 @@ package com.web.entity;
 
 
 import jakarta.persistence.*;
-import java.time.LocalDateTime; 
+import java.time.Instant; 
 import lombok.Getter;
 import lombok.Setter;
 
@@ -10,7 +10,7 @@ import lombok.Setter;
 @Table(name = "coupon_code")
 @Getter
 @Setter
-public class CouponEntity {
+public class CouponEntity extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -19,11 +19,7 @@ public class CouponEntity {
     private String couponCode;
 
     @Column(name = "discount")
-    private int discount;
+    private int discount; 
     
-    @Column(name = "created_at")
-    private LocalDateTime createdAt;
-    
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
+  
 }

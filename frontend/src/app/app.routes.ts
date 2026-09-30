@@ -30,7 +30,7 @@ export const routes: Routes = [
   },
 
   // Admin entry shortcut
-  { path: 'dashboard', redirectTo: 'admin/home', pathMatch: 'full' },
+  { path: 'dashboard', redirectTo: 'admin/dashboard', pathMatch: 'full' },
 
   // User site
   {
@@ -44,5 +44,5 @@ export const routes: Routes = [
     loadChildren: () => import('./features/admin/admin.routes').then(m => m.ADMIN_ROUTES),
   },
 
-  // { path: '**', redirectTo: 'login' },
+  // { path: '**', redirectTo: 'login' },   
 ];

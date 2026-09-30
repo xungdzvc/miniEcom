@@ -6,8 +6,9 @@ package com.web.entity;
 
 import com.web.enums.PaymentStatus;
 import jakarta.persistence.*;
+import java.math.BigDecimal;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -19,22 +20,25 @@ import lombok.Setter;
 @Setter
 @Entity
 @Table(name = "topup_intent")
-public class TopupIntentEntity {
+public class TopupIntentEntity extends BaseEntity{
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
-    
-    private long userId;
-    
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="user_id",nullable = false)
+    private UserEntity user;
+
+    @Column(name = "payment_status")
     @Enumerated(EnumType.STRING)
-    @JoinColumn(name = "payment_status")
     private PaymentStatus status;
 
-  
-    
-    private long amount;
+    @Column(name = "amount")
+    private BigDecimal amount;
 
-    private LocalDateTime expiredAt;
-    private LocalDateTime createdAt;
-    
+    @Column(name = "expired_at")
+    private Instant expiredAt;
+     
+
 }

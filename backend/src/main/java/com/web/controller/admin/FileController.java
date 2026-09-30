@@ -12,7 +12,7 @@ import io.minio.StatObjectResponse;
 import java.io.InputStream;
 
 @RestController
-@RequestMapping("/files")
+@RequestMapping("/api/files")
 public class FileController {
 
     private final MinioClient minioClient;

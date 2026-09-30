@@ -266,40 +266,74 @@
     <div class="reviews-list-container">
       <div class="list-header">
         <h3 class="list-title">Đánh giá từ khách hàng</h3>
-        <span class="review-count">{{ reviewsData.length || 0 }} nhận xét</span>
+        <span class="review-count">{{ reviewTotalElements || 0 }} nhận xét</span>
       </div>
 
-      <div class="empty-state" *ngIf="!reviewsData || reviewsData.length === 0">
+      <div class="empty-state" *ngIf="!isLoadingReviews && (!reviewsData || reviewsData.length === 0)">
         <div class="empty-icon">💬</div>
         <p>Chưa có đánh giá nào. Hãy là người đầu tiên nhận xét!</p>
       </div>
 
-      <div class="review-item" *ngFor="let review of reviewsData">
-        <div class="r-avatar">
-          <img *ngIf="review.userAvatar; else defaultIcon" [src]="review.userAvatar" alt="Avatar" class="avatar-img" />
-          <ng-template #defaultIcon>
-            <div class="avatar-placeholder">
-              {{ (review.fullName || review.userName || 'U').charAt(0).toUpperCase() }}
-            </div>
-          </ng-template>
-        </div>
-
-        <div class="r-content">
-          <div class="r-main-info">
-            <div class="r-user-row">
-              <span class="r-name">{{ review.fullName || review.userName }}</span>
-              <div class="stars stars-readonly" *ngIf="review.rate > 0">
-                <span class="fa fa-star" *ngFor="let s of [1,2,3,4,5]" [class.filled]="s <= review.rate"></span>
-              </div>
-            </div>
-            <span class="r-date">{{ review.createdAt | date:'dd/MM/yyyy' }}</span>
-          </div>
-
-          <div class="r-comment">
-            {{ review.comment }}
-          </div>
-        </div>
+      <div class="review-loading" *ngIf="isLoadingReviews">
+        <div class="spinner-sm"></div>
+        <p>Đang tải đánh giá...</p>
       </div>
+
+      <ng-container *ngIf="!isLoadingReviews && reviewsData && reviewsData.length > 0">
+        <div class="review-item" *ngFor="let review of reviewsData">
+          <div class="r-avatar">
+            <img *ngIf="review.userAvatar; else defaultIcon" [src]="review.userAvatar" alt="Avatar" class="avatar-img" />
+            <ng-template #defaultIcon>
+              <div class="avatar-placeholder">
+                {{ (review.fullName || review.userName || 'U').charAt(0).toUpperCase() }}
+              </div>
+            </ng-template>
+          </div>
+
+          <div class="r-content">
+            <div class="r-main-info">
+              <div class="r-user-row">
+                <span class="r-name">{{ review.fullName || review.userName }}</span>
+                <div class="stars stars-readonly" *ngIf="review.rate > 0">
+                  <span class="fa fa-star" *ngFor="let s of [1,2,3,4,5]" [class.filled]="s <= review.rate"></span>
+                </div>
+              </div>
+              <span class="r-date">{{ review.createdAt | date:'dd/MM/yyyy' }}</span>
+            </div>
+
+            <div class="r-comment">
+              {{ review.comment }}
+            </div>
+          </div>
+        </div>
+
+        <div class="review-pagination">
+          <div class="review-pagination-summary">
+            <span class="review-pagination-label">Phân trang đánh giá</span>
+            <div class="review-pagination-pill">
+              <span class="page-info">
+                Trang <span class="page-current">{{ reviewPage }}</span> / <span class="page-total">{{ reviewTotalPages }}</span>
+              </span>
+            </div>
+          </div>
+
+          <div class="review-pagination-actions">
+            <button
+              class="btn btn-outline btn-sm review-pagination-btn"
+              (click)="prevReviewPage()"
+              [disabled]="reviewPage === 1">
+              ← Trước
+            </button>
+
+            <button
+              class="btn btn-outline btn-sm review-pagination-btn"
+              (click)="nextReviewPage()"
+              [disabled]="reviewPage === reviewTotalPages">
+              Sau →
+            </button>
+          </div>
+        </div>
+      </ng-container>
     </div>
 
   </div>

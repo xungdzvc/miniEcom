@@ -1,15 +1,17 @@
 package com.web;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
+import org.springframework.retry.annotation.EnableRetry;
 
-@EnableScheduling
 @SpringBootApplication
-public class MiniECommerceApplication {
-
+@ConfigurationPropertiesScan
+@EnableRetry
+@Slf4j   
+public class MiniECommerceApplication { 
 	public static void main(String[] args) {
-		System.out.println("---Backend Service Started---");
 		SpringApplication.run(MiniECommerceApplication.class, args);
 	}
 

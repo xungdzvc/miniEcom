@@ -1,25 +1,17 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
+
 package com.web.service.impl;
 
-/**
- *
- * @author ZZ
- */
 import com.web.service.IMailService;
-import jakarta.mail.MessagingException;
-import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class MailServiceImpl implements IMailService {
@@ -56,8 +48,7 @@ public class MailServiceImpl implements IMailService {
         helper.setText(html, true);
         mailSender.send(mime);
     } catch (Exception e) {
-        // log để theo dõi, không nên làm fail checkout
-       // log.error("Send mail failed to={} subject={}", to, subject, e);
+         log.error("Send mail failed to={} subject={}", to, subject, e);
     }
 }
 }

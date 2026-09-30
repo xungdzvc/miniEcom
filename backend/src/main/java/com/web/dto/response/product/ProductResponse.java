@@ -2,7 +2,7 @@ package com.web.dto.response.product;
 
  
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
@@ -19,8 +19,8 @@ public class ProductResponse {
     private Boolean status;
     private String slug;
     private Long categoryId;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+    private Instant createdAt;
+    private Instant updatedAt;
     private Integer quantity;
     private String youtubeUrl;
     private String demoUrl;

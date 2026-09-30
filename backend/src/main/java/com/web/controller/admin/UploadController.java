@@ -7,7 +7,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.http.ResponseEntity;
 import java.util.Map;
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/admin/uploads")
 public class UploadController {
 
     private final IStorageService storageService;
@@ -16,7 +16,7 @@ public class UploadController {
         this.storageService = storageService;
     }
 
-    @PostMapping("/upload")
+    @PostMapping()
     public ResponseEntity<Map<String, String>> upload(@RequestParam("file") MultipartFile file) {
         StorageFileDTO saved = storageService.save(file, "products");
         return ResponseEntity.ok(Map.of("key", saved.key(), "url", saved.url()));

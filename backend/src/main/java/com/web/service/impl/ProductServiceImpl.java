@@ -2,12 +2,10 @@ package com.web.service.impl;
 
 import com.web.dto.response.product.ProductDetailResponse;
 import com.web.dto.request.product.ProductCreateOrUpdateRequest;
-import com.web.dto.response.common.ApiResponse;
 import com.web.dto.response.product.ProductAdminListResponse;
 import com.web.dto.response.product.ProductResponse;
 import com.web.dto.response.product.ProductViewerListResponse;
 import com.web.dto.response.reviews.ReviewResponse;
-import com.web.elastic.document.ProductDocument;
 import com.web.entity.CategoryEntity;
 import com.web.entity.ProductDetailEntity;
 import com.web.entity.ProductEntity;
@@ -21,7 +19,6 @@ import com.web.service.IProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.List;
 import com.web.security.SecurityUtil;
@@ -30,12 +27,15 @@ import com.web.service.elastic.ProductElasticService;
 import com.web.util.Utils;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 @Service
 @RequiredArgsConstructor
 public class ProductServiceImpl implements IProductService {
 
+    private final ProductDetailRepository productDetailRepository;
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
     private final UserRepository userRepository;
@@ -49,25 +49,27 @@ public class ProductServiceImpl implements IProductService {
         Long userId = SecurityUtil.getUserId();
         UserEntity userEntity = userRepository.findById(userId).orElseThrow(() -> new MyException("Người bán không tồn tại"));
         String slug = Utils.slugify(productDTO.getName());
-        ProductEntity product = new ProductEntity();
-        LocalDateTime now = LocalDateTime.now();
+        ProductEntity product;
         if (productId == null) {
-            if(productRepository.existsBySlug(slug)){
+            if (productRepository.existsBySlug(slug)) {
                 throw new MyException("Sản phẩm này đã tồn tại trong cửa hàng");
             }
             product = productMapper.toEntity(productDTO);
-            product.setCreatedAt(now);
             product.setUser(userEntity);
 
         } else {
 
             product = productRepository.findById(productId).orElseThrow(() -> new MyException("Sản phẩm lỗi"));
-            if (!SecurityUtil.isAdmin() && !userId.equals(product.getUser().getId())) {
-                throw new MyException("bạn không đủ quyền để thực hiện thao tác này");
+            if (!SecurityUtil.isAdmin()) {
+                if (!userId.equals(product.getUser().getId())) {
+                    throw new MyException("bạn không đủ quyền để thực hiện thao tác này");
+                }
+            }
+            if (productRepository.existsBySlug(slug) && !slug.equals(product.getSlug())) {
+                throw new MyException("Sản phẩm này đã tồn tại trong cửa hàng");
             }
 
         }
-        product.setUpdatedAt(now);
 
         CategoryEntity categoryEntity = categoryRepository.findById(productDTO.getCategoryId()).orElseThrow(() -> new MyException("Danh mục không tồn tại"));
 
@@ -78,12 +80,10 @@ public class ProductServiceImpl implements IProductService {
         product.setDescription(productDTO.getDescription());
         product.setCategory(categoryEntity);
         product.setPrice(productDTO.getPrice());
-        ProductDetailEntity productDetail;
+        ProductDetailEntity productDetail = new ProductDetailEntity();
 
         if (product.getProductDetail() != null) {
             productDetail = product.getProductDetail();
-        } else {
-            productDetail = new ProductDetailEntity();
         }
 
         productDetail.setDemoUrl(productDTO.getDemoUrl());
@@ -105,16 +105,15 @@ public class ProductServiceImpl implements IProductService {
     }
 
     @Override
-    public ApiResponse<?> changeStatusProduct(Long id, boolean status) {
+    public void changeStatusProduct(Long id, boolean status) {
         ProductEntity productEntity = productRepository.findById(id).orElseThrow(() -> new MyException("Sản phẩm không tồn tại"));
         productEntity.setStatus(status);
         productRepository.save(productEntity);
-        return ApiResponse.success(null, "Cập nhật thành công");
 
     }
 
     @Override
-    public ApiResponse<?> deleteProduct(Long id) {
+    public void deleteProduct(Long id) {
         ProductEntity productEntity = productRepository.findById(id).orElseThrow(() -> new MyException("Sản phẩm không tồn tại"));
 
         List<String> LImagesUrl = new ArrayList<>();
@@ -129,33 +128,28 @@ public class ProductServiceImpl implements IProductService {
         }
         productElasticService.deleteProduct(id);
 
-        return ApiResponse.success(null, "Xoá thành công ");
-
     }
 
-    @Override
-    public List<ProductAdminListResponse> getProductsForAdmin() {
+    @Override //
+    public Page<ProductAdminListResponse> getProductsForAdmin(Pageable page) {
 
-        List<ProductEntity> productEntities = new ArrayList<>();
-        List<ProductAdminListResponse> productAdminResponse = new ArrayList<>();
+        Page<ProductEntity> productEntities = null;
         if (SecurityUtil.isAdmin()) {
-            productEntities = productRepository.findAll();
+            productEntities = productRepository.findAll(page);
         } else if (SecurityUtil.isStaff()) {
-            productEntities = productRepository.findByUser_Id(SecurityUtil.getUserId());
+            productEntities = productRepository.findByUser_Id(SecurityUtil.getUserId(), page);
         }
-        productAdminResponse = productEntities.stream().map(productMapper::toProductAdminListResponse)
-                .toList();
-        return productAdminResponse;
+        assert productEntities != null;
+        return productEntities.map(productMapper::toProductAdminListResponse);
     }
 
-    @Override
-    public List<ProductViewerListResponse> getProductsForPreview() {
-        List<ProductEntity> productEntities = productRepository.findByStatusTrue();
-        return productEntities.stream().map(productMapper::toProductViewerListResponse)
-                .toList();
+    @Override //
+    public Page<ProductViewerListResponse> getProductsForPreview(Pageable page) {
+        Page<ProductEntity> productEntities = productRepository.findByStatus(true, page);
+        return productEntities.map(productMapper::toProductViewerListResponse);
     }
 
-    @Override
+    @Override //
     public ProductDetailResponse getProduct(Long id) {
         ProductEntity productEntity = productRepository.findById(id).orElseThrow(() -> new MyException("Sản phẩm không tồn tại"));
         return productMapper.toResponseDetail(productEntity);
@@ -174,12 +168,12 @@ public class ProductServiceImpl implements IProductService {
 
     @Override
     public int getCountProductActive() {
-        return (int) productRepository.countByStatusTrue();
+        return   productRepository.countByStatus(true);
     }
 
     @Override
     public int getCountProductInActive() {
-        return (int) productRepository.countByStatusFalse();
+        return  productRepository.countByStatus(false);
     }
 
     @Transactional
@@ -199,34 +193,31 @@ public class ProductServiceImpl implements IProductService {
         }
 
         int views = (productDetailEntity.getViewCount() == null) ? 0 : productDetailEntity.getViewCount();
-        productDetailEntity.setViewCount( views + 1);
+        productDetailEntity.setViewCount(views + 1);
 
         productRepository.save(productEntity);
     }
 
     @Override
-    public List<ProductViewerListResponse> getProductByCategory(Long categoryId) {
-        List<ProductEntity> productEntities = productRepository.findByCategoryId(categoryId);
-        List<ProductViewerListResponse> productResponse = new ArrayList<>();
-        productResponse = productEntities.stream().map(productMapper::toProductViewerListResponse)
-                .toList();
-        return productResponse;
+    public Page<ProductViewerListResponse> getProductByCategory(Long categoryId, Pageable page) {
+        Page<ProductEntity> productEntities = productRepository.findByCategoryId(categoryId, page);
+        return productEntities.map(productMapper::toProductViewerListResponse);
     }
 
     @Override
     public List<ReviewResponse> getReviewsByProductId(Long productId) {
-        List<ReviewEntity> reviewEntitys = reviewRepository.findByProductId(productId);
+        List<ReviewEntity> reviewEntities = reviewRepository.findByProductId(productId);
         List<ReviewResponse> reviewResponses = new ArrayList<>();
-        for (ReviewEntity review : reviewEntitys) {
-            ReviewResponse reviewReponse = new ReviewResponse();
-            reviewReponse.setId(review.getId());
-            reviewReponse.setProductId(review.getProduct().getId());
-            reviewReponse.setFullName(review.getUser().getFullName());
-            reviewReponse.setUserName(review.getUser().getUsername());
-            reviewReponse.setRate(review.getRate());
-            reviewReponse.setComment(review.getComment());
-            reviewReponse.setCreatedAt(review.getCreatedAt());
-            reviewResponses.add(reviewReponse);
+        for (ReviewEntity review : reviewEntities) {
+            ReviewResponse reviewResponse = new ReviewResponse();
+            reviewResponse.setId(review.getId());
+            reviewResponse.setProductId(review.getProduct().getId());
+            reviewResponse.setFullName(review.getUser().getFullName());
+            reviewResponse.setUsername(review.getUser().getUsername());
+            reviewResponse.setRate(review.getRate());
+            reviewResponse.setComment(review.getComment());
+            reviewResponse.setCreatedAt(review.getCreatedAt());
+            reviewResponses.add(reviewResponse);
         }
         return reviewResponses;
     }
@@ -246,10 +237,41 @@ public class ProductServiceImpl implements IProductService {
     }
 
     @Override
-    public void updateSalecount(ProductEntity product, Integer soLuongThem) {
-        int soLuong = product.getProductDetail().getSaleCount() == null ? 0 : product.getProductDetail().getSaleCount();
-        product.getProductDetail().setSaleCount(soLuong + soLuongThem);
-        productRepository.save(product);
+    public void incrementSalesCount(ProductEntity product, Integer soLuongThem) {
+        productDetailRepository.incrementSalesCount(product.getProductDetail().getId(), soLuongThem);
+    }
+
+    @Override
+    @Transactional
+    public ProductResponse createProduct(ProductCreateOrUpdateRequest product) {
+        UserEntity userEntity = getUser();
+        String slug = Utils.slugify(product.getName());
+        if (productRepository.existsBySlug(slug)) {
+            throw new MyException("Sản phẩm này đã tồn tại trong cửa hàng");
+        }
+        CategoryEntity categoryEntity = categoryRepository.findById(product.getCategoryId())
+                .orElseThrow(() -> new MyException("Danh mục không tồn tại"));
+
+        ProductEntity productEntity = productMapper.toEntity(product);
+
+        productEntity.setUser(userEntity);
+        productEntity.setCategory(categoryEntity);
+        productEntity.setSlug(slug);
+
+        Utils.replaceImage(product.getImageUrls(), productEntity);
+        productRepository.save(productEntity);
+        return productMapper.toResponse(productEntity);
+    }
+
+    @Override
+    public ProductResponse updateProduct(ProductCreateOrUpdateRequest productDTO, Long id) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    private UserEntity getUser() {
+        Long userId = SecurityUtil.getUserId();
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new MyException("Người bán không tồn tại"));
     }
 
 }

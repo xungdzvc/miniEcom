@@ -1,10 +1,6 @@
 package com.web.service;
-
-import com.web.dto.CartDTO;
-import com.web.dto.CartItemDTO;
-import com.web.dto.response.cart.CartResponse;
-import com.web.entity.CartItemEntity;
-import com.web.entity.CartEntity;
+ 
+import com.web.dto.response.cart.CartResponse; 
 
 public interface ICartService{
     CartResponse addProductToCart(String slug);

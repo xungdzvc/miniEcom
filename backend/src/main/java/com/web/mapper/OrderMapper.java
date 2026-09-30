@@ -29,6 +29,9 @@ public interface OrderMapper {
     @Mapping(target = "user", ignore = true)
     @Mapping(target = "orderItems", ignore = true)
     @Mapping(target = "paymentMethod", ignore = true)
+    @Mapping(target = "version", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
     OrderEntity CheckOutResponsetoOrderEntity(OrderCheckoutResponse orderCheckoutResponse);
 
     @Mapping(target = "orderItemId", source = "id")

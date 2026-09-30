@@ -2,21 +2,20 @@ package com.web.entity;
 
 import jakarta.persistence.*;
  
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Getter; 
 
 @Entity
 @Table(name="roles")
-@Getter
-@Setter
+@Getter  
 public class RoleEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "name")
+    @Column(name = "name", nullable = false, unique = true)
     private  String name;
 
 
 
 }
+    

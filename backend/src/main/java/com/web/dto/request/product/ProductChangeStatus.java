@@ -4,20 +4,20 @@
  */
 package com.web.dto.request.product;
 
+import jakarta.validation.constraints.NotNull;
+import lombok.Getter;
+import lombok.Setter;
+
 /**
  *
  * @author ZZ
  */
-
+@Getter
+@Setter
 public class ProductChangeStatus {
-    private boolean status;
+    @NotNull(message = "Trạng thái không thể trống")
+    private Boolean status;
 
-    public boolean isStatus() {
-        return status;
-    }
-
-    public void setStatus(boolean status) {
-        this.status = status;
-    }
+    
     
 }

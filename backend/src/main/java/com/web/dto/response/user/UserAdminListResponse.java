@@ -1,6 +1,7 @@
 package com.web.dto.response.user;
 
-import java.time.LocalDateTime;
+import java.math.BigDecimal;
+import java.time.Instant;
 import lombok.Getter;
 import lombok.Setter;
 @Getter
@@ -10,11 +11,11 @@ public class UserAdminListResponse {
     private String fullName;
     private String email;
     private String username;
-    private int totalVnd;
-    private int vnd;
+    private BigDecimal totalDeposit;
+    private BigDecimal currentBalance;
     private String address;
     private String phoneNumber;
-    private LocalDateTime createdAt;
-    private boolean status;
+    private Instant createdAt;
+    private Boolean status;
     private String role;
 }

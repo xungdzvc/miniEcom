@@ -1,6 +1,7 @@
 package com.web.controller.user;
 
 import com.web.elastic.document.ProductDocument;
+import com.web.security.ratelimit.RateLimited;
 import com.web.service.elastic.ProductSearchService;
 import java.io.IOException;
 import java.util.List;
@@ -17,6 +18,7 @@ public class SearchController {
 
     private final ProductSearchService searchService;
 
+    @RateLimited("search")
     @GetMapping
     public List<ProductDocument> search(
             @RequestParam String keyword,

@@ -1,6 +1,6 @@
 package com.web.dto;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import lombok.Getter;
 import lombok.Setter;
 import java.util.List;
@@ -10,7 +10,7 @@ import java.util.List;
 public class OrderDTO {
     private Long Id;
     private Long userId;
-    private LocalDateTime orderDate;
+    private Instant orderDate;
     private List<OrderItemDTO> orderItems;
     private String status;
     private float totalPrice;

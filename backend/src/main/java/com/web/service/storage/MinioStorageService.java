@@ -1,18 +1,19 @@
 package com.web.service.storage;
-
-import org.springframework.beans.factory.annotation.Autowired;
+ 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import io.minio.MinioClient;
 import java.util.UUID;
 import io.minio.PutObjectArgs;
+import lombok.RequiredArgsConstructor;
 
 @Service
+@RequiredArgsConstructor
 public class MinioStorageService {
 
-    @Autowired
-    private MinioClient minioClient;
+    
+    private final MinioClient minioClient;
 
     @Value("${minio.bucket}")
     private String bucket;

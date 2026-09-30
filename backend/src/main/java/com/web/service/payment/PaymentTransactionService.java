@@ -1,70 +1,57 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.web.service.payment;
 
-import com.google.api.client.util.SecurityUtils;
-import com.web.dto.request.payment.CardCallBackRequest;
-import com.web.dto.request.payment.CardRequest;
-import com.web.dto.request.payment.WebhookRequest;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.web.dto.request.payment.*;
 import com.web.dto.response.common.ApiResponse;
+import com.web.dto.response.payment.OrderPaymentResponse;
+import com.web.dto.response.payment.TopupPaymentResponse;
 import com.web.dto.response.payment.TopupResponse;
-import com.web.dto.response.user.UserTopupResponse;
 import com.web.entity.*;
-import com.web.enums.MatchType;
-import com.web.enums.OrderStatus;
-import com.web.enums.PaymentMethod;
-import com.web.enums.PaymentStatus;
-import com.web.enums.PaymentType;
+import com.web.enums.*;
 import com.web.exception.MyException;
 import com.web.repository.*;
 import com.web.security.SecurityUtil;
 import com.web.service.IMailService;
 import com.web.service.IPaymentTransactionService;
 import com.web.service.IProductService;
+import com.web.service.IUserService;
 import com.web.util.MailTemplates;
 import com.web.util.Utils;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-import java.util.regex.Pattern;
-import org.json.simple.JSONObject;
-import org.json.simple.JSONValue;
-
+import java.math.BigDecimal;
 import lombok.RequiredArgsConstructor;
 import okhttp3.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-/**
- *
- * @author ZZ
- */
-@RequiredArgsConstructor
+import java.time.*;
+import java.util.List;
+import java.util.Random;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
 @Service
-@Transactional
+@RequiredArgsConstructor
+
 public class PaymentTransactionService implements IPaymentTransactionService {
 
     private final OrderRepository orderRepository;
     private final UserRepository userRepository;
+    private final IUserService userService;
     private final SystemBankAccountRepository systemBankAccountRepository;
-    private final PaymentTransactionRepository paymentTransactionRepository;
+    private final PaymentTransactionRepository transactionRepository;
     private final TopupIntentRepository topupIntentRepository;
-    private final CartRepository cartRepository;
+    private final OrderPaymentRepository orderPaymentRepository;
+    private final TopupPaymentRepository topupPaymentRepository;
     private final IProductService productService;
     private final IMailService mailService;
+    private final Clock clock;
     private static final int CURRENT_YEAR = java.time.Year.now().getValue();
     private static final Pattern ORDER_PATTERN = Pattern.compile(
-            "\\bHD" + CURRENT_YEAR + "(\\d{1,12})\\b",
-            Pattern.CASE_INSENSITIVE
-    );
+            "\\bHD" + CURRENT_YEAR + "(\\d{1,12})\\b", Pattern.CASE_INSENSITIVE);
     private static final Pattern TOPUP_PATTERN = Pattern.compile(
-            "\\bNAP(\\d{1,12})\\b",
-            Pattern.CASE_INSENSITIVE
-    );
+            "\\bNAP(\\d{1,12})\\b", Pattern.CASE_INSENSITIVE);
 
     @Value("${partnerId}")
     private String partnerId;
@@ -78,264 +65,408 @@ public class PaymentTransactionService implements IPaymentTransactionService {
     @Value("${baseUrl.web}")
     private String baseUrl;
 
+    @Value("${app.payment.topup-ttl}")
+    private Duration topupTtl;
+
+
     @Override
     public void processTransaction(WebhookRequest webhookRequest) {
-        PaymentTransactionEntity paymentTransactionEntity = paymentTransactionRepository.findByPaymentRef(webhookRequest.getReferenceCode());
-
-        if (paymentTransactionEntity == null) {
-            paymentTransactionEntity = new PaymentTransactionEntity();
-            paymentTransactionEntity.setAmount(webhookRequest.getTransferAmount());
-            paymentTransactionEntity.setBankAccount(webhookRequest.getAccountNumber());
-            paymentTransactionEntity.setTransactionContent(webhookRequest.getContent());
-            paymentTransactionEntity.setPaymentName(webhookRequest.getGateway());
-            paymentTransactionEntity.setPaymentType(PaymentType.BANK);
-            paymentTransactionEntity.setPaymentRef(webhookRequest.getReferenceCode());
-            paymentTransactionEntity.setCreatedAt(LocalDateTime.now());
-
-            Long orderId = Utils.getInstance().extractId(ORDER_PATTERN, paymentTransactionEntity.getTransactionContent());
-
-            if (orderId != null) {
-                handleOrderPayment(paymentTransactionEntity, orderId);
-                return;
-            }
-
-            Long topupId = Utils.getInstance().extractId(TOPUP_PATTERN, paymentTransactionEntity.getTransactionContent());
-            if (topupId != null) {
-                handleTopUpPayment(paymentTransactionEntity, topupId);
-            }
-        } else {
+        if (transactionRepository.existsByPaymentRef(webhookRequest.getReferenceCode())) {
             throw new MyException("Giao dịch đã tồn tại");
         }
-    }
 
-    @Override
-    public void handleOrderPayment(PaymentTransactionEntity paymentTransactionEntity, Long orderId) {
-        OrderEntity orderEntity = orderRepository.findById(orderId).orElseThrow(() -> new MyException("Đơn hàng không hợp lệ"));
+        PaymentTransactionEntity transaction = buildTransactionFromWebhook(webhookRequest);
+        transactionRepository.save(transaction);
 
-        if (paymentTransactionEntity.getAmount() < orderEntity.getTotal()) {
-            paymentTransactionEntity.setPaymentStatus(PaymentStatus.WRONG_AMOUNT);
-            paymentTransactionRepository.save(paymentTransactionEntity);
+        Long orderId = extractOrderId(transaction.getTransactionContent());
+        if (orderId != null) {
+            handleBankOrderPayment(webhookRequest, orderId);
             return;
-
         }
-        CartEntity cartEntity = cartRepository.findByUserId(orderEntity.getUser().getId());
-        for (CartItemEntity icart : cartEntity.getCartItems()) {
-            productService.updateSalecount(icart.getProduct(), icart.getQuantity());
 
+        Long topupId = extractTopupId(transaction.getTransactionContent());
+        if (topupId != null) {
+            handleBankTopupPayment(webhookRequest, topupId);
+            return;
         }
-        cartEntity.getCartItems().clear();
-        UserEntity user = cartEntity.getUser();
-        paymentTransactionEntity.setOrderId(orderId);
-        paymentTransactionEntity.setMatchType(MatchType.ORDER);
-        paymentTransactionEntity.setPaymentStatus(PaymentStatus.SUCCESS);
-        paymentTransactionEntity.setMatchRef("HD" + CURRENT_YEAR + orderId);
-        paymentTransactionEntity.setOrderId(orderId);
-        orderEntity.setPaymentMethod(PaymentMethod.ORDER_BANKING);
-        orderEntity.setStatus(OrderStatus.SUCCESS);
-        String orderUrl = baseUrl + "/order/" + orderEntity.getId() + "/detail"; // đổi theo route của bạn
+
+        transaction.setPaymentStatus(PaymentStatus.UNMATCH);
+        transactionRepository.save(transaction);
+    }
+    @Transactional
+    @Override
+    public OrderPaymentResponse handleBankOrderPayment(WebhookRequest webhookRequest, Long orderId) {
+        OrderEntity order = orderRepository.findByIdAndStatus(orderId,OrderStatus.PENDING)
+                .orElseThrow(() -> new MyException("Đơn hàng không tồn tại"));
+
+
+        PaymentTransactionEntity transaction = transactionRepository
+                .findByPaymentRef(webhookRequest.getReferenceCode());
+
+        if (transaction == null) {
+            transaction = buildTransactionFromWebhook(webhookRequest);
+            transactionRepository.save(transaction);
+        }
+
+        if (transaction.getAmount().compareTo(order.getTotal()) == -1) {
+            transaction.setPaymentStatus(PaymentStatus.WRONG_AMOUNT);
+            transactionRepository.save(transaction);
+            throw new MyException("Số tiền chuyển khoản không đủ");
+        }
+
+        OrderPaymentEntity orderPayment = new OrderPaymentEntity();
+        orderPayment.setOrder(order);
+        orderPayment.setTransaction(transaction);
+        orderPayment.setTransferContent(webhookRequest.getContent());
+        orderPayment.setAmount(transaction.getAmount());
+        orderPayment.setPaymentMethod(PaymentMethod.ORDER_BANKING);
+        orderPayment.setStatus(PaymentStatus.SUCCESS);
+        orderPaymentRepository.save(orderPayment);
+
+        transaction.setMatchType(MatchType.ORDER);
+        transaction.setMatchRef("HD" + CURRENT_YEAR + orderId);
+        transaction.setPaymentStatus(PaymentStatus.SUCCESS);
+        transactionRepository.save(transaction);
+
+        for (OrderItemEntity item : order.getOrderItems()) {
+            productService.incrementSalesCount(item.getProduct(), item.getQuantity());
+        }
+        order.setStatus(OrderStatus.SUCCESS);
+        order.setPaymentMethod(PaymentMethod.ORDER_BANKING);
+        orderRepository.save(order);
+
+        UserEntity user = order.getUser();
+        String orderUrl = baseUrl + "/order/" + orderId;
         mailService.sendHtml(
                 user.getEmail(),
-                "Thanh toán thành công đơn #" + orderEntity.getId(),
-                MailTemplates.paymentSuccess(user, orderEntity, orderUrl)
-        );
-        cartRepository.save(cartEntity);
-        orderRepository.save(orderEntity);
-        paymentTransactionRepository.save(paymentTransactionEntity);
+                "Thanh toán thành công đơn #" + orderId,
+                MailTemplates.paymentSuccess(user, order, orderUrl));
 
+        return toOrderPaymentResponse(orderPayment);
     }
-
+    @Transactional
     @Override
-    public void handleTopUpPayment(PaymentTransactionEntity paymentTransactionEntity, Long topupId) {
+    public TopupPaymentResponse handleBankTopupPayment(WebhookRequest webhookRequest, Long topupId) {
+        TopupIntentEntity topupIntent = topupIntentRepository
+                .findByIdAndStatusAndNotExpiredAt(topupId, PaymentStatus.PENDING,clock.instant()).orElseThrow(()-> new MyException("Topup nạp tiền không hợp lệ hoặc đã hết hạn"));
 
-        TopupIntentEntity topupIntent = topupIntentRepository.findByIdAndStatus(topupId, PaymentStatus.PENDING);
-        if (topupIntent == null) {
-            paymentTransactionEntity.setPaymentStatus(PaymentStatus.UNMATCH);
-            paymentTransactionRepository.save(paymentTransactionEntity);
-            return;
+
+        PaymentTransactionEntity transaction = transactionRepository
+                .findByPaymentRef(webhookRequest.getReferenceCode());
+        if (transaction != null) {
+            transaction.setPaymentStatus(PaymentStatus.UNMATCH);
+            transactionRepository.save(transaction);
+        }else{
+            transaction = buildTransactionFromWebhook(webhookRequest);
+            transactionRepository.save(transaction);
         }
-        UserEntity userEntity = userRepository.findUserById(topupIntent.getUserId());
-        if (userEntity == null) {
-            throw new MyException("Người dùng không hợp lệ");
+        if(!webhookRequest.getTransferAmount().equals(topupIntent.getAmount())){
+            throw new MyException("Số tiền không hợp lệ ");
         }
-        userEntity.addBlance(topupIntent.getAmount());
-        paymentTransactionEntity.setMatchType(MatchType.TOPUP);
-        paymentTransactionEntity.setUserId(userEntity.getId());
-        paymentTransactionEntity.setMatchRef("NAP" + topupId);
-        paymentTransactionEntity.setPaymentStatus(PaymentStatus.SUCCESS);
+
+        UserEntity user = userRepository.findById(topupIntent.getUser().getId()).orElseThrow(() -> new MyException("Người dùng không hợp lệ"));
+
+
+
+        TopupPaymentEntity topupPayment = new TopupPaymentEntity();
+        topupPayment.setUser(user);
+        topupPayment.setTransaction(transaction);
+        topupPayment.setAmount(topupIntent.getAmount());
+        topupPayment.setPaymentMethod(PaymentMethod.TOPUP);
+        topupPayment.setStatus(PaymentStatus.SUCCESS);
+        topupPaymentRepository.save(topupPayment);
+
+        transaction.setMatchType(MatchType.TOPUP);
+        transaction.setMatchRef("NAP" + topupId);
+        transaction.setPaymentStatus(PaymentStatus.SUCCESS);
+        transactionRepository.save(transaction);
+
+        userService.deposit(user.getId(), topupIntent.getAmount());
+
         topupIntent.setStatus(PaymentStatus.SUCCESS);
         topupIntentRepository.save(topupIntent);
-        userRepository.save(userEntity);
-        paymentTransactionRepository.save(paymentTransactionEntity);
 
+        return toTopupPaymentResponse(topupPayment, transaction);
     }
 
     @Override
-    public void handleTopUpWallet(PaymentTransactionEntity paymentTransactionEntity, Long userId) {
-        UserEntity userEntity = userRepository.findUserById(userId);
-        if (userEntity == null) {
-            throw new MyException("Nguười dùng không hợp lệ");
-        }
-        paymentTransactionEntity.setMatchType(MatchType.TOPUP);
-        paymentTransactionEntity.setUserId(userId);
-        paymentTransactionEntity.setPaymentStatus(PaymentStatus.PENDING);
-        paymentTransactionEntity.setMatchRef("NAP" + userId);
-        paymentTransactionEntity.setPaymentType(PaymentType.CARD);
-        paymentTransactionEntity.setPaymentName("");
-        paymentTransactionRepository.save(paymentTransactionEntity);
-
-    }
-
-    @Override
-    public ApiResponse<?> sendCard(CardRequest cardRequest) {
+    public TopupResponse requestTopUp(TopupRequest request) {
         Long userId = SecurityUtil.getUserId();
-        String sign = Utils.MD5Hash(partnerKey + cardRequest.getMaThe() + cardRequest.getSeri());
-        String requestId = String.valueOf(new Random().nextInt(111111, 999999));
-        try {
-            OkHttpClient client = new OkHttpClient().newBuilder().build();
-            RequestBody body = new MultipartBody.Builder().setType(MultipartBody.FORM)
-                    .addFormDataPart("request_id", requestId)
-                    .addFormDataPart("code", cardRequest.getMaThe())
-                    .addFormDataPart("serial", cardRequest.getSeri())
-                    .addFormDataPart("telco", cardRequest.getLoaiThe())
-                    .addFormDataPart("amount", cardRequest.getMenhGia().toString())
-                    .addFormDataPart("command", "charging")
-                    .addFormDataPart("partner_id", partnerId)
-                    .addFormDataPart("sign", sign)
-                    .build();
-            Request request = new Request.Builder().url(urlApiCharging).post(body).addHeader("Content-Type", "application/json").build();
-            Response response = client.newCall(request).execute();
-            Object objResponse = JSONValue.parse(response.body().string());
-            JSONObject jsonObject = (JSONObject) objResponse;
-            int status = Integer.parseInt(jsonObject.get("status").toString());
-            long amount = cardRequest.getMenhGia();
-            String code = jsonObject.get("code").toString();
-            String seri = jsonObject.get("serial").toString();
-            String telco = jsonObject.get("telco").toString();
-            String message;
-            PaymentStatus paymentStatus = null;
-            switch (status) {
-                case 99:
-                    message = "Gửi thẻ thành công chờ xử lí";
-                    paymentStatus = PaymentStatus.PENDING;
-                    break;
-                case 1:
-                    message = "Nạp tiền thành công";
-                    paymentStatus = PaymentStatus.SUCCESS;
-                    break;
-                case 2:
-                    message = "Thẻ nạp sai mệnh giá. Bạn sẽ bị trừ 50% giá trị thực";
-                    paymentStatus = PaymentStatus.WRONG_AMOUNT;
-                    break;
-                case 3:
-                    message = "Thẻ cào lỗi vui lòng kiểm tra lại seri hoặc mã thẻ";
-                    paymentStatus = PaymentStatus.FAILED;
-                    break;
-                case 4:
-                    message = "Hệ thống nạp thẻ bảo trì xin vui lòng thử lại sau";
-                    paymentStatus = PaymentStatus.FAILED;
-                    break;
-                case 5:
-                    message = "Gửi thẻ thất bại ";
-                    paymentStatus = PaymentStatus.FAILED;
-                    break;
-                default:
-                    message = "Hệ thống xảy ra lỗi xin vui lòng thử lại sau";
-                    paymentStatus = PaymentStatus.FAILED;
-                    break;
-            }
-            PaymentTransactionEntity payment = new PaymentTransactionEntity();
-            payment.setCardCode(code);
-            payment.setCardSerial(seri);
-            payment.setCardType(telco);
-            payment.setAmount(amount);
-            payment.setPaymentStatus(paymentStatus);
-            payment.setPaymentRef(requestId);
-            handleTopUpWallet(payment, userId);
-            return ApiResponse.success(null, message);
+        UserEntity user = userRepository.findById(userId).orElseThrow(() -> new MyException("Người dùng không hợp lệ"));;
 
-        } catch (Exception e) {
-            throw new RuntimeException(e);
 
-        }
-    }
+        Instant now = clock.instant();
 
-    @Override
-    public List<UserTopupResponse> getTopup(Long userId) {
-        List<PaymentTransactionEntity> paymentTransactionEntities = paymentTransactionRepository.findAllByUserId(userId);
-        List<UserTopupResponse> lUserTopupResponse = new ArrayList<>();
-        for (PaymentTransactionEntity paymentEntity : paymentTransactionEntities) {
-            UserTopupResponse userTopupResponse = new UserTopupResponse();
-            userTopupResponse.setAmount(paymentEntity.getAmount());
-            userTopupResponse.setId(paymentEntity.getId());
-            userTopupResponse.setPaymentType(paymentEntity.getPaymentType());
-            userTopupResponse.setPaymentStatus(paymentEntity.getPaymentStatus());
-            userTopupResponse.setCardCode(paymentEntity.getCardCode());
-            userTopupResponse.setCardSerial(paymentEntity.getCardSerial());
-            userTopupResponse.setCardType(paymentEntity.getCardType());
-            userTopupResponse.setCreatedAt(paymentEntity.getCreatedAt());
-            lUserTopupResponse.add(userTopupResponse);
-        }
-        return lUserTopupResponse;
+        TopupIntentEntity intent = new TopupIntentEntity();
+        intent.setUser(user);
+        intent.setExpiredAt(now.plus(topupTtl));
+        intent.setStatus(PaymentStatus.PENDING);
+        intent.setAmount(request.getAmount());
+        topupIntentRepository.save(intent);
 
-    }
-
-    @Override
-    public ApiResponse callBack(CardCallBackRequest cardCallBackRequest) {
-        PaymentTransactionEntity payment = paymentTransactionRepository
-                .findByPaymentStatusAndCardCodeAndCardSerial(
-                        PaymentStatus.PENDING,
-                        cardCallBackRequest.getCode(),
-                        cardCallBackRequest.getSerial());
-        if (payment == null) {
-            return ApiResponse.error("Không tồn tại giao dịch này");
-        }
-        Long userId = Utils.getInstance().extractId(TOPUP_PATTERN, payment.getMatchRef());
-        payment.setPaymentStatus(PaymentStatus.SUCCESS);
-        UserEntity userEntity = userRepository.findUserById(userId);
-        if (userEntity == null) {
-            throw new MyException("Nguười dùng không hợp lệ");
-        }
-        userEntity.addBlance(cardCallBackRequest.getAmount());
-        userRepository.save(userEntity);
-        paymentTransactionRepository.save(payment);
-        return ApiResponse.error("Cộng tiền thành công");
-    }
-
-    @Override
-    public TopupResponse requestTopUp(Long amount) {
-        Long userId = SecurityUtil.getUserId();
-        LocalDateTime now = LocalDateTime.now();
-
-        TopupIntentEntity topup = new TopupIntentEntity();
-        topup.setUserId(userId);
-        topup.setCreatedAt(now);
-        topup.setExpiredAt(now.plusMinutes(15));
-
-        topup.setStatus(PaymentStatus.PENDING);
-        topup.setAmount(amount);
-
-        topupIntentRepository.save(topup);
         SystemBankAccountEntity bank = systemBankAccountRepository.findFristByIsDefaultTrue();
         if (bank == null) {
-            throw new MyException("Tài khoản ngân hàng chưa được cấu hình vui lòng liên hệ ADMIN ");
+            throw new MyException("Tài khoản ngân hàng chưa được cấu hình, vui lòng liên hệ ADMIN");
         }
-        String matchRef = "NAP" + topup.getId();
+
+        String matchRef = "NAP" + intent.getId();
         TopupResponse response = new TopupResponse();
-        response.setTopupId(topup.getId());
-        response.setAmount(topup.getAmount());
-        response.setQRCodeUrl(Utils.getInstance().
-                buildVietQrQuickLink(
-                        bank.getBankCode(),
-                        bank.getAccountNumber(),
-                        "qr_only", amount, matchRef, bank.getAccountName()));
-        response.setExpiresAt(topup.getExpiredAt());
+        response.setTopupId(intent.getId());
+        response.setAmount(intent.getAmount());
+        response.setStatus(intent.getStatus());
+        response.setExpiresAt(intent.getExpiredAt());
+        response.setQRCodeUrl(Utils.getInstance().buildVietQrQuickLink(
+                bank.getBankCode(),
+                bank.getAccountNumber(),
+                "qr_only",
+                request.getAmount(),
+                matchRef,
+                bank.getAccountName()));
         return response;
     }
 
     @Override
-    public PaymentStatus getStatusByTopupId(Long topupId) {
-        TopupIntentEntity topupIntentEntity = topupIntentRepository.findById(topupId).orElseThrow(()-> new MyException("Topup intent không tồn tại"));
-        return topupIntentEntity.getStatus();
+    public PaymentStatus getTopupStatus(Long topupId) {
+        TopupIntentEntity intent = topupIntentRepository.findByIdAndUserId(topupId,SecurityUtil.getUserId())
+                .orElseThrow(() -> new MyException("Yêu cầu nạp tiền không tồn tại"));
+        return intent.getStatus();
     }
 
+    @Override
+    public ApiResponse<?> sendCard(CardRequest request) {
+        Long userId = SecurityUtil.getUserId();
+        UserEntity user = userRepository.findById(userId).orElseThrow(() -> new MyException("Người dùng không hợp lệ"));;
+
+        String sign = Utils.MD5Hash(partnerKey + request.getMaThe() + request.getSeri());
+        String requestId = String.valueOf(new Random().nextInt(111111, 999999));
+
+        try {
+            OkHttpClient client = new OkHttpClient().newBuilder().build();
+            RequestBody body = new MultipartBody.Builder().setType(MultipartBody.FORM)
+                    .addFormDataPart("request_id", requestId)
+                    .addFormDataPart("code", request.getMaThe())
+                    .addFormDataPart("serial", request.getSeri())
+                    .addFormDataPart("telco", request.getLoaiThe())
+                    .addFormDataPart("amount", request.getMenhGia().toString())
+                    .addFormDataPart("command", "charging")
+                    .addFormDataPart("partner_id", partnerId)
+                    .addFormDataPart("sign", sign)
+                    .build();
+
+            Request httpRequest = new Request.Builder()
+                    .url(urlApiCharging)
+                    .post(body)
+                    .addHeader("Content-Type", "application/json")
+                    .build();
+
+            try (Response response = client.newCall(httpRequest).execute()) {
+                ObjectMapper mapper = new ObjectMapper();
+                String responseString = response.body().string();
+
+                JsonNode jsonNode = mapper.readTree(responseString);
+
+                int status = jsonNode.get("status").asInt();
+                BigDecimal amount = jsonNode.get("amount").decimalValue();
+                String returnedCode = jsonNode.get("code").asText();
+                String returnedSerial = jsonNode.get("serial").asText();
+                String telco = jsonNode.get("telco").asText();
+
+                PaymentStatus paymentStatus;
+                String message;
+
+                paymentStatus = switch (status) {
+                    case 99 -> {
+                        message = "Gửi thẻ thành công, chờ xử lí";
+                        yield PaymentStatus.PENDING;
+                    }
+                    case 1 -> {
+                        message = "Nạp tiền thành công";
+                        yield PaymentStatus.SUCCESS;
+                    }
+                    case 2 -> {
+                        message = "Thẻ nạp sai mệnh giá. Bạn sẽ bị trừ 50% giá trị thực";
+                        yield PaymentStatus.WRONG_AMOUNT;
+                    }
+                    case 3 -> {
+                        message = "Thẻ cào lỗi, vui lòng kiểm tra lại seri hoặc mã thẻ";
+                        yield PaymentStatus.FAILED;
+                    }
+                    case 4 -> {
+                        message = "Hệ thống nạp thẻ bảo trì, xin vui lòng thử lại sau";
+                        yield PaymentStatus.FAILED;
+                    }
+                    case 5 -> {
+                        message = "Gửi thẻ thất bại";
+                        yield PaymentStatus.FAILED;
+                    }
+                    default -> {
+                        message = "Hệ thống xảy ra lỗi, xin vui lòng thử lại sau";
+                        yield PaymentStatus.FAILED;
+                    }
+                };
+
+                PaymentTransactionEntity transaction = new PaymentTransactionEntity();
+                transaction.setPaymentType(PaymentType.CARD);
+                transaction.setPaymentRef(requestId);
+                transaction.setCardCode(returnedCode);
+                transaction.setCardSerial(returnedSerial);
+                transaction.setCardType(telco);
+                transaction.setAmount(amount);
+                transaction.setPaymentStatus(paymentStatus);
+                transactionRepository.save(transaction);
+
+                TopupPaymentEntity topupPayment = new TopupPaymentEntity();
+                topupPayment.setUser(user);
+                topupPayment.setTransaction(transaction);
+                topupPayment.setAmount(amount);
+                topupPayment.setPaymentMethod(PaymentMethod.TOPUP);
+                topupPayment.setCardType(telco);
+                topupPayment.setCardCode(returnedCode);
+                topupPayment.setCardSerial(returnedSerial);
+                topupPayment.setStatus(paymentStatus);
+                topupPaymentRepository.save(topupPayment);
+
+                if (paymentStatus.equals(PaymentStatus.SUCCESS) || paymentStatus.equals(PaymentStatus.WRONG_AMOUNT)) {
+                    user.deposit(amount);
+                }
+
+                return ApiResponse.success(new CardSubmissResponse(transaction.getId(),transaction.getPaymentStatus(),
+                        transaction.getAmount(),message), message);
+            }
+
+        } catch (Exception e) {
+            throw new MyException("Lỗi khi nạp thẻ: " + e.getMessage());
+        }
+    }
+    @Transactional
+    @Override
+    public ApiResponse<?> handleCardCallback(CardCallBackRequest request) {
+        PaymentStatus paymentStatus;
+        String message;
+
+        paymentStatus = switch (request.getStatus()) {
+            case 1 -> {
+                message = "Nạp tiền thành công";
+                yield PaymentStatus.SUCCESS;
+            }
+            case 2 -> {
+                message = "Thẻ nạp sai mệnh giá. Bạn sẽ bị trừ 50% giá trị thực";
+                yield PaymentStatus.WRONG_AMOUNT;
+            }
+            case 3 -> {
+                message = "Thẻ cào lỗi, vui lòng kiểm tra lại seri hoặc mã thẻ";
+                yield PaymentStatus.FAILED;
+            }
+            case 4 -> {
+                message = "Hệ thống nạp thẻ bảo trì, xin vui lòng thử lại sau";
+                yield PaymentStatus.FAILED;
+            }
+            case 5 -> {
+                message = "Gửi thẻ thất bại";
+                yield PaymentStatus.FAILED;
+            }
+            default -> {
+                message = "Hệ thống xảy ra lỗi, xin vui lòng thử lại sau";
+                yield PaymentStatus.FAILED;
+            }
+        };
+
+        TopupPaymentEntity topupPayment = topupPaymentRepository
+                .findByCardCodeAndCardSerialAndStatus(
+                        request.getCode(), request.getSerial(), PaymentStatus.PENDING)
+                .orElse(null);
+
+        if (topupPayment == null) {
+            return ApiResponse.error("Không tồn tại giao dịch hoặc đã được xử lý");
+        }
+
+        Long userId = topupPayment.getUser().getId();
+        UserEntity user = userRepository.findById(userId).orElseThrow(() -> new MyException("Người dùng không hợp lệ"));;
+        if(paymentStatus.equals(PaymentStatus.SUCCESS) || paymentStatus.equals(PaymentStatus.WRONG_AMOUNT)){
+            userService.deposit(userId, request.getAmount());
+        }
+
+
+        topupPayment.setStatus(paymentStatus);
+        topupPaymentRepository.save(topupPayment);
+
+        PaymentTransactionEntity transaction = topupPayment.getTransaction();
+        transaction.setPaymentStatus(paymentStatus);
+        transactionRepository.save(transaction);
+
+        return ApiResponse.success(new CardSubmissResponse(request.getTrans_id(),paymentStatus,
+                request.getAmount(),message), "Cộng tiền thành công");
+    }
+
+    @Override
+    public List<TopupPaymentResponse> getUserTopupHistory(Long userId) {
+        return topupPaymentRepository.findByUserIdOrderByCreatedAtDesc(userId)
+                .stream()
+                .map(tp -> toTopupPaymentResponse(tp, tp.getTransaction()))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<OrderPaymentResponse> getOrderPayments(Long orderId) {
+        return orderPaymentRepository.findByOrderId(orderId)
+                .stream()
+                .map(this::toOrderPaymentResponse)
+                .collect(Collectors.toList());
+    }
+
+    private PaymentTransactionEntity buildTransactionFromWebhook(WebhookRequest webhook) {
+        PaymentTransactionEntity transaction = new PaymentTransactionEntity();
+        transaction.setPaymentType(PaymentType.BANK);
+        transaction.setPaymentRef(webhook.getReferenceCode());
+        transaction.setAmount(webhook.getTransferAmount());
+        transaction.setBankAccount(webhook.getAccountNumber());
+        transaction.setTransactionContent(webhook.getContent());
+        transaction.setPaymentName(webhook.getGateway());
+        transaction.setPaymentStatus(PaymentStatus.PENDING);
+        return transaction;
+    }
+
+    private Long extractOrderId(String content) {
+        if (content == null) {
+            return null;
+        }
+        return Utils.getInstance().extractId(ORDER_PATTERN, content);
+    }
+
+    private Long extractTopupId(String content) {
+        if (content == null) {
+            return null;
+        }
+        return Utils.getInstance().extractId(TOPUP_PATTERN, content);
+    }
+
+    private OrderPaymentResponse toOrderPaymentResponse(OrderPaymentEntity entity) {
+        OrderPaymentResponse response = new OrderPaymentResponse();
+        response.setId(entity.getId());
+        response.setOrderId(entity.getOrder().getId());
+        response.setTransactionId(entity.getTransaction().getId());
+        response.setTransferContent(entity.getTransferContent());
+        response.setAmount(entity.getAmount());
+        response.setPaymentMethod(entity.getPaymentMethod());
+        response.setStatus(entity.getStatus());
+        response.setCreatedAt(entity.getCreatedAt());
+        return response;
+    }
+
+    private TopupPaymentResponse toTopupPaymentResponse(TopupPaymentEntity entity,
+            PaymentTransactionEntity transaction) {
+        TopupPaymentResponse response = new TopupPaymentResponse();
+        response.setId(entity.getId());
+        response.setUserId(entity.getUser().getId());
+        response.setTransactionId(entity.getTransaction().getId());
+        response.setAmount(entity.getAmount());
+        response.setPaymentMethod(entity.getPaymentMethod());
+        response.setCardType(entity.getCardType());
+        response.setCardCode(entity.getCardCode());
+        response.setCardSerial(entity.getCardSerial());
+        response.setStatus(entity.getStatus());
+        response.setPaymentType(transaction.getPaymentType());
+        response.setCreatedAt(entity.getCreatedAt());
+        return response;
+    }
 }

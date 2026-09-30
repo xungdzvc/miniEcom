@@ -5,14 +5,17 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cglib.core.internal.Function;
+import java.util.function.Function;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
+import org.springframework.security.core.GrantedAuthority;
 
 @Component
 public class JwtUtils {
@@ -24,7 +27,7 @@ public class JwtUtils {
         return Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
     }
 
-    public String generateAccessToken(CustomUserDetails user) {
+    public String generateAccessToken(CustomUserDetails user) { 
         return Jwts.builder()
                 .setSubject(String.valueOf(user.getUserId()))
                 .claim("type", "access")
@@ -62,6 +65,7 @@ public class JwtUtils {
         return parse(token).get("type", String.class);
     }
 
+  
     public String getJti(String token) {
         return parse(token).getId();
     }

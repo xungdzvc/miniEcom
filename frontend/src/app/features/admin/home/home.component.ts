@@ -5,6 +5,7 @@ import { finalize } from 'rxjs';
 
 import { AdminStatCardComponent } from '../shared/ui/admin-stat-card/admin-stat-card.component';
 import { DashboardStateService } from '../../../core/services/dashboard-state.service';
+import { DashboardSummaryComponent as DashboardSummaryModel } from '../../../shared/models/dashboard-summary.model';
 
 export interface DashboardSummaryComponent {
   totalProducts: number;
@@ -61,13 +62,39 @@ export class HomeComponent implements OnInit {
       .pipe(finalize(() => (this.isLoading = false)))
       .subscribe({
         next: (res) => {
-          this.summary = res.data ?? this.summary;
+          const payload = this.extractSummaryPayload(res);
+          this.summary = this.normalizeSummary(payload);
         },
         error: (err) => {
           const code = err?.status ?? 500;
           this.router.navigate(['/error', code]);
         },
       });
+  }
+
+  private extractSummaryPayload(res: any): Partial<DashboardSummaryModel> | null {
+    if (!res || typeof res !== 'object') return null;
+
+    if (res.data && typeof res.data === 'object') return res.data;
+    if (res.content && typeof res.content === 'object') return res.content;
+    if (res.payload && typeof res.payload === 'object') return res.payload;
+
+    return res;
+  }
+
+  private normalizeSummary(payload: Partial<DashboardSummaryModel> | null): DashboardSummaryComponent {
+    return {
+      totalProducts: Number(payload?.totalProducts ?? 0),
+      activeProducts: Number(payload?.activeProducts ?? 0),
+      inActiveProducts: Number(payload?.inActiveProducts ?? 0),
+      totalCategories: Number(payload?.totalCategories ?? 0),
+      totalUsers: Number(payload?.totalUsers ?? 0),
+      monthRevenue: Number(payload?.monthRevenue ?? 0),
+      quarterRevenue: Number(payload?.quarterRevenue ?? 0),
+      yearRevenue: Number(payload?.yearRevenue ?? 0),
+      newUsersToday: Number(payload?.newUsersToday ?? 0),
+      newUsersThisMonth: Number(payload?.newUsersThisMonth ?? 0),
+    };
   }
 
   formatNumber(value?: number): string {

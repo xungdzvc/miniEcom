@@ -9,12 +9,7 @@
   </div>
 
   <div class="filters">
-    <div class="search">
-      <span class="icon">⌕</span>
-      <input [(ngModel)]="q" placeholder="Tìm theo mã đơn hàng..." />
-    </div>
-
-    <select [(ngModel)]="status" class="select">
+    <select [(ngModel)]="status" class="select" (change)="loadOrders()">
       <option value="ALL">Tất cả trạng thái</option>
       <option value="SUCCESS">Đã thanh toán</option>
       <option value="PENDING">Chờ xử lý</option>
@@ -24,11 +19,15 @@
   </div>
 
   <div class="panel">
-    <div class="empty" *ngIf="filtered.length === 0">
+    <div class="empty" *ngIf="isLoading">
+      Đang tải đơn hàng...
+    </div>
+
+    <div class="empty" *ngIf="!isLoading && orders.length === 0">
       Bạn chưa có đơn hàng nào
     </div>
 
-    <table *ngIf="filtered.length > 0">
+    <table *ngIf="!isLoading && orders.length > 0">
       <thead>
         <tr>
           <th>Mã</th>
@@ -39,7 +38,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let r of filtered">
+        <tr *ngFor="let r of orders">
           <td class="mono">HD{{ todayYear }}{{ r.orderId }}</td>
           <td>{{ r.orderDate | date:'HH:mm:ss dd/MM/yyyy' }}</td>
           <td class="bold">{{ r.total | number:'1.0-0' }} VNĐ</td>
@@ -54,22 +53,43 @@
             </span>
           </td>
           <td class="right">
-         
-
-          <button
-            *ngIf="r.status === 'SUCCESS'; else notPaid"
-            class="btn small ghost"
-            type="button" (click)="goToOrderDetail(r.orderId)">
-            Chi tiết
-           </button>
-
-          <ng-template #notPaid>
-          </ng-template>
-        </td>
-
+            <button
+              *ngIf="r.status === 'SUCCESS'"
+              class="btn small ghost"
+              type="button"
+              (click)="goToOrderDetail(r.orderId)">
+              Chi tiết
+            </button>
+          </td>
         </tr>
       </tbody>
     </table>
 
+    <div class="pagination" *ngIf="!isLoading && orders.length > 0">
+      <div class="pagination-summary">
+        <span class="pagination-caption">Lịch sử đơn hàng</span>
+        <div class="pagination-pill">
+          <span class="page-info">
+            Trang <span class="page-current">{{ page }}</span> / <span class="page-total">{{ totalPages }}</span>
+          </span>
+        </div>
+      </div>
+
+      <div class="pagination-actions">
+        <button
+          class="btn ghost small pagination-btn"
+          (click)="prevPage()"
+          [disabled]="page === 1">
+          ← Trước
+        </button>
+
+        <button
+          class="btn ghost small pagination-btn"
+          (click)="nextPage()"
+          [disabled]="page === totalPages">
+          Sau →
+        </button>
+      </div>
+    </div>
   </div>
 </section>

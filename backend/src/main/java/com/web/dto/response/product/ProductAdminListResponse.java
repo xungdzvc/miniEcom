@@ -4,7 +4,7 @@ import com.web.enums.ProductStatus;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -21,6 +21,6 @@ public class ProductAdminListResponse {
     private Boolean status;
     private Integer discount;
     private Boolean pin;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+    private Instant createdAt;
+    private Instant updatedAt;
 }

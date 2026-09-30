@@ -4,6 +4,7 @@
  */
 package com.web.dto.response.auth;
 
+import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -17,8 +18,8 @@ public class UserDTOResponse {
     private String phoneNumber;
     private String address;
     private boolean active;
-    private int totalVnd;
-    private int vnd;
+    private int totalDeposit;
+    private int currentBalance;
     private String roles;
     private String googleId;
 }

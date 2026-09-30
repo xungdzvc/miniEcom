@@ -1,27 +1,36 @@
 package com.web.entity;
  
 import jakarta.persistence.*;
-import java.time.LocalDateTime;
+import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.ArrayList; 
 import lombok.Getter;
 import lombok.Setter;
 import java.util.List;
 
 @Entity
-@Table(name = "products")
+@Table(name = "products",
+        indexes = {
+            @Index(name = "idx_product_status",columnList = "status"),
+            @Index(name = "idx_product_category_id",columnList = "category_id"),
+            @Index(name = "idx_product_slug",columnList = "slug")
+        })
 @Getter
 @Setter
-public class ProductEntity {
+public class ProductEntity extends BaseEntity{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Version
+    private Long version;
+
     @Column(name = "name")
     private String name;
 
     @Column(name = "price")
-    private Long price;
+    private BigDecimal price;
 
     @Column(name = "thumbnail")
     private String thumbnail;
@@ -34,7 +43,7 @@ public class ProductEntity {
     private UserEntity user;
 
     @Column(name = "status")
-    private boolean status;
+    private Boolean status;
 
     @Column(unique = true, nullable = false)
     private String slug;
@@ -51,11 +60,6 @@ public class ProductEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id", nullable = false)
     private CategoryEntity category;
-
-    @Column(name = "created_at")
-    private LocalDateTime createdAt;
-
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
+ 
 
 }

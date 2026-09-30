@@ -5,25 +5,25 @@ import com.web.dto.request.auth.UserRegisterRequest;
 import com.web.dto.request.auth.UserGoogleLoginRequest;
 import com.web.dto.request.auth.UserLoginRequest;
 import com.web.dto.response.auth.UserDTOResponse;
-import com.web.security.JwtUtils;
+import com.web.exception.TooManyRequestsException;
+import com.web.security.ratelimit.RateLimited;
 import com.web.service.IUserService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import com.web.dto.response.auth.UserLoginResponse;
 import com.web.dto.response.common.ApiResponse;
-import com.web.entity.UserEntity;
-import com.web.security.CustomUserDetails;
 import com.web.security.SecurityUtil;
 import com.web.service.IAuthService;
 import com.web.service.google.GoogleAuthService;
+import com.web.service.ratelimit.LoginRateLimitService;
+import com.web.util.Utils;
 import lombok.RequiredArgsConstructor;
+import jakarta.servlet.http.HttpServletRequest;
 
-;
+import org.springframework.security.authentication.BadCredentialsException;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -33,43 +33,47 @@ public class AuthController {
     private final IAuthService authService;
     private final IUserService userService;
     private final GoogleAuthService googleAuthService;
+    private final LoginRateLimitService loginRateLimitService;
 
-    private final JwtUtils jwtUtils;
-
+    @RateLimited("register")
     @PostMapping("/register")
-    public ResponseEntity<?> register(
-            @Valid @RequestBody UserRegisterRequest request
-    ) {
-
-
-
+    public ApiResponse<?> register(
+            @Valid @RequestBody UserRegisterRequest request) {
         UserDTOResponse userResponse = authService.register(request);
-
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(userResponse);
+        return ApiResponse.success(userResponse, "Đăng ký thành công");
     }
 
     @GetMapping("/me")
     public ApiResponse<?> getProfile() {
         Long id = SecurityUtil.getUserId();
-        return ApiResponse.success(userService.getUserProfileById(id));
+        return ApiResponse.success(userService.getUserProfileById(id), "Lấy dữ liệu người dùng thành công");
     }
-
+    @RateLimited("login")
     @PostMapping("/login")
-    public ResponseEntity<?> login(@Valid @RequestBody UserLoginRequest userLoginRequest) {
-        
-        UserLoginResponse userLoginResponse = authService.login(userLoginRequest);
+    public ResponseEntity<?> login(@Valid @RequestBody UserLoginRequest userLoginRequest,
+            HttpServletRequest request) {
+        String ip = Utils.getClientIp(request);
+        String username = userLoginRequest.getUsername();
 
-        return buildAuthResponse(userLoginResponse);
+        if (loginRateLimitService.isBlocked(ip, username)) {
+            throw new TooManyRequestsException("Bạn đã đăng hập sai quá nhiều lần vui lòng thử lại sau ít phút",5);
+        }
+
+        try {
+
+            UserLoginResponse userLoginResponse = authService.login(userLoginRequest);
+            loginRateLimitService.loginSuccess(ip, username);
+            return buildAuthResponse(userLoginResponse);
+        } catch (BadCredentialsException e) {
+            loginRateLimitService.loginFailed(ip, username);
+            throw e;
+        } 
     }
-
-    @PostMapping("/fresh-token")
+    @RateLimited("refresh-token")
+    @PostMapping("/refresh-token")
     public ResponseEntity<?> refresh(
             @CookieValue(value = "refresh_token", required = false) String refreshToken) {
-
         UserLoginResponse userLoginResponse = authService.refreshToken(refreshToken);
-
         return buildAuthResponse(userLoginResponse);
     }
 
@@ -91,14 +95,29 @@ public class AuthController {
     }
 
     @PostMapping("/google-login")
-    public ResponseEntity<?> loginWithGoogle(@RequestBody UserGoogleLoginRequest userGoogleLoginRequest) {
-        UserLoginResponse userLoginResponse = googleAuthService.loginWithGoogle(userGoogleLoginRequest.getIdToken());
-        return buildAuthResponse(userLoginResponse);
-        //return ApiResponse.success(googleAuthService.loginWithGoogle(userGoogleLoginRequest.getIdToken()));
+    public ResponseEntity<?> loginWithGoogle(@Valid @RequestBody UserGoogleLoginRequest userGoogleLoginRequest,
+            HttpServletRequest request) {
+
+        String ip = Utils.getClientIp(request);
+        String username = userGoogleLoginRequest.getIdToken();
+
+        if (loginRateLimitService.isBlocked(ip, username)) {
+            throw new TooManyRequestsException("Bạn đã đăng hập sai quá nhiều lần vui lòng thử lại sau ít phút",5);
+        }
+
+        try {
+
+            UserLoginResponse userLoginResponse = googleAuthService.loginWithGoogle(userGoogleLoginRequest.getIdToken());
+            loginRateLimitService.loginSuccess(ip, username);
+            return buildAuthResponse(userLoginResponse);
+        } catch (BadCredentialsException e) {
+            loginRateLimitService.loginFailed(ip, username);
+            throw e;
+        }
     }
 
     @PostMapping("/google-link")
-    public void linkWithGoogle(@RequestBody UserGoogleLoginRequest userGoogleLoginRequest) {
+    public void linkWithGoogle(@Valid @RequestBody UserGoogleLoginRequest userGoogleLoginRequest) {
         googleAuthService.linkGoogle(userGoogleLoginRequest.getIdToken());
     }
 

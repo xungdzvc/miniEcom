@@ -4,6 +4,7 @@
  */
 package com.web.dto.response.cart;
 
+import java.math.BigDecimal;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -13,7 +14,7 @@ public class CartItemResponse {
     private Long id;
     private Long productId;
     private String productName;
-    private Long price;
+    private BigDecimal price;
     private String categoryName;
     private String thumbnail;
     private Integer discount;

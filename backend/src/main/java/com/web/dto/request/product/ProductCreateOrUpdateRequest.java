@@ -4,7 +4,8 @@
  */
 package com.web.dto.request.product;
 
-import java.time.LocalDateTime;
+import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
@@ -16,11 +17,11 @@ import lombok.Setter;
 @Getter
 @Setter
 public class ProductCreateOrUpdateRequest {
+
     private String name;
-    private Long price;
+    private BigDecimal price;
     private String thumbnail;
     private String description;
-    private Long userId;
     private Boolean status;
     private String slug;
     private Long categoryId;
@@ -34,7 +35,7 @@ public class ProductCreateOrUpdateRequest {
     private String installTutorial;
     private Boolean pin;
     private String shareBy;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+    private Instant createdAt;
+    private Instant updatedAt;
     private List<String> imageUrls;
 }

@@ -1,7 +1,6 @@
 package com.web.service;
 
-import com.web.dto.request.product.ProductCreateOrUpdateRequest;
-import com.web.dto.response.common.ApiResponse;
+import com.web.dto.request.product.ProductCreateOrUpdateRequest; 
 import com.web.dto.response.product.ProductAdminListResponse;
 import com.web.dto.response.product.ProductResponse;
 import com.web.dto.response.product.ProductViewerListResponse;
@@ -10,14 +9,19 @@ import com.web.dto.response.product.ProductDetailResponse;
 import com.web.entity.ProductEntity;
 
 import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface IProductService {
     ProductResponse addOrUpdateProduct(ProductCreateOrUpdateRequest productDTO, Long id);
-    ApiResponse deleteProduct(Long id);
-    ApiResponse changeStatusProduct(Long id,boolean status);
+    
+    ProductResponse createProduct(ProductCreateOrUpdateRequest productDTO);
+    ProductResponse updateProduct(ProductCreateOrUpdateRequest productDTO, Long id);
+    void deleteProduct(Long id);
+    void changeStatusProduct(Long id,boolean status);
     void changePinStatusProduct(Long id,boolean status);
-    List<ProductAdminListResponse> getProductsForAdmin();
-    List<ProductViewerListResponse> getProductsForPreview();
+    Page<ProductAdminListResponse> getProductsForAdmin(Pageable page);
+    Page<ProductViewerListResponse> getProductsForPreview(Pageable page);
     ProductResponse getProductForAdmin(Long id);
     ProductDetailResponse getProduct(Long id);
     ProductDetailResponse getProductBySlug(String slug);
@@ -25,9 +29,9 @@ public interface IProductService {
     int getCountTotal();
     int getCountProductActive();
     int getCountProductInActive();
-    List<ProductViewerListResponse> getProductByCategory(Long categoryId);
+    Page<ProductViewerListResponse> getProductByCategory(Long categoryId,Pageable page);
     List<ReviewResponse> getReviewsByProductId(Long productId);
-    void updateSalecount(ProductEntity product, Integer soluong);
+    void incrementSalesCount(ProductEntity product, Integer soluong);
     
 
 

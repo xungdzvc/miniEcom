@@ -35,7 +35,7 @@ export class HomeComponent implements OnInit {
 
   // data
   isLoading = true;
-  products: any[] = [];
+  products: ProductViewerListDetail[] = [];
   productsView: any[] = [];
 
   
@@ -45,8 +45,10 @@ export class HomeComponent implements OnInit {
   activeCategory: string | null = null;
 
   // pagination
-  pageSize = 8;     // ✅ 8 sản phẩm / trang
+  pageSize = 8;
   currentPage = 1;
+  totalPages = 1;
+  totalElements = 0;
 
   ngOnInit(): void {
     this.loadProduct();
@@ -60,12 +62,14 @@ export class HomeComponent implements OnInit {
     this.isLoading = true;
 
     this.productService
-      .getAllProductsForViewer()
+      .getAllProductsForViewer(this.currentPage - 1, this.pageSize)
       .pipe(finalize(() => (this.isLoading = false)))
       .subscribe({
         next: res => {
-          this.products = res?.data ?? [];
-          this.resetPage();
+          this.products = res?.content ?? [];
+          this.totalPages = Math.max(1, Number(res?.totalPages ?? 1));
+          this.totalElements = Number(res?.totalElements ?? this.products.length ?? 0);
+          this.currentPage = Number(res?.number ?? this.currentPage - 1) + 1;
         },
         error: err => {
           const code = err?.status ?? 500;
@@ -83,11 +87,13 @@ export class HomeComponent implements OnInit {
   setCategory(cat: string) {
     this.activeCategory = cat === 'Tất cả' ? null : cat;
     this.resetPage();
+    this.loadProduct();
   }
 
   setSort(k: SortKey) {
     this.sort = k;
     this.resetPage();
+    this.loadProduct();
   }
 
   // ----- list sau filter/sort
@@ -117,7 +123,6 @@ export class HomeComponent implements OnInit {
       case 'sales':
         return (b.saleCount ?? 0) - (a.saleCount ?? 0);
       case 'free':
-        // free đã lọc rồi -> ưu tiên newest
         return (b.id ?? 0) - (a.id ?? 0);
       default:
         return 0;
@@ -127,24 +132,22 @@ export class HomeComponent implements OnInit {
   return list;
 }
 
-  // ----- pagination computed theo featured
-  get totalPages(): number {
-    return Math.max(1, Math.ceil(this.featured.length / this.pageSize));
+  get totalPagesSafe(): number {
+    return Math.max(1, this.totalPages || 1);
   }
 
   get pagedFeatured(): ProductViewerListDetail[] {
-    const start = (this.currentPage - 1) * this.pageSize;
-    return this.featured.slice(start, start + this.pageSize);
+    return this.featured;
   }
 
   get pages(): number[] {
-    return Array.from({ length: this.totalPages }, (_, i) => i + 1);
+    return Array.from({ length: this.totalPagesSafe }, (_, i) => i + 1);
   }
 
   goToPage(page: number) {
-    const safe = Math.min(Math.max(page, 1), this.totalPages);
+    const safe = Math.min(Math.max(page, 1), this.totalPagesSafe);
+    if (safe === this.currentPage) return;
     this.currentPage = safe;
-    // optional scroll lên section sản phẩm:
-    // document.querySelector('.section-container')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    this.loadProduct();
   }
 }

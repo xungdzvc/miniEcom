@@ -4,6 +4,7 @@
  */
 package com.web.dto.request.payment;
 
+import java.math.BigDecimal;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -19,7 +20,7 @@ public class WebhookRequest {
     private String content;
     private String transferType;
     private String description;
-    private Long transferAmount;
+    private BigDecimal transferAmount;
     private String referenceCode;
     private String accumulated;
     

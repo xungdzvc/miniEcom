@@ -15,15 +15,15 @@ public class SecurityConstants {
                 "/api/auth/login",
                 "/api/auth/register",
                 "/api/auth/logout",
-                "/api/auth/fresh-token",
+                "/api/auth/refresh-token",
                 "/api/auth/google-login",
                 "/api/products",
                 "/api/products/**",
                 "/api/products/slug/**",
                 "/api/products/category/**",
-                "/api/products/*/reviews",
-                "/api/products/reviews/*/list",
-                "/api/products/reviews/can-rate/**",
+                "/api/*/reviews",
+                "/api/reviews/*/list",
+                "/api/reviews/can-rate/**",
                 "/uploads/products/**",
                 "/api/webhook",
                 "/files/**",
@@ -39,7 +39,7 @@ public class SecurityConstants {
         "/api/admin/roles",
         "/api/admin/users/**",
         "/api/admin/coupons/**",
-        "/api/admin/products"
+        "/api/admin/products/**"
     };
 
     public static final String[] ADMIN_STAFF_URLS = {
@@ -56,8 +56,9 @@ public class SecurityConstants {
         "/api/order/**",
         "/api/auth/me",
         "/api/users/topup-history",
-        "/api/cart/update-qty",
-        "/api/cart/**",
-        "/api/cart",
+            "/api/cart",
+        "/api/cart/items",
+        "/api/cart/items/**",
+
         "/api/charging"};
 }

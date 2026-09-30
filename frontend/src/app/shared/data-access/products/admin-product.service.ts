@@ -17,20 +17,27 @@ export class ProductAdminService {
   getAllProducts(): Observable<any> {
     return this.http.get<any>(this.apiUrl);
   }
+  getAllProductsPaged(page: number, size: number): Observable<any> {
+    const params = {
+      page: page.toString(),
+      size: size.toString()
+    };
+    return this.http.get<any>(this.apiUrl, { params });
+  }
   rebuildElastic(): Observable<any> { 
-    return this.http.post(`${this.apiUrl}/rebuild-elastic`, {},{ responseType: 'text' });
+    return this.http.post(`${this.apiUrl}/elastic`, {},{ responseType: 'text' });
   }
   deleteProduct(id: number): Observable<any> {
     return this.http.delete(`${this.apiUrl}/${id}`);
   }
   updateProduct(id : number , data : any): Observable<any> {
-    return this.http.put(`${this.apiUrl}/${id}`,data);
+    return this.http.patch(`${this.apiUrl}/${id}`,data);
   }
   changeStatus(id : number , data : any): Observable<any> {
-    return this.http.put(`${this.apiUrl}/change-status/${id}`,data);
+    return this.http.patch(`${this.apiUrl}/${id}/status`,data);
   }
   pin(id : number , data : any): Observable<any> {
-    return this.http.put(`${this.apiUrl}/pin/${id}`,data);
+    return this.http.patch(`${this.apiUrl}/${id}/pin`,data);
   }
   addProduct(data : any): Observable<any> {
     return this.http.post(this.apiUrl,data);
@@ -38,7 +45,7 @@ export class ProductAdminService {
   uploadS3(file: File): Observable<{ url: string }> {
     const formData = new FormData();
     formData.append('file', file);  
-    return this.http.post<{ url: string }>(`${environment.apiBaseUrl}/upload`, formData);
+    return this.http.post<{ url: string }>(`${environment.apiBaseUrl}/admin/uploads`, formData);
   }
   getProductById(id: number): Observable<any> {
     return this.http.get<any>(`${this.apiUrl}/${id}`);

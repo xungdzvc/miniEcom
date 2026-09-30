@@ -16,9 +16,10 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
 @Mapper(componentModel = "spring")
 public interface UserMapper {
 
-    @Mapping(target = "retype_password", ignore = true)
+    @Mapping(target = "retypePassword", ignore = true)
     UserRegisterRequest toDTO(UserEntity userEntity);
 
+    @Mapping(target = "version", ignore = true)
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "phoneNumber", ignore = true)
     @Mapping(target = "roles", ignore = true)
@@ -29,9 +30,9 @@ public interface UserMapper {
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "isActive", ignore = true)
-    @Mapping(target = "totalVnd", ignore = true)
+    @Mapping(target = "totalDeposit", ignore = true)
     @Mapping(target = "cart", ignore = true)
-    @Mapping(target = "vnd", ignore = true)
+    @Mapping(target = "currentBalance", ignore = true)
     @Mapping(target = "googleId", ignore = true)
     @Mapping(target = "provider", ignore = true)
     UserEntity toEntity(UserRegisterRequest userDTO);
@@ -47,28 +48,30 @@ public interface UserMapper {
     @Mapping(target = "googleId", ignore = true)
     @Mapping(target = "provider", ignore = true)
     @Mapping(target = "password", ignore = true)
+    @Mapping(target = "version", ignore = true)
     void updateEntityFromDto(UserAdminEditDTO dto, @MappingTarget UserEntity entity);
 
-    @Mapping(target = "roleIds",ignore = true)
+    @Mapping(target = "roleIds", ignore = true)
     UserAdminEditDTO toUserAdminEditDTO(UserEntity userEntity);
 
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "username", ignore = true)
-    @Mapping(target = "password", ignore = true)
-    @Mapping(target = "roles", ignore = true)
-    @Mapping(target = "orders", ignore = true)
-    @Mapping(target = "bankAccounts", ignore = true)
-    @Mapping(target = "createdAt", ignore = true)
-    @Mapping(target = "updatedAt", ignore = true)
-    @Mapping(target = "isActive", ignore = true)
-    @Mapping(target = "totalVnd", ignore = true)
-    @Mapping(target = "cart", ignore = true)
-    @Mapping(target = "vnd", ignore = true)
-    @Mapping(target = "email", ignore = true)
-    @Mapping(target = "address", ignore = true)
-    @Mapping(target = "googleId", ignore = true)
-    @Mapping(target = "provider", ignore = true)
-    UserEntity toEntity(UserUpdateRequest userDTO);
+//    @Mapping(target = "id", ignore = true)
+//    @Mapping(target = "username", ignore = true)
+//    @Mapping(target = "password", ignore = true)
+//    @Mapping(target = "roles", ignore = true)
+//    @Mapping(target = "orders", ignore = true)
+//    @Mapping(target = "bankAccounts", ignore = true)
+//    @Mapping(target = "createdAt", ignore = true)
+//    @Mapping(target = "updatedAt", ignore = true)
+//    @Mapping(target = "isActive", ignore = true)
+//    @Mapping(target = "totalDeposit", ignore = true)
+//    @Mapping(target = "cart", ignore = true)
+//    @Mapping(target = "currentBalance", ignore = true)
+//    @Mapping(target = "email", ignore = true)
+//    @Mapping(target = "address", ignore = true)
+//    @Mapping(target = "googleId", ignore = true)
+//    @Mapping(target = "provider", ignore = true)
+//    @Mapping(target = "version", ignore = true)
+//    UserEntity toEntity(UserUpdateRequest userDTO);
 
     @Mapping(target = "active", source = "isActive")
     @Mapping(target = "roles",

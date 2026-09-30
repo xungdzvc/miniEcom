@@ -9,11 +9,15 @@ import lombok.Setter;
 @Setter
 @Entity
 @Table(name = "product_detail")
+
 public class ProductDetailEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    
+
+    @Version
+    private Long version;
+
     @Column(name = "quantity")
     private Integer quantity;
     

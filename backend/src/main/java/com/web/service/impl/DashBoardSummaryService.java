@@ -5,11 +5,12 @@
 package com.web.service.impl;
 
 import com.web.dto.response.dashboard.DashboardSummaryResponse;
+import com.web.repository.OrderRepository;
 import com.web.service.ICategoryService;
 import com.web.service.IDashBoardSummaryService;
-import com.web.service.IOrderService;
 import com.web.service.IProductService;
 import com.web.service.IUserService;
+import com.web.util.Utils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -19,11 +20,13 @@ import org.springframework.stereotype.Service;
  */
 @Service
 @RequiredArgsConstructor
-public class DashBoardSummaryService implements IDashBoardSummaryService{
+public class DashBoardSummaryService implements IDashBoardSummaryService {
+
     private final IProductService productService;
     private final ICategoryService categoryService;
     private final IUserService userService;
-    private final IOrderService orderService;
+    private final OrderRepository orderRepository;
+
     @Override
     public DashboardSummaryResponse getSummary() {
         DashboardSummaryResponse dashboardSummaryResponse = new DashboardSummaryResponse();
@@ -32,17 +35,15 @@ public class DashBoardSummaryService implements IDashBoardSummaryService{
         dashboardSummaryResponse.setInActiveProducts(productService.getCountProductInActive());
         dashboardSummaryResponse.setTotalCategories(categoryService.getCount());
         dashboardSummaryResponse.setTotalUsers(userService.getCount());
-        
-        dashboardSummaryResponse.setMonthRevenue(orderService.getMonthRevenue());
-        dashboardSummaryResponse.setQuarterRevenue(orderService.getQuarterRevenue());
-        dashboardSummaryResponse.setYearRevenue(orderService.getYearRevenue());
-        
+
+        dashboardSummaryResponse.setMonthRevenue(Utils.getMonthRevenue(orderRepository));
+        dashboardSummaryResponse.setQuarterRevenue(Utils.getQuarterRevenue(orderRepository));
+        dashboardSummaryResponse.setYearRevenue(Utils.getYearRevenue(orderRepository));
+
         dashboardSummaryResponse.setNewUsersToday(userService.countNewUsersToday());
         dashboardSummaryResponse.setNewUsersThisMonth(userService.countNewUsersMonth());
-        
+
         return dashboardSummaryResponse;
-    }                                   
-    
-    
-    
+    }
+
 }

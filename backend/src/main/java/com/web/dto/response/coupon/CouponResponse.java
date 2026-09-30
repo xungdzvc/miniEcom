@@ -4,7 +4,7 @@
  */
 package com.web.dto.response.coupon;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -18,6 +18,6 @@ public class CouponResponse {
     private Long id;
     private String couponCode;
     private Integer discount;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+    private Instant createdAt;
+    private Instant updatedAt;
 }

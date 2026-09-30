@@ -12,6 +12,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.util.Pair;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -23,7 +24,10 @@ import org.springframework.util.AntPathMatcher;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
-
+import java.util.stream.Collectors;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+@Slf4j
 @RequiredArgsConstructor
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -38,7 +42,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             HttpServletResponse response,
             FilterChain filterChain
     ) throws ServletException, IOException {
+        System.out.println("Request to : "+request.getServletPath());
         if (isBypassToken(request)) {
+
             filterChain.doFilter(request, response);
             return;
         }
@@ -57,10 +63,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         try {
             if (jwtUtils.isAccessToken(token)) {
                 Long userId = jwtUtils.getUserId(token);
-                UserEntity user = userRepository.findById(userId)
+
+                UserEntity user = userRepository.findWithRolesById(userId)
                         .orElseThrow();
 
                 CustomUserDetails userDetails = new CustomUserDetails(user);
+
                 UsernamePasswordAuthenticationToken authentication
                         = new UsernamePasswordAuthenticationToken(
                                 userDetails, null, userDetails.getAuthorities()
@@ -70,11 +78,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
 
         } catch (ExpiredJwtException e) {
-            Utils.handleException(response, "token hết hạn");
+            Utils.handleException(response, "token hết hạn ");
+            log.error("Token hết hạn ",e);
             return;
 
-        } catch (Exception e) {
+        } catch (Exception e) { 
             Utils.handleException(response, "Xác thực không thành công");
+            log.error("Xác thực không thành công ",e);
             return;
         }
 
@@ -82,8 +92,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     private boolean isBypassToken(@NonNull HttpServletRequest request) {
-        String path = request.getServletPath();
-        System.out.println(path);
+        String path = request.getServletPath(); 
         for (String bypass : SecurityConstants.PUBLIC_URLS) {
             if (pathMatcher.match(bypass, path)) {
                 return true;

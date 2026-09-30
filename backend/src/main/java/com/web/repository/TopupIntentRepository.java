@@ -7,6 +7,12 @@ package com.web.repository;
 import com.web.entity.TopupIntentEntity;
 import com.web.enums.PaymentStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
+import java.time.Duration;
+import java.time.Instant;
+import java.util.Optional;
 
 /**
  *
@@ -14,6 +20,13 @@ import org.springframework.data.jpa.repository.JpaRepository;
  */
 public interface TopupIntentRepository extends JpaRepository<TopupIntentEntity,Long> {
 
-    TopupIntentEntity findByIdAndStatus(Long topupId,PaymentStatus paymentStatus);
+    Optional<TopupIntentEntity> findByIdAndUserId(Long id,Long userId);
+
+    @Query("""
+            select t from TopupIntentEntity t 
+            where t.id = :topupId and t.status = :paymentStatus
+            and t.expiredAt > :now
+            """)
+    Optional<TopupIntentEntity> findByIdAndStatusAndNotExpiredAt(@Param("topupId") Long topupId, @Param("paymentStatus") PaymentStatus paymentStatus,@Param("now") Instant now);
     
 }

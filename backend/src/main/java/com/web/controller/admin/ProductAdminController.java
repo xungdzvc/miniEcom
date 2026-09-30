@@ -8,6 +8,9 @@ import com.web.service.IProductService;
 import com.web.service.elastic.ProductElasticService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 
 import org.springframework.web.bind.annotation.*;
@@ -22,43 +25,49 @@ public class ProductAdminController {
 
     @PostMapping()
     public ApiResponse<?> addProduct(@Valid @RequestBody ProductCreateOrUpdateRequest product) {
-        return ApiResponse.success(productService.addOrUpdateProduct(product, null));
+        return ApiResponse.success(productService.addOrUpdateProduct(product, null), "Thêm sản phẩm thành công");
     }
-    
-    @PostMapping("/rebuild-elastic")
+
+    @PostMapping("/elastic")
     public ResponseEntity<String> syncAll() {
         String message = productElasticService.fullReIndex();
         return ResponseEntity.ok(message);
     }
 
-    @PutMapping("/{id}")
-    public ApiResponse<?> updateProduct(@PathVariable Long id, @RequestBody ProductCreateOrUpdateRequest product) {
-        return ApiResponse.success(productService.addOrUpdateProduct(product, id));
+    @PatchMapping("/{id}")
+    public ApiResponse<?> updateProduct(@PathVariable Long id, @Valid @RequestBody ProductCreateOrUpdateRequest product) {
+        return ApiResponse.success(productService.addOrUpdateProduct(product, id), "Cập nhật sản phẩm thành công");
     }
-    
-    @PutMapping("/change-status/{id}")
-    public ApiResponse<?> changeStatusById(@PathVariable Long id, @RequestBody ProductChangeStatus productChangeStatus){
-        return productService.changeStatusProduct(id,productChangeStatus.isStatus());
+
+    @PatchMapping("/{id}/status")
+    public ApiResponse<?> changeStatusById(@PathVariable Long id, @Valid @RequestBody ProductChangeStatus productChangeStatus) {
+        productService.changeStatusProduct(id, productChangeStatus.getStatus());
+        return ApiResponse.success(null, "Thay đổi trạng thái thành công");
     }
 
     @GetMapping
-    public ApiResponse<?> getProducts() {
-        return ApiResponse.success(productService.getProductsForAdmin());
+    public ApiResponse<?> getProducts(@RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<?> result = productService.getProductsForAdmin(pageable);
+        return ApiResponse.success(result, "Lấy danh sách sản phẩm thành công");
     }
 
     @GetMapping("/{id}")
     public ApiResponse<?> getProductById(@PathVariable Long id) {
-        return ApiResponse.success(productService.getProductForAdmin(id));
+        return ApiResponse.success(productService.getProductForAdmin(id), "Lấy thông tin sản phẩm thành công");
     }
 
     @DeleteMapping("/{id}")
     public ApiResponse<?> deleteProduct(@PathVariable Long id) {
-        return productService.deleteProduct(id);
+        productService.deleteProduct(id);
+        return ApiResponse.success(null, "Xoá sản phẩm thành công");
     }
-    @PutMapping("/pin/{id}")
-    public void changePinStatus(@PathVariable Long id,@RequestBody ProductChangePinStatus productChangePinStatus){
+
+    @PutMapping("/{id}/pin")
+    public ApiResponse<?> changePinStatus(@PathVariable Long id, @Valid @RequestBody ProductChangePinStatus productChangePinStatus) {
         productService.changePinStatusProduct(id, productChangePinStatus.getStatus());
-        
+        return ApiResponse.success(null, "Thay đổi trạng thái ghim thành công");
     }
 
 }

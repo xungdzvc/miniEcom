@@ -9,6 +9,7 @@ import com.web.dto.response.product.ProductDetailResponse;
 import com.web.dto.response.product.ProductImageDTO;
 import com.web.dto.response.product.ProductResponse;
 import com.web.dto.response.product.ProductViewerListResponse;
+import com.web.dto.response.reviews.ReviewResponse;
 import com.web.elastic.document.ProductDocument;
 import com.web.entity.ProductDetailEntity;
 import com.web.entity.ProductEntity;
@@ -23,9 +24,19 @@ public interface ProductMapper {
 
     /* ===================== CREATE ===================== */
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "version", ignore = true)
     @Mapping(target = "user", ignore = true)
     @Mapping(target = "category.id", source = "categoryId")
-    @Mapping(target = "productDetail", ignore = true)
+
+    @Mapping(target = "productDetail.discount", source = "discount")
+    @Mapping(target = "productDetail.quantity", source = "quantity")
+    @Mapping(target = "productDetail.youtubeUrl", source = "youtubeUrl")
+    @Mapping(target = "productDetail.demoUrl", source = "demoUrl")
+    @Mapping(target = "productDetail.downloadUrl", source = "downloadUrl")
+    @Mapping(target = "productDetail.pin", source = "pin")
+    @Mapping(target = "productDetail.shareBy", source = "shareBy")
+    @Mapping(target = "productDetail.technology", source = "technology")
+    @Mapping(target = "productDetail.installTutorial", source = "installTutorial")
     @Mapping(target = "productImages", ignore = true)
     @Mapping(target = "slug", ignore = true)
     @Mapping(target = "reviews", ignore = true)
@@ -79,6 +90,7 @@ public interface ProductMapper {
     ProductDetailResponse toResponseDetail(ProductEntity entity);
 
     @Mapping(target = "product", ignore = true)
+    @Mapping(target = "version", ignore = true)
     ProductDetailEntity toDetailEntity(ProductDetailDTO dto);
 
     @Mapping(target = "productId", source = "product.id")

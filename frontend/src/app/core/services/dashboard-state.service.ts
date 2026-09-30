@@ -8,7 +8,7 @@ import { Observable } from 'rxjs';
 export class DashboardStateService {
 
 
-  private apiUrl = `${environment.apiBaseUrl}/admin/home`;
+  private apiUrl = `${environment.apiBaseUrl}/admin/dashboard`;
 
   constructor(private http: HttpClient) {}
 

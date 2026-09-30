@@ -1,15 +1,18 @@
 package com.web.dto;
 
-import java.time.LocalDateTime;
+import jakarta.validation.constraints.NotBlank;
+import java.time.Instant; 
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
 public class CategoryDTO {
+    @NotBlank(message="Mã Danh mục không thể để trống")
     private Long id;
+    
+    @NotBlank(message="Tên Danh mục không thể để trống")
     private String name;
-    private int quantity;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+    private Instant createdAt;
+    private Instant updatedAt;
 }

@@ -19,9 +19,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/admin/elastic")
 @RequiredArgsConstructor
-public class ElasticAdminController {
-
-    
-
+public class ElasticAdminController { 
     
 }

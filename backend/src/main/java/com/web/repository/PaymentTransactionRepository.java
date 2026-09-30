@@ -16,7 +16,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface PaymentTransactionRepository extends JpaRepository<PaymentTransactionEntity, Long> {
     boolean existsByPaymentRef(String paymentRef);
     PaymentTransactionEntity findByPaymentRef(String paymentRef);
-    List<PaymentTransactionEntity> findAllByUserId(Long userId);
     PaymentTransactionEntity findByPaymentStatusAndCardCodeAndCardSerial(PaymentStatus paymentStatus,
             String cardCode, String cardSerial);
     

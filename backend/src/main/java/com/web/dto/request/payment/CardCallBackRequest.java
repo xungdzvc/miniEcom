@@ -4,6 +4,10 @@
  */
 package com.web.dto.request.payment;
 
+import java.math.BigDecimal;
+
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -16,8 +20,13 @@ import lombok.Setter;
 public class CardCallBackRequest {
     private Long trans_id;
     private String request_id;
-    private Long amount;
-    private Long declared_value;
+
+    @NotNull(message = "Giá trị không được để trống")
+    @Positive(message = "Giá trị phải lớn hơn 0")
+    private BigDecimal amount;
+
+    private BigDecimal declared_value;
+
     private String telco;
     private String serial;
     private String code;

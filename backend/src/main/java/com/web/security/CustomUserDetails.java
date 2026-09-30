@@ -8,26 +8,28 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
-import java.util.stream.Collectors; 
+import java.util.stream.Collectors;
 
 @Getter
 @Setter
 public class CustomUserDetails implements UserDetails {
 
-    private UserEntity user;
-    private Long userId;
-
+    private UserEntity user; 
 
     public CustomUserDetails(UserEntity user) {
-        this.user = user;
-        this.userId = user.getId();
+        this.user = user; 
     }
 
-    @Override
+    @Override 
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return user.getRoles().stream()
                 .map(role -> new SimpleGrantedAuthority(role.getName()))
                 .collect(Collectors.toList());
+    }
+
+    public Long getUserId() {
+        return user.getId();
+                
     }
 
     @Override
@@ -40,23 +42,23 @@ public class CustomUserDetails implements UserDetails {
         return user.getUsername();
     }
 
-    public Long getUserId() {
-        return this.userId;
-    }
-
-    public void setUserId(Long userId) {
-        this.userId = userId;
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
     }
 
     @Override
-    public boolean isAccountNonExpired() { return true; }
+    public boolean isAccountNonLocked() {
+        return true;
+    }
 
     @Override
-    public boolean isAccountNonLocked() { return true; }
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
 
     @Override
-    public boolean isCredentialsNonExpired() { return true; }
-
-    @Override
-    public boolean isEnabled() { return user.getIsActive(); }
+    public boolean isEnabled() {
+        return user.getIsActive();
+    }
 }

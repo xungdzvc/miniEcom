@@ -7,9 +7,7 @@ package com.web.service;
 import com.web.dto.request.auth.UserLoginRequest;
 import com.web.dto.request.auth.UserRegisterRequest;
 import com.web.dto.response.auth.UserDTOResponse;
-import com.web.dto.response.auth.UserLoginResponse;
-import com.web.entity.RefreshTokenEntity;
-import java.util.Optional;
+import com.web.dto.response.auth.UserLoginResponse; 
 
 /**
  *

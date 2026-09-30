@@ -10,7 +10,6 @@ import com.web.entity.CouponEntity;
 import com.web.exception.MyException;
 import com.web.repository.CouponRepository;
 import com.web.service.ICouponService;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -27,21 +26,11 @@ public class CouponServiceImpl implements ICouponService {
     private final CouponRepository couponRepo;
 
     @Override
-    public CouponResponse addOrUpdate(Long id, CouponAddOrUpdateRequest req) {
-        if(req.getCouponCode() == null||req.getCouponCode().isEmpty()){
-            throw new MyException("coupon code không thể để trống");
-        }
-        if(req.getDiscount() < 0||req.getDiscount() >100){
-            throw new MyException("discount không thể nhỏ < 0 hoặc lớn hơn 100");
-        }
+    public CouponResponse addOrUpdate(Long id, CouponAddOrUpdateRequest req) { 
         CouponEntity coupon = new CouponEntity();
-        LocalDateTime now = LocalDateTime.now();
-        if (id == null) {
-            coupon.setCreatedAt(now);
-        } else {
+        if (id != null) {
             coupon = couponRepo.findById(id).orElseThrow(() -> new MyException("không tồn tại coupon này"));
         }
-        coupon.setUpdatedAt(now);
         coupon.setCouponCode(req.getCouponCode());
         coupon.setDiscount(req.getDiscount());
         couponRepo.save(coupon);
@@ -89,4 +78,5 @@ public class CouponServiceImpl implements ICouponService {
     public void delete(Long id) {
         couponRepo.deleteById(id);
     }
+    
 }

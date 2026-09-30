@@ -51,7 +51,33 @@
         </tr>
       </tbody>
     </app-admin-table>
-    
+
+    <div class="admin-pagination">
+      <div class="admin-pagination-meta">
+        <span class="admin-pagination-label">Điều hướng</span>
+        <div class="admin-pagination-pill">
+          <span class="page-info">
+            Trang <span class="page-current">{{ page }}</span> / <span class="page-total">{{ totalPages }}</span>
+          </span>
+        </div>
+      </div>
+
+      <div class="admin-pagination-actions">
+        <button
+          class="admin-btn admin-btn-secondary admin-page-btn"
+          (click)="prevPage()"
+          [disabled]="page === 1">
+          ← Trước
+        </button>
+
+        <button
+          class="admin-btn admin-btn-secondary admin-page-btn"
+          (click)="nextPage()"
+          [disabled]="page === totalPages">
+          Sau →
+        </button>
+      </div>
+    </div>
   </div>
 
 </div>

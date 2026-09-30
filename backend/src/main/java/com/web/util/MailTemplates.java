@@ -3,7 +3,9 @@ package com.web.util;
 import com.web.entity.OrderEntity;
 import com.web.entity.SystemBankAccountEntity;
 import com.web.entity.UserEntity;
+import java.math.BigDecimal;
 import java.text.NumberFormat;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 
@@ -13,9 +15,12 @@ import java.util.Locale;
 public class MailTemplates {
 
     private static final NumberFormat VND = NumberFormat.getInstance(new Locale("vi", "VN"));
-    private static final DateTimeFormatter DT = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+    private static final DateTimeFormatter DT =
+            DateTimeFormatter
+                    .ofPattern("dd/MM/yyyy HH:mm")
+                    .withZone(ZoneId.of("Asia/Ho_Chi_Minh"));
 
-    private static String money(long vnd) {
+    private static String money(BigDecimal vnd) {
         return VND.format(vnd) + " đ";
     }
 
@@ -81,8 +86,7 @@ public class MailTemplates {
             String qrUrl, String transferContent) {
 
         String customerName = escape(user.getFullName() != null ? user.getFullName() : user.getUsername());
-        String expires = order.getExpiresAt() != null ? order.getExpiresAt().format(DT) : "";
-
+        String expires = order.getExpiresAt() != null ? DT.format(order.getExpiresAt()) : "";
         String itemsHtml = order.getOrderItems().stream()
                 .map(oi -> """
                 <tr>
@@ -182,7 +186,9 @@ public class MailTemplates {
 
     public static String paymentSuccess(UserEntity user, OrderEntity order, String orderUrl) {
         String customerName = escape(user.getFullName() != null ? user.getFullName() : user.getUsername());
-        String created = order.getOrderDate() != null ? order.getOrderDate().format(DT) : "";
+        String created = order.getOrderDate() != null
+                ? DT.format(order.getOrderDate())
+                : "";
 
         String itemsHtml = order.getOrderItems().stream()
                 .map(oi -> """

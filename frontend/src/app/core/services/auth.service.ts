@@ -113,7 +113,7 @@ export class AuthService {
   }
 
   refreshToken() {
-    return this.http.post<any>(`${this.API}/fresh-token`, {}, {
+    return this.http.post<any>(`${this.API}/refresh-token`, {}, {
       withCredentials: true
     }).pipe(
       tap(res => {

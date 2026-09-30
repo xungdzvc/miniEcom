@@ -1,5 +1,6 @@
 package com.web.dto.response.dashboard;
 
+import java.math.BigDecimal;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
@@ -14,9 +15,9 @@ public class DashboardSummaryResponse {
     private Integer activeProducts;
     private Integer inActiveProducts;
 
-    private Long monthRevenue;
-    private Long quarterRevenue;
-    private Long yearRevenue;
+    private BigDecimal monthRevenue;
+    private BigDecimal quarterRevenue;
+    private BigDecimal yearRevenue;
 
     private Integer newUsersToday;
     private Integer newUsersThisMonth;

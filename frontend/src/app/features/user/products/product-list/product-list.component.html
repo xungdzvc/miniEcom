@@ -7,7 +7,6 @@
   </header>
 
   <div class="filter-toolbar">
-    <!-- Category tabs -->
     <div class="sort-tabs">
       <button
         class="tab"
@@ -18,7 +17,6 @@
       </button>
     </div>
 
-    <!-- Sort tabs -->
     <div class="sort-tabs">
       <button class="tab" [class.active]="sort === 'newest'" (click)="setSort('newest')">Mới nhất</button>
       <button class="tab" [class.active]="sort === 'views'" (click)="setSort('views')">Xem nhiều</button>
@@ -27,25 +25,21 @@
     </div>
   </div>
 
-  <!-- Loading (tuỳ bạn có UI skeleton thì thay) -->
   <div *ngIf="isLoading" class="loading">Đang tải...</div>
 
-  <!-- Grid -->
   <div class="product-grid" *ngIf="!isLoading">
     <app-product-card
-      *ngFor="let p of pagedProducts ; trackBy: trackById"
+      *ngFor="let p of pagedProductsSafe; trackBy: trackById"
       [product]="p"
-      ctaText="Xem Code">
+      ctaText="Xem chi tiết">
     </app-product-card>
   </div>
 
-  <!-- Empty state -->
-  <div *ngIf="!isLoading && pagedProducts.length === 0" class="empty">
+  <div *ngIf="!isLoading && pagedProductsSafe.length === 0" class="empty">
     Không có sản phẩm phù hợp.
   </div>
 
-  <!-- Pagination -->
-  <nav class="xl-pagination" *ngIf="!isLoading && totalPages > 1" aria-label="Phân trang">
+  <nav class="xl-pagination" *ngIf="!isLoading && totalPagesSafe > 1" aria-label="Phân trang">
     <button class="xl-page-btn" type="button"
             (click)="goToPage(currentPage - 1)"
             [disabled]="currentPage === 1">‹ Trước</button>

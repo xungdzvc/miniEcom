@@ -4,6 +4,7 @@
  */
 package com.web.dto.request.product;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -14,5 +15,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class ProductChangePinStatus {
+    @NotNull(message = "trạng thái không thể trống")
     private Boolean status;
 }

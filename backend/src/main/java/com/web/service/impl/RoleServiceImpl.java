@@ -24,16 +24,16 @@ public class RoleServiceImpl implements IRoleService {
     private final RoleRepository roleRepository;
 
     @Override
-    public List<RoleDTO> getAllRole() {
-        List<RoleEntity> roles = roleRepository.findAll();
-        List<RoleDTO> allRole = new ArrayList<>();
-        for(RoleEntity role : roles){
+    public List<RoleDTO> getRoleNotAdmin() {
+        
+        List<RoleEntity> roles = roleRepository.findByNameNot("ROLE_ADMIN"); 
+        return roles.stream().map(role -> {
             RoleDTO dto = new RoleDTO();
             dto.setId(role.getId());
             dto.setName(role.getName());
-            allRole.add(dto);
-        }
-        return allRole;
+            return dto;
+        
+        }).toList();
     }
 
 }

@@ -1,7 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { FormsModule } from '@angular/forms';
 import { finalize } from 'rxjs';
 
 import { CouponAdminService } from '../../../../../shared/data-access/coupon-admin.service';
@@ -17,7 +16,6 @@ import { ConfirmService } from '../../../../../shared/services/confirm.service';
   standalone: true,
   imports: [
     CommonModule,
-    FormsModule,
     AdminPageHeaderComponent,
     AdminTableComponent
   ],
@@ -28,7 +26,7 @@ export class CouponListComponent implements OnInit {
   isLoading = true;
   page = 1;
   pageSize = 5;
-  q = '';
+  totalPages = 1;
 
   coupons: CouponAdminResponse[] = [];
 
@@ -43,18 +41,15 @@ export class CouponListComponent implements OnInit {
     this.loadCoupons();
   }
 
-  onSearchChange(): void {
-    this.page = 1;
-  }
-
   loadCoupons(): void {
     this.isLoading = true;
 
-    this.couponAdminService.getCoupons()
+    this.couponAdminService.getCouponsPaged(this.page - 1, this.pageSize)
       .pipe(finalize(() => (this.isLoading = false)))
       .subscribe({
         next: (res) => {
-          this.coupons = res.data ?? [];
+          this.coupons = res.content;
+          this.totalPages = res.totalPages;
         },
         error: (err) => {
           const code = err?.status ?? 500;
@@ -81,12 +76,8 @@ export class CouponListComponent implements OnInit {
 
     this.couponAdminService.deleteCoupon(coupon.id).subscribe({
       next: () => {
-        this.coupons = this.coupons.filter(x => x.id !== coupon.id);
         this.toast.success(`Đã xóa coupon "${coupon.couponCode}".`);
-
-        if (this.page > this.totalPages) {
-          this.page = Math.max(1, this.totalPages);
-        }
+        this.loadCoupons();
       },
       error: (err) => {
         console.error(err);
@@ -99,38 +90,17 @@ export class CouponListComponent implements OnInit {
     });
   }
 
-  get filteredCoupons(): CouponAdminResponse[] {
-    const q = (this.q || '').trim().toLowerCase();
-    if (!q) return this.coupons;
-
-    return this.coupons.filter(coupon => {
-      const id = String(coupon.id ?? '');
-      const code = (coupon.couponCode ?? '').toLowerCase();
-      const discount = String(coupon.discount ?? '');
-
-      return id.includes(q) || code.includes(q) || discount.includes(q);
-    });
-  }
-
-  get pagedCoupons(): CouponAdminResponse[] {
-    const start = (this.page - 1) * this.pageSize;
-    const end = start + this.pageSize;
-    return this.filteredCoupons.slice(start, end);
-  }
-
-  get totalPages(): number {
-    return Math.max(1, Math.ceil(this.filteredCoupons.length / this.pageSize));
+  prevPage(): void {
+    if (this.page > 1) {
+      this.page--;
+      this.loadCoupons();
+    }
   }
 
   nextPage(): void {
     if (this.page < this.totalPages) {
       this.page++;
-    }
-  }
-
-  prevPage(): void {
-    if (this.page > 1) {
-      this.page--;
+      this.loadCoupons();
     }
   }
 }

@@ -240,6 +240,6 @@ export class CheckoutComponent implements OnInit, OnDestroy {
   }
   goToOrderDetail(orderId: number | null): void {
     if (!orderId) return;
-    this.router.navigate([`/order/${orderId}/detail`]);
+    this.router.navigate([`/order/${orderId}`]);
   }
 }

@@ -3,15 +3,6 @@
     title="👤 Quản lý Người dùng"
     subtitle="Khóa / mở khóa, chỉnh sửa thông tin tài khoản người dùng"
   >
-    <div class="admin-search">
-      <input
-        type="text"
-        placeholder="Tìm người dùng..."
-        [(ngModel)]="q"
-        (input)="onSearchChange()"
-      />
-    </div>
-
     <div class="header-actions">
       <button class="admin-btn admin-btn-primary" (click)="goAddUser()">
         ➕ Thêm người dùng
@@ -49,7 +40,7 @@
         </thead>
 
         <tbody>
-          <tr *ngFor="let user of pagedUsers">
+          <tr *ngFor="let user of users">
             <td>{{ user.id }}</td>
             <td>{{ user.username }}</td>
             <td>{{ user.email }}</td>
@@ -84,25 +75,32 @@
       </app-admin-table>
 
       <div class="admin-pagination" *ngIf="!isLoading && users.length > 0">
-        <button
-          class="admin-btn admin-btn-secondary"
-          (click)="prevPage()"
-          [disabled]="page === 1"
-        >
-          ← Trước
-        </button>
+        <div class="admin-pagination-meta">
+          <span class="admin-pagination-label">Điều hướng</span>
+          <div class="admin-pagination-pill">
+            <span class="page-info">
+              Trang <span class="page-current">{{ page }}</span> / <span class="page-total">{{ totalPages }}</span>
+            </span>
+          </div>
+        </div>
 
-        <span class="page-info">
-          Trang {{ page }} / {{ totalPages }}
-        </span>
+        <div class="admin-pagination-actions">
+          <button
+            class="admin-btn admin-btn-secondary admin-page-btn"
+            (click)="prevPage()"
+            [disabled]="page === 1"
+          >
+            ← Trước
+          </button>
 
-        <button
-          class="admin-btn admin-btn-secondary"
-          (click)="nextPage()"
-          [disabled]="page === totalPages"
-        >
-          Sau →
-        </button>
+          <button
+            class="admin-btn admin-btn-secondary admin-page-btn"
+            (click)="nextPage()"
+            [disabled]="page === totalPages"
+          >
+            Sau →
+          </button>
+        </div>
       </div>
     </div>
   </div>

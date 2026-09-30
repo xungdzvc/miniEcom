@@ -94,8 +94,8 @@ export class UserLayoutComponent implements OnInit {
   }
   loadCategories() {
     this.categoryService.getCategoriesForLayout().subscribe({
-      next: (data) => {
-        this.categories = data || [];
+      next: (res) => {
+        this.categories = res.data || []; 
       },
       error: (err) => {
         console.error('Lỗi khi tải danh mục Layout:', err);

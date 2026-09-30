@@ -14,7 +14,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -26,7 +26,7 @@ import lombok.Setter;
 @Table(name = "reviews")
 @Setter
 @Getter
-public class ReviewEntity {
+public class ReviewEntity extends BaseEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -35,7 +35,7 @@ public class ReviewEntity {
     @JoinColumn(name  = "product_id", nullable = false)
     private ProductEntity product;
     
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name ="user_id",nullable = false)
     private UserEntity user;
     
@@ -44,8 +44,6 @@ public class ReviewEntity {
     
     @Column(name = "comment")
     private String comment;
-    
-    @Column(name = "created_at")
-    private LocalDateTime createdAt;
+     
     
 }
