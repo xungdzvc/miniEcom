@@ -27,7 +27,7 @@ public interface ProductDetailRepository extends JpaRepository<ProductDetailEnti
 
     @Modifying
     @Query("""
-           update productDetailEntity pd 
+           update ProductDetailEntity pd 
            set pd.saleCount = pd.saleCount + :quantity
            where pd.id = :productDetailEntityId
            """ )
