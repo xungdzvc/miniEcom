@@ -13,10 +13,10 @@ spring:
       ddl-auto: validate
 
   flyway:
-    enabled: true
+    enabled: false
     locations: classpath:db/migration
     validate-on-migrate: true
     clean-disabled: true
     out-of-order: false
     baseline-on-migrate: ${FLYWAY_BASELINE_ON_MIGRATE:false}
-    baseline-version: ${FLYWAY_BASELINE_VERSION:1}
+    baseline-version: ${FLYWAY_BASELINE_VERSION:0}
