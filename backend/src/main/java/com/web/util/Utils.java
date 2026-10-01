@@ -175,7 +175,7 @@ public class Utils {
         if(amount == null){
             throw new IllegalArgumentException("Số tiền không thể trống");
         }
-        if(amount.compareTo(BigDecimal.ZERO) <= 0){
+        if(amount.compareTo(BigDecimal.ZERO) < 0){
             throw new IllegalArgumentException("Số tiền không thể nhỏ hơn 0");
         }
 

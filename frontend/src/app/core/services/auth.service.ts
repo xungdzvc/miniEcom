@@ -40,7 +40,7 @@ export class AuthService {
   
 
 
-  register(user: { username: string; email: string; password: string; retype_password: string }): Observable<any> { return this.http.post(`${this.API}/register`, user); }
+  register(user: { username: string; email: string; password: string; retypePassword: string }): Observable<any> { return this.http.post(`${this.API}/register`, user); }
   /* ================= USER ================= */
 
   setUser(user: AuthUser) {

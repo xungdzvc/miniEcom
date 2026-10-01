@@ -2,6 +2,7 @@ package com.web.exception;
 
 import java.util.List;
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.http.HttpStatus;
@@ -66,6 +67,26 @@ public class GlobalExceptionHandler {
                 .status(ex.getHttpStatus())
                 .body(new ErrorResponse(
                         "error",
+                        ex.getMessage()
+                ));
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ErrorResponse> handleIllegalArgument(
+            IllegalArgumentException ex,
+            HttpServletRequest request) {
+
+        log.warn(
+                "Invalid argument [{}] {}: {}",
+                request.getMethod(),
+                request.getRequestURI(),
+                ex.getMessage()
+        );
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(new ErrorResponse(
+                        "invalid_argument",
                         ex.getMessage()
                 ));
     }

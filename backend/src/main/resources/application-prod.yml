@@ -1,9 +1,13 @@
 spring:
- 
+  data:
+    redis:
+      host: ${REDIS_HOST:redis}
+      port: ${REDIS_PORT:6379}
+      timeout: 2s
   jpa:
     hibernate:
       ddl-auto: validate
-
+      
   flyway:
     enabled: false
     locations: classpath:db/migration

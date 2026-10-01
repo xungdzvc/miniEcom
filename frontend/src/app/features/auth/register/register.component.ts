@@ -18,7 +18,7 @@ export class RegisterComponent {
     username: '',
     email: '',
     password: '',
-    retype_password: ''
+    retypePassword: ''
   };
 
   errorMessage = '';

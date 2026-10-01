@@ -114,7 +114,7 @@ app:
         message: "Bạn đăng nhập quá nhiều lần. Vui lòng thử lại sau."
 
       register:
-        limit: 5
+        limit: 10
         window: 10m
         scope: IP
         message: "Bạn đăng ký quá nhiều lần. Vui lòng thử lại sau."

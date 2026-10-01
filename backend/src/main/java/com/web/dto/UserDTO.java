@@ -26,7 +26,7 @@ public class UserDTO {
     private String password;
 
     @NotBlank(message = "retype password must be not null")
-    private String retype_password;
+    private String retypePassword;
 
 
     @NotBlank(message = "number phone must be not null")

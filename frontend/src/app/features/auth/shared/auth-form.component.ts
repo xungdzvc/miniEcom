@@ -66,7 +66,7 @@ export class AuthFormComponent implements AfterViewInit {
   passwordMismatch(): boolean {
     if (this.mode !== 'register') return false;
     const p = this.form?.password ?? '';
-    const r = this.form?.retype_password ?? '';
+    const r = this.form?.retypePassword ?? '';
     if (!p || !r) return false;
     return p !== r;
   }

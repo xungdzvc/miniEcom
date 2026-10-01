@@ -21,7 +21,6 @@ public class UserRegisterRequest {
     String username;
 
     @NotBlank(message = "Mật khẩu không được để trống")
-    @Size(min = 8)
     @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).+$",
             message = "Mật khẩu phải có chữ hoa, chữ thường, số")
     String password;
