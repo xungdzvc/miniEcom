@@ -2,11 +2,10 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap ,BehaviorSubject, map} from 'rxjs';
 import { AuthStorage } from '../../features/auth/auth.storage';
-import { AuthSession } from '../../features/auth/auth.storage';
 import { AuthUser } from '../../shared/models/core/user/user-auth.model';
-import { UserService } from '../../shared/data-access/user.service';
-import { ErrorPageComponent } from '../../shared/error-page/error-page.component';
-import { environment } from '../../../environments/environment';@Injectable({ providedIn: 'root' })
+import { environment } from '../../../environments/environment';
+
+@Injectable({ providedIn: 'root' })
 export class AuthService {
 
   private API = `${environment.apiBaseUrl}/auth`;
@@ -110,6 +109,11 @@ export class AuthService {
 
   isLoggedIn(): boolean {
     return !!this.userSubject.value;
+  }
+
+  clearLocalSession(): void {
+    AuthStorage.clear();
+    this.userSubject.next(null);
   }
 
   refreshToken() {

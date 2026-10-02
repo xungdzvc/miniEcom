@@ -93,6 +93,9 @@ public class CartServiceImpl implements ICartService {
     public CartResponse getCart() {
         Long userId = SecurityUtil.getUserId();
         CartEntity cartEntity = cartRepository.findByUserId(userId);
+        if(cartEntity == null){
+            cartEntity = new CartEntity();
+        }
         CartResponse cartResponse = cartMapper.toCartResponse(cartEntity);
         cartResponse.setToltalPrice(calculateTotal(cartEntity.getCartItems()));
         return cartResponse;

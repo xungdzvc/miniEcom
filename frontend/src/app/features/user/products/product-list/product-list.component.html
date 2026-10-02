@@ -9,11 +9,19 @@
   <div class="filter-toolbar">
     <div class="sort-tabs">
       <button
+        type="button"
+        class="tab"
+        [class.active]="activeCategoryId === null"
+        (click)="setCategory(null)">
+        Tất cả
+      </button>
+      <button
+        type="button"
         class="tab"
         *ngFor="let c of categories"
-        [class.active]="(c === 'Tất cả' && !activeCategory) || activeCategory === c"
-        (click)="setCategory(c)">
-        {{ c }}
+        [class.active]="activeCategoryId === c.id"
+        (click)="setCategory(c.id)">
+        {{ c.name }}
       </button>
     </div>
 

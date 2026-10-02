@@ -1,17 +1,16 @@
-<div class="stat-card">
-  <div class="stat-top">
-    <div class="stat-title">
-      <span class="stat-icon" *ngIf="icon">{{ icon }}</span>
-      <span>{{ title }}</span>
-    </div>
+<article class="stat-card">
+  <div class="stat-head">
+    <div class="stat-icon" *ngIf="icon" aria-hidden="true">{{ icon }}</div>
 
     <div class="stat-trend" *ngIf="trend" [ngClass]="trendClass">
-      {{ trend === 'up' ? '▲' : trend === 'down' ? '▼' : '•' }}
+      <span>{{ trend === 'up' ? '▲' : trend === 'down' ? '▼' : '•' }}</span>
     </div>
   </div>
 
-  <div class="stat-value">{{ value }}</div>
-
-  <div class="stat-subtitle" *ngIf="subtitle">{{ subtitle }}</div>
-  <div class="stat-hint" *ngIf="hint">{{ hint }}</div>
-</div>
+  <div class="stat-copy">
+    <div class="stat-title">{{ title }}</div>
+    <div class="stat-value">{{ value }}</div>
+    <div class="stat-subtitle" *ngIf="subtitle">{{ subtitle }}</div>
+    <div class="stat-hint" *ngIf="hint">{{ hint }}</div>
+  </div>
+</article>

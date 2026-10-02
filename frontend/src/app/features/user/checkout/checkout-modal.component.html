@@ -37,7 +37,7 @@
         <h3>Đơn hàng</h3>
         
         <div class="product-summary">
-          <img [src]="getFileUrl(product?.thumbnail)" alt="thumb" class="p-img">
+          <img appImageFallback [src]="getFileUrl(product?.thumbnail)" alt="thumb" class="p-img">
           <div class="p-info">
             <div class="p-name">{{ product?.name }}</div>
             

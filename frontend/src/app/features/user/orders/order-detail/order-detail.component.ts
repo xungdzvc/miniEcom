@@ -8,6 +8,7 @@ import { HttpClient } from '@angular/common/http';
 import { OrderDetailResponse } from '../../../../shared/models/core/order/order-detail.model'; // chỉnh path theo project của bạn
 import { OrderService } from '../../../../shared/data-access/order.service';
 import { NotificationService } from '../../../../core/services/notification.service';
+import { resolveFileUrl } from '../../../../shared/utils/file-url.util';
 @Component({
   selector: 'app-order-detail',
   standalone: true,
@@ -136,8 +137,7 @@ export class OrderDetailComponent implements OnInit, OnDestroy {
           this.isDownloadingId = null;
           return;
         }
-        const downloadUrl = this.convertDriveUrl(url);
-      window.location.href = downloadUrl;
+        window.location.href = resolveFileUrl(url);
         this.isDownloadingId = null;
       },
       error: (err) => {
@@ -146,12 +146,4 @@ export class OrderDetailComponent implements OnInit, OnDestroy {
       },
     });
   }
-    convertDriveUrl(url: string): string {
-    const match = url.match(/\/d\/(.*?)\//);
-    if (!match) return url;
-
-    const fileId = match[1];
-    return `https://drive.google.com/uc?export=download&id=${fileId}`;
-  }
-  
 }

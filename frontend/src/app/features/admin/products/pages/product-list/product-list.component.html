@@ -1,116 +1,141 @@
 <div class="admin-container">
-
   <app-admin-page-header
-    title="📦 Quản lý Sản phẩm"
-    subtitle="Danh sách sản phẩm dành cho quản trị"
+    title="📦 Quản lý sản phẩm"
+    subtitle="Theo dõi sản phẩm, trạng thái kinh doanh và nội dung đang ghim."
   >
-    <button class="admin-btn admin-btn-secondary" (click)="reloadElastic()">🔄 Rebuild elastic</button>
-    <button class="admin-btn admin-btn-secondary" (click)="reload()">🔄 Tải lại</button>
-    <button class="admin-btn admin-btn-primary" (click)="goAddProduct()">➕ Thêm Sản Phẩm</button>
+    <button type="button" class="admin-btn admin-btn-secondary" (click)="reloadElastic()">↻ Rebuild Elastic</button>
+    <button type="button" class="admin-btn admin-btn-secondary" (click)="reload()">↻ Tải lại</button>
+    <button type="button" class="admin-btn admin-btn-primary" (click)="goAddProduct()">＋ Thêm sản phẩm</button>
   </app-admin-page-header>
 
   @if (isLoading) {
-    <div class="admin-loading">
-      <div class="spinner"></div>
-      <p>Đang tải danh sách sản phẩm...</p>
+    <div class="admin-card">
+      <div class="admin-loading">
+        <div class="spinner"></div>
+        <p>Đang tải danh sách sản phẩm...</p>
+      </div>
     </div>
   }
 
   @else if (products.length === 0) {
-    <div class="admin-empty">
-      <span class="admin-empty-icon">📭</span>
-      <h3>Chưa có sản phẩm nào</h3>
-      <button class="admin-btn admin-btn-primary" (click)="goAddProduct()">+ Thêm sản phẩm</button>
+    <div class="admin-card">
+      <div class="admin-empty">
+        <span class="admin-empty-icon">□</span>
+        <h3>Chưa có sản phẩm nào</h3>
+        <p>Tạo sản phẩm đầu tiên để bắt đầu quản lý nội dung bán hàng.</p>
+        <button type="button" class="admin-btn admin-btn-primary" (click)="goAddProduct()">＋ Thêm sản phẩm</button>
+      </div>
     </div>
   }
 
   @else {
-    <div class="admin-card admin-fade-in">
+    <section class="admin-card admin-fade-in">
+      <div class="admin-list-meta">
+        <div class="admin-list-meta-copy">
+          <span class="admin-list-kicker">Danh sách</span>
+          <span class="admin-list-count">{{ products.length }} sản phẩm trên trang</span>
+        </div>
+        <span class="admin-list-page">Trang {{ page }} / {{ totalPages }}</span>
+      </div>
+
       <app-admin-table>
         <thead>
           <tr>
-            <th>ID</th>
-            <th>Thumbnail</th>
-            <th>Tên sản phẩm</th>
+            <th>Sản phẩm</th>
             <th>Danh mục</th>
             <th>Giá</th>
             <th>Trạng thái</th>
-            <th>Ngày tạo</th>
-            <th>Ngày cập nhật</th>
+            <th>Tạo / cập nhật</th>
             <th class="actions">Thao tác</th>
           </tr>
         </thead>
 
         <tbody>
           @for (product of products; track product.id) {
-            <tr>    
-              <td>{{ product.id }}</td>
-              <td>
-                <img
-                  class="thumb-img"
-                  [src]="fileBaseUrl + product.thumbnail"
-                  alt="thumb"
-                />
+            <tr>
+              <td data-label="Sản phẩm">
+                <div class="admin-entity">
+                  <img
+                    class="admin-entity-thumb"
+                    [src]="getProductImageUrl(product.thumbnail)"
+                    (error)="onImageError($event)"
+                    [alt]="product.name"
+                  />
+                  <div class="admin-entity-main">
+                    <span class="admin-entity-title" [title]="product.name">{{ product.name }}</span>
+                    <div class="admin-entity-meta">
+                      <span>#{{ product.id }}</span>
+                      <span *ngIf="product.pin">📌 Đã ghim</span>
+                    </div>
+                  </div>
+                </div>
               </td>
-              <td>{{ product.name }}</td>
-              <td>{{ product.categoryName }}</td>
-              <td>{{ product.price | number:'1.0-0' }}₫</td>
-              <td>
+
+              <td data-label="Danh mục">
+                <span class="admin-muted">{{ product.categoryName || '—' }}</span>
+              </td>
+
+              <td data-label="Giá">
+                <span class="admin-number">{{ product.price | number:'1.0-0' }}₫</span>
+              </td>
+
+              <td data-label="Trạng thái">
                 <app-status-badge
                   [on]="product.status"
-                  [onText]="'Đang kinh doanh'"
-                  [offText]="'Ngừng kinh doanh'"
+                  onText="Đang kinh doanh"
+                  offText="Ngừng kinh doanh"
                 ></app-status-badge>
               </td>
-              <td>{{ product.createdAt | date:'HH:mm:ss dd/MM/yyyy' }}</td>
-              <td>{{ product.updatedAt | date:'HH:mm:ss dd/MM/yyyy' }}</td>
-              <td class="actions">
-                <button class="admin-btn admin-btn-secondary" (click)="editProduct(product.id)">Sửa</button>
-                <button class="admin-btn admin-btn-danger" (click)="deleteProduct(product)">Xóa</button>
-                <button *ngIf="product.status === true" class="admin-btn admin-btn-warning" (click)="changeStatus(product)">
-                  Ngừng kinh doanh
-              </button>
-              <button *ngIf="product.pin === true" class="admin-btn admin-btn-warning" (click)="pin(product)">
-                  Bỏ ghim
-              </button>
-              <button *ngIf="product.status === false" class="admin-btn admin-btn-success" (click)="changeStatus(product)">
-                  Mở bán
-              </button>
-              <button *ngIf="product.pin === false" class="admin-btn admin-btn-success" (click)="pin(product)">
-                  Ghim
-              </button>
+
+              <td data-label="Tạo / cập nhật">
+                <div class="admin-date-stack">
+                  <span><small>Tạo</small>{{ product.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
+                  <span><small>Sửa</small>{{ product.updatedAt | date:'dd/MM/yyyy HH:mm' }}</span>
+                </div>
+              </td>
+
+              <td class="actions" data-label="Thao tác">
+                <div class="admin-row-actions">
+                  <button type="button" class="admin-btn admin-btn-secondary admin-btn-sm" (click)="editProduct(product.id)">✎ Sửa</button>
+                  <button
+                    type="button"
+                    class="admin-btn admin-btn-sm"
+                    [class.admin-btn-warning]="product.status"
+                    [class.admin-btn-success]="!product.status"
+                    (click)="changeStatus(product)"
+                  >
+                    {{ product.status ? 'Ⅱ Ngừng bán' : '▶ Mở bán' }}
+                  </button>
+                  <button
+                    type="button"
+                    class="admin-btn admin-btn-sm"
+                    [class.admin-btn-warning]="product.pin"
+                    [class.admin-btn-success]="!product.pin"
+                    (click)="pin(product)"
+                  >
+                    {{ product.pin ? '⌖ Bỏ ghim' : '⌖ Ghim' }}
+                  </button>
+                  <button type="button" class="admin-btn admin-btn-danger admin-btn-sm" (click)="deleteProduct(product)">⌫ Xóa</button>
+                </div>
               </td>
             </tr>
           }
         </tbody>
       </app-admin-table>
+
       <div class="admin-pagination">
         <div class="admin-pagination-meta">
           <span class="admin-pagination-label">Điều hướng</span>
           <div class="admin-pagination-pill">
-            <span class="page-info">
-              Trang <span class="page-current">{{ page }}</span> / <span class="page-total">{{ totalPages }}</span>
-            </span>
+            <span class="page-info">Trang <span class="page-current">{{ page }}</span> / <span class="page-total">{{ totalPages }}</span></span>
           </div>
         </div>
 
         <div class="admin-pagination-actions">
-          <button 
-            class="admin-btn admin-btn-secondary admin-page-btn"
-            (click)="prevPage()"
-            [disabled]="page === 1">
-            ← Trước
-          </button>
-
-          <button 
-            class="admin-btn admin-btn-secondary admin-page-btn"
-            (click)="nextPage()"
-            [disabled]="page === totalPages">
-            Sau →
-          </button>
+          <button type="button" class="admin-btn admin-btn-secondary admin-page-btn" (click)="prevPage()" [disabled]="page === 1">← Trước</button>
+          <button type="button" class="admin-btn admin-btn-secondary admin-page-btn" (click)="nextPage()" [disabled]="page === totalPages">Sau →</button>
         </div>
       </div>
-    </div>
+    </section>
   }
-
 </div>

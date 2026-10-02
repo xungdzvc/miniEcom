@@ -1,0 +1,32 @@
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 9px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  font-size: .76rem;
+  font-weight: 760;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 0 3px color-mix(in srgb, currentColor 12%, transparent);
+}
+
+.status-badge-on {
+  color: #15803d;
+  background: color-mix(in srgb, #22c55e 10%, var(--card, #fff));
+  border-color: color-mix(in srgb, #22c55e 24%, transparent);
+}
+
+.status-badge-off {
+  color: #dc2626;
+  background: color-mix(in srgb, #ef4444 9%, var(--card, #fff));
+  border-color: color-mix(in srgb, #ef4444 22%, transparent);
+}

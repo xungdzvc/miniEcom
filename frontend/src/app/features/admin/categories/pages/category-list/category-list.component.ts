@@ -46,8 +46,15 @@ export class CategoryListComponent implements OnInit {
       .pipe(finalize(() => this.isLoading = false))
       .subscribe({
         next: res => {
-          this.categories = res.content;
-          this.totalPages = res.totalPages;
+          // Hỗ trợ cả response phân trang trực tiếp và response bọc trong `data`.
+          // Quan trọng: không bao giờ gán undefined vào mảng vì template dùng `.length`.
+          const pageData = (res as any)?.data ?? res;
+          this.categories = Array.isArray(pageData)
+            ? pageData
+            : (Array.isArray(pageData?.content) ? pageData.content : []);
+          this.totalPages = Array.isArray(pageData)
+            ? 1
+            : Number(pageData?.totalPages ?? 1);
         },
         error: err => {
           const code = err?.status ?? 500;
@@ -62,6 +69,15 @@ export class CategoryListComponent implements OnInit {
 
   trackById(index: number, category: Category) {
     return category.id;
+  }
+
+  categoryInitial(category: Category): string {
+    const name = String(category?.name ?? '').trim();
+    return name ? name.charAt(0).toUpperCase() : '?';
+  }
+
+  isChildCategory(category: Category): boolean {
+    return category?.parentId != null;
   }
 
   editCategory(category: Category) {
@@ -104,4 +120,10 @@ export class CategoryListComponent implements OnInit {
       this.reload();
     }
   }
+
+  categoryQuantity(category: Category): number {
+    const value = Number(category.quantity);
+    return Number.isFinite(value) ? value : 0;
+  }
+
 }

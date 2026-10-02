@@ -1,4 +1,5 @@
-import { Component, ElementRef, HostListener, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, HostListener, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { ImageFallbackDirective } from '../../../shared/directives/image-fallback.directive';
 import { CommonModule } from '@angular/common';
 import { NavigationEnd, Router, RouterLink, RouterOutlet,RouterLinkActive } from '@angular/router';
 import { ThemeService } from '../../../core/services/theme.service';
@@ -6,10 +7,10 @@ import { AuthService } from '../../../core/services/auth.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { SearchService } from '../../../shared/data-access/search.service';
 import { Subject, of } from 'rxjs';
-import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged, switchMap, takeUntil } from 'rxjs/operators';
 import { FormsModule } from '@angular/forms';
 import { ElasticSearchItem } from '../../../shared/models/elastic.model';
-import { environment } from '../../../../environments/environment';
+import { resolveFileUrl } from '../../../shared/utils/file-url.util';
 import { FooterComponent } from '../../../shared/footer/footer.component';
 import { CategoryService } from '../../../shared/data-access/category.service';
 import { Category } from '../../../shared/models/cartegory.model';
@@ -17,11 +18,11 @@ import { CartService } from '../../../shared/data-access/cart.service';
 @Component({
   selector: 'app-user-layout',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, RouterLink, FormsModule, FooterComponent, RouterLinkActive],
+  imports: [CommonModule, RouterOutlet, RouterLink, FormsModule, FooterComponent, RouterLinkActive, ImageFallbackDirective],
   templateUrl: './user-layout.component.html',
   styleUrls: ['./user-layout.component.css'],
 })
-export class UserLayoutComponent implements OnInit {
+export class UserLayoutComponent implements OnInit, OnDestroy {
   // Trạng thái các menu
   menuOpen = false;
   guestMenuOpen = false;
@@ -34,9 +35,10 @@ export class UserLayoutComponent implements OnInit {
 
   @ViewChild('searchBox') searchBox!: ElementRef;
   theme: 'light' | 'dark' = 'light';
-  fileBaseUrl = environment.fileBaseUrl;
+  readonly getFileUrl = resolveFileUrl;
   categories: Category[] = [];
   private search$ = new Subject<string>();
+  private destroy$ = new Subject<void>();
 
   constructor(
     private themeService: ThemeService,
@@ -67,18 +69,21 @@ export class UserLayoutComponent implements OnInit {
           const keyword = k.trim();
           if (!keyword) return of([]);
           return this.searchService.search(keyword, 'relevance');
-        })
+        }),
+        takeUntil(this.destroy$)
       )
       .subscribe(res => {
         this.suggests = (res ?? []).slice(0, 6);
       });
 
     // Đóng menu mobile khi chuyển trang
-    this.router.events.subscribe(event => {
-      if (event instanceof NavigationEnd) {
-        this.mobileMenuOpen = false;
-      }
-    });
+    this.router.events
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(event => {
+        if (event instanceof NavigationEnd) {
+          this.mobileMenuOpen = false;
+        }
+      });
   }
 
   // --- Click Outside & Menu Toggles ---
@@ -103,9 +108,11 @@ export class UserLayoutComponent implements OnInit {
     });
   }
   loadCartCount() {
-    this.cartService.cartCount$.subscribe(count => {
-      this.cartItemCount = count;
-    });
+    this.cartService.cartCount$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(count => {
+        this.cartItemCount = count;
+      });
   }
 
   toggleMenu(evt: MouseEvent) {
@@ -180,14 +187,6 @@ export class UserLayoutComponent implements OnInit {
     this.themeService.setMode(this.theme);
   }
 
-  getFileUrl(path?: string): string {
-    if (!path) return 'https://placehold.co/1200x600';
-    if (path.startsWith('http')) return path;
-    const base = this.fileBaseUrl.replace(/\/$/, '');
-    const p = path.replace(/^\//, '');
-    return `${base}/${p}`;
-  }
-
   isLogin() { return this.auth.isLoggedIn(); }
   get isAdmin() { return this.auth.getCurrentUser()?.roles.includes('ADMIN') ?? false; }
   get isManager() { return this.auth.getCurrentUser()?.roles.includes('MANAGER') ?? false; }
@@ -214,4 +213,9 @@ export class UserLayoutComponent implements OnInit {
       error: (e) => this.noti.error(e?.error?.message ?? 'Đăng xuất không thành công')
     });
   }
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
 }

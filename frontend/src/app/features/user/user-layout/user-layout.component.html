@@ -51,7 +51,7 @@
       <div class="suggest-list">
         <div class="s-item" *ngFor="let p of suggests" (click)="goDetail(p.slug)">
           <div class="s-thumb">
-            <img [src]="getFileUrl(p.thumbnail)" alt="" />
+            <img appImageFallback [src]="getFileUrl(p.thumbnail)" alt="" />
           </div>
           <div class="s-info">
             <div class="s-name">

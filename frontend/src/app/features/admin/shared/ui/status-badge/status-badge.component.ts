@@ -5,12 +5,14 @@ import { Component, Input } from '@angular/core';
   selector: 'app-status-badge',
   standalone: true,
   imports: [CommonModule],
+  styleUrls: ['./status-badge.component.css'],
   template: `
     <span
-      class="admin-badge"
-      [class.admin-badge-success]="on"
-      [class.admin-badge-danger]="!on"
+      class="status-badge"
+      [class.status-badge-on]="on"
+      [class.status-badge-off]="!on"
     >
+      <span class="status-dot" aria-hidden="true"></span>
       {{ on ? onText : offText }}
     </span>
   `

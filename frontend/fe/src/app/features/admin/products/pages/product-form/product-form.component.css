@@ -1,0 +1,332 @@
+/* =========================
+   THEME TOKENS (Light/Dark)
+   ========================= */
+:host{
+  --bg: #f6f7fb;
+  --card: #ffffff;
+  --text: #0f172a;
+  --muted: #64748b;
+
+  --border: rgba(15, 23, 42, .12);
+  --border-strong: rgba(15, 23, 42, .18);
+
+  --shadow: 0 10px 30px rgba(2, 6, 23, .08);
+  --shadow-sm: 0 6px 16px rgba(2, 6, 23, .08);
+
+  --accent: #2563eb;
+  --accent-2: #7c3aed;
+
+  --danger: #ef4444;
+  --success: #22c55e;
+
+  --surface-1: rgba(15, 23, 42, .035);
+  --surface-2: rgba(15, 23, 42, .06);
+
+  display:block;
+  background: var(--bg);
+  color: var(--text);
+}
+
+/* Nếu app bạn có class dark trên body/html, đổi selector theo hệ của bạn */
+:host-context(.dark),
+:host-context([data-theme="dark"]){
+  --bg: #0b1220;
+  --card: #0f172a;
+  --text: #e5e7eb;
+  --muted: #94a3b8;
+
+  --border: rgba(148, 163, 184, .18);
+  --border-strong: rgba(148, 163, 184, .26);
+
+  --shadow: 0 14px 40px rgba(0,0,0,.35);
+  --shadow-sm: 0 10px 26px rgba(0,0,0,.28);
+
+  --accent: #60a5fa;
+  --accent-2: #a78bfa;
+
+  --surface-1: rgba(148, 163, 184, .08);
+  --surface-2: rgba(148, 163, 184, .12);
+}
+
+/* =========================
+   PAGE / LAYOUT WRAP
+   ========================= */
+
+/* Nếu app-form-layout là wrapper ngoài cùng */
+:host ::ng-deep app-form-layout{
+  display:block;
+  padding: 18px;
+}
+
+:host ::ng-deep app-form-layout .layout,
+:host ::ng-deep app-form-layout .container{
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+/* Title đẹp hơn */
+:host ::ng-deep app-form-layout .title,
+:host ::ng-deep app-form-layout h1{
+  font-size: 22px;
+  font-weight: 900;
+  letter-spacing: -0.2px;
+  margin: 4px 0 14px;
+}
+
+/* =========================
+   FORM CARD
+   ========================= */
+:host ::ng-deep form{
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  box-shadow: var(--shadow);
+  padding: 18px;
+}
+
+/* =========================
+   SECTION STYLE
+   ========================= */
+:host ::ng-deep app-form-section{
+  display:block;
+  margin-bottom: 16px;
+}
+
+/* Header của section */
+:host ::ng-deep app-form-section .section-title,
+:host ::ng-deep app-form-section h2{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  font-size: 15px;
+  font-weight: 900;
+  margin: 0 0 12px;
+  color: var(--text);
+}
+
+:host ::ng-deep app-form-section .section-title::before,
+:host ::ng-deep app-form-section h2::before{
+  content:"";
+  width: 10px;
+  height: 22px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, var(--accent), var(--accent-2));
+}
+
+/* Một “card nhỏ” cho mỗi section (optional, nhìn sang) */
+:host ::ng-deep app-form-section .section-body{
+  padding: 14px;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  background: linear-gradient(180deg, var(--surface-1), transparent);
+}
+
+/* Nếu section component không có .section-body thì apply vào content trực tiếp */
+:host ::ng-deep app-form-section > *:not(.section-title):not(h2){
+  border-radius: 16px;
+}
+
+/* =========================
+   GRID
+   ========================= */
+.grid-2-cols{
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+@media (max-width: 900px){
+  .grid-2-cols{ grid-template-columns: 1fr; }
+}
+
+/* =========================
+   FIELD / INPUT
+   ========================= */
+:host ::ng-deep app-form-field{
+  display:block;
+  margin-bottom: 12px;
+}
+
+/* label */
+:host ::ng-deep app-form-field label,
+:host ::ng-deep app-form-field .label{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  font-weight: 900;
+  font-size: 13px;
+  color: var(--text);
+  margin-bottom: 8px;
+}
+
+:host ::ng-deep app-form-field .required,
+:host ::ng-deep app-form-field .label .req{
+  color: var(--danger);
+  font-weight: 900;
+}
+
+/* input/select/textarea */
+:host ::ng-deep .form-control{
+  width:100%;
+  border: 1px solid var(--border-strong);
+  background: color-mix(in srgb, var(--card) 86%, transparent);
+  color: var(--text);
+  border-radius: 14px;
+  padding: 11px 12px;
+  outline: none;
+  transition: box-shadow .15s ease, border-color .15s ease, transform .05s ease;
+}
+
+:host ::ng-deep .form-control::placeholder{
+  color: color-mix(in srgb, var(--muted) 78%, transparent);
+}
+
+:host ::ng-deep .form-control:focus{
+  border-color: color-mix(in srgb, var(--accent) 75%, var(--border));
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 18%, transparent);
+}
+
+/* textarea đẹp hơn */
+:host ::ng-deep textarea.form-control{
+  min-height: 120px;
+  resize: vertical;
+}
+
+/* error message */
+:host ::ng-deep .field-error,
+:host ::ng-deep .error-message{
+  margin-top: 8px;
+  font-size: 12.5px;
+  color: var(--danger);
+  font-weight: 800;
+}
+
+/* helper text */
+:host ::ng-deep .helper,
+:host ::ng-deep .field-helper{
+  margin-top: 6px;
+  font-size: 12.5px;
+  color: var(--muted);
+}
+
+/* =========================
+   STATUS TOGGLE (switch)
+   ========================= */
+.status-toggle{
+  display:flex;
+  align-items:center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: var(--surface-1);
+}
+
+.status-toggle input[type="checkbox"]{
+  width: 44px;
+  height: 24px;
+  appearance:none;
+  background: var(--surface-2);
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+  position: relative;
+  outline: none;
+  cursor:pointer;
+  transition: background .15s ease, border-color .15s ease;
+}
+
+.status-toggle input[type="checkbox"]::after{
+  content:"";
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  position:absolute;
+  top: 50%;
+  left: 3px;
+  transform: translateY(-50%);
+  transition: left .15s ease, background .15s ease;
+}
+
+.status-toggle input[type="checkbox"]:checked{
+  background: color-mix(in srgb, var(--success) 55%, var(--surface-2));
+  border-color: color-mix(in srgb, var(--success) 55%, var(--border-strong));
+}
+
+.status-toggle input[type="checkbox"]:checked::after{
+  left: 22px;
+}
+
+.status-text{
+  font-weight: 900;
+  font-size: 13px;
+  color: var(--text);
+}
+
+/* =========================
+   IMAGE UPLOADER (card feel)
+   ========================= */
+:host ::ng-deep app-image-uploader{
+  display:block;
+  padding: 12px;
+  border-radius: 16px;
+  border: 1px dashed color-mix(in srgb, var(--border-strong) 85%, transparent);
+  background: linear-gradient(180deg, var(--surface-1), transparent);
+}
+
+:host ::ng-deep app-image-uploader .pick-btn,
+:host ::ng-deep app-image-uploader button{
+  border-radius: 12px;
+}
+
+/* =========================
+   ACTIONS / SUBMIT
+   ========================= */
+:host ::ng-deep app-form-actions{
+  display:block;
+  margin-top: 14px;
+}
+
+:host ::ng-deep app-form-actions .actions,
+:host ::ng-deep .form-actions{
+  display:flex;
+  justify-content:flex-end;
+  gap: 10px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+
+/* button style (áp dụng cho button trong actions) */
+:host ::ng-deep app-form-actions button,
+:host ::ng-deep .form-actions button{
+  padding: 11px 14px;
+  border-radius: 14px;
+  border: 1px solid transparent;
+  font-weight: 900;
+  cursor:pointer;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap: 10px;
+  transition: transform .05s ease, filter .15s ease, box-shadow .15s ease;
+}
+
+:host ::ng-deep app-form-actions button[type="submit"],
+:host ::ng-deep .form-actions button[type="submit"]{
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  color: #fff;
+  box-shadow: 0 10px 24px color-mix(in srgb, var(--accent) 18%, transparent);
+}
+
+:host ::ng-deep app-form-actions button[type="submit"]:hover{
+  filter: brightness(.98);
+  transform: translateY(-1px);
+}
+
+:host ::ng-deep app-form-actions button[disabled]{
+  opacity: .55;
+  cursor:not-allowed;
+  transform:none;
+  box-shadow:none;
+}

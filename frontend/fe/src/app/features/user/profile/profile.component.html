@@ -1,0 +1,243 @@
+<section class="wrap">
+  <div class="page-title">
+    <div>
+      <h1>Tài khoản</h1>
+      <p>Quản lý thông tin cá nhân và giao dịch của bạn</p>
+    </div>
+  </div>
+
+  <div class="layout">
+    <aside class="side">
+      <div class="side-title">Tài khoản</div>
+      <div class="side-sub">Cài đặt & Bảo mật</div>
+
+      <nav class="menu">
+        <button class="m" [class.active]="menu==='profile'" (click)="setMenu('profile')">👤 Thông tin cá nhân</button>
+        <button class="m" [class.active]="menu==='password'" (click)="setMenu('password')">🔑 Đổi mật khẩu</button>
+        <button class="m" [class.active]="menu==='wallet'" (click)="setMenu('wallet')">💳 Nạp tiền vào ví</button>
+        <button class="m" [class.active]="menu==='topup-history'" (click)="setMenu('topup-history')">📜 Lịch sử nạp</button>
+        <button class="m" [class.active]="menu==='notifications'" (click)="setMenu('notifications')">🔔 Thông báo</button>
+        <button class="m" [class.active]="menu==='tools'" (click)="setMenu('tools')">🧰 Công cụ hỗ trợ</button>
+      </nav>
+    </aside>
+
+    <main class="content">
+      <p *ngIf="successMessage" class="admin-alert admin-alert-success">{{ successMessage }}</p>
+      <p *ngIf="errorMessage" class="admin-alert admin-alert-error">{{ errorMessage }}</p>
+
+      <div class="card" *ngIf="menu==='profile'">
+        <div class="card-head">
+          <div>
+            <div class="card-title">Hồ sơ cá nhân</div>
+            <div class="card-sub">Thông tin cơ bản để nhận diện tài khoản</div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-title">Kết nối mạng xã hội</div>
+          <div class="google-box" [class.ok]="googleLinked">
+            <div class="left">
+              <div class="g">G</div>
+              <div>
+                <div class="line">{{ googleLinked ? 'Đã liên kết tài khoản Google' : 'Chưa liên kết Google' }}</div>
+              </div>
+            </div>
+            <button class="btn ghost" (click)="linkGoogle()">{{ googleLinked ? 'Đã liên kết' : 'Liên kết ngay' }}</button>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-title">Thông tin tài khoản</div>
+          <div class="form">
+            <div class="field">
+              <label>Tên đăng nhập</label>
+              <input [(ngModel)]="form.username" disabled />
+              <div class="hint">Liên hệ Admin nếu muốn đổi định danh</div>
+            </div>
+            <div class="field">
+              <label>Họ và tên khách hàng *</label>
+              <input [(ngModel)]="form.fullName" (ngModelChange)="onFormChange()">
+            </div>
+            <div class="field">
+              <label>Địa chỉ Email</label>
+              <input [(ngModel)]="form.email" disabled />
+              <div class="hint">Dùng để nhận mã nguồn sau khi mua</div>
+            </div>
+            <div class="field">
+              <label>Số điện thoại</label>
+              <input [(ngModel)]="form.phoneNumber" placeholder="Nhập số điện thoại liên hệ" />
+            </div>
+          </div>
+          <div class="actions">
+            <button class="btn btn-primary" type="button" [disabled]="!isChanged" (click)="updateProfile()">Cập nhật thông tin</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" *ngIf="menu==='password'">
+        <div class="card-head">
+          <div class="card-title">Bảo mật mật khẩu</div>
+        </div>
+        <div class="section">
+          <div class="form one">
+            <div class="field">
+              <label>Mật khẩu hiện tại</label>
+              <input [(ngModel)]="formPw.oldPassword" type="password" placeholder="Nhập mật khẩu đang dùng" />
+            </div>
+            <div class="field">
+              <label>Mật khẩu mới</label>
+              <input [(ngModel)]="formPw.newPassword" type="password" placeholder="Tối thiểu 6 ký tự" />
+            </div>
+            <div class="field">
+              <label>Xác nhận mật khẩu</label>
+              <input [(ngModel)]="formPw.confirmPassword" type="password" placeholder="Nhập lại mật khẩu mới" />
+            </div>
+          </div>
+          <div class="actions">
+            <button class="btn btn-primary" type="button" (click)="updatePassword()">Đổi mật khẩu</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" *ngIf="menu === 'wallet'">
+        <div class="card-head">
+          <div class="card-left">
+            <div class="card-title">Ví tiền hệ thống</div>
+            <div class="card-sub">Dùng để thanh toán nhanh mã nguồn</div>
+          </div>
+          <div class="card-right">
+            <div class="wallet-summary">
+              <div class="wallet-item main">
+                <span>Số dư hiện có</span>
+                <strong>{{ profile?.vnd | number }} đ</strong>
+              </div>
+              <div class="wallet-item sub">
+                <span>Tổng đã nạp</span>
+                <strong>+{{ profile?.totalVnd | number }} đ</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-title">Phương thức thanh toán</div>
+          <div class="pill-row">
+            <button class="pill" [class.active]="walletMethod === 'ATM'" (click)="walletMethod = 'ATM'">🏦 Ngân hàng (ATM)</button>
+            <!-- <button class="pill" [class.active]="walletMethod === 'CARD'" (click)="walletMethod = 'CARD'">🎫 Thẻ cào điện thoại</button> -->
+          </div>
+        </div>
+
+        <div class="section fade-in" *ngIf="walletMethod === 'ATM'">
+          <div class="note">
+            <div class="dot"></div>
+            <div>
+              <div class="n-title">Nạp tiền tự động</div>
+              <div class="n-sub">Hệ thống cộng tiền ngay sau khi nhận được chuyển khoản đúng nội dung.</div>
+            </div>
+          </div>
+          <div class="form one mt-12">
+            <div class="field">
+          <label>Số tiền bạn muốn nạp (VNĐ)</label>
+          <input type="number" class="select" [(ngModel)]="amount" required placeholder="VD: 100000" />
+          
+          <div class="quick-amounts">
+            <button type="button" class="amount-btn" (click)="amount = 10000" [class.active]="amount === 10000">10k</button>
+            <button type="button" class="amount-btn" (click)="amount = 20000" [class.active]="amount === 20000">20k</button>
+            <button type="button" class="amount-btn" (click)="amount = 50000" [class.active]="amount === 50000">50k</button>
+            <button type="button" class="amount-btn" (click)="amount = 100000" [class.active]="amount === 100000">100k</button>
+            <button type="button" class="amount-btn" (click)="amount = 200000" [class.active]="amount === 200000">200k</button>
+            <button type="button" class="amount-btn" (click)="amount = 500000" [class.active]="amount === 500000">500k</button>
+            <button type="button" class="amount-btn" (click)="amount = 1000000" [class.active]="amount === 1000000">1Tr</button>
+          </div>
+        </div>
+            <button class="btn primary full" (click)="topupWithBankTransfer()">💳 Tạo mã QR chuyển khoản</button>
+          </div>
+        </div>
+
+        <div class="section fade-in" *ngIf="walletMethod === 'CARD'">
+          <form #cardForm="ngForm" class="form">
+            <div class="field">
+              <label>Loại thẻ</label>
+              <select class="select" name="telco" [(ngModel)]="card.telco" required>
+                <option value="" disabled>-- Chọn nhà mạng --</option>
+                <option value="VIETTEL">Viettel</option>
+                <option value="VINAPHONE">Vinaphone</option>
+                <option value="MOBIFONE">Mobifone</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Mệnh giá</label>
+              <select class="select" name="amount" [(ngModel)]="card.amount" required>
+                <option value="" disabled>-- Chọn mệnh giá --</option>
+                <option value="50000">50,000đ</option>
+                <option value="100000">100,000đ</option>
+                <option value="200000">200,000đ</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Mã thẻ</label>
+              <input name="code" [(ngModel)]="card.code" required placeholder="Nhập mã thẻ" />
+            </div>
+            <div class="field">
+              <label>Số Serial</label>
+              <input name="serial" [(ngModel)]="card.serial" required placeholder="Nhập số seri" />
+            </div>
+            <div class="actions">
+              <button class="btn primary" type="button" (click)="topupWithCard(cardForm)" [disabled]="cardForm.invalid">🎫 Xác nhận nạp thẻ</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <div class="card" *ngIf="menu === 'topup-history'">
+        <div class="card-head">
+          <div class="card-title">Lịch sử giao dịch ví</div>
+        </div>
+        
+        <div class="table-wrap desktop-only">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Mã GD</th>
+                <th>Số tiền</th>
+                <th>Loại</th>
+                <th>Trạng thái</th>
+                <th>Thời gian</th>
+              </tr>
+            </thead>
+            <tbody>
+              <ng-container *ngIf="topupsHistory.length > 0; else emptyT">
+                <tr *ngFor="let t of topupsHistory">
+                  <td class="mono">#{{ t.id }}</td>
+                  <td class="money">{{ t.amount | number }}₫</td>
+                  <td>{{ t.paymentType === 'CARD' ? 'Thẻ cào' : 'Chuyển khoản' }}</td>
+                  <td><span class="badge" [class.ok]="t.paymentStatus === 'SUCCESS'" [class.warn]="t.paymentStatus === 'PENDING'">{{ t.paymentStatus }}</span></td>
+                  <td class="time">{{ t.createdAt | date:'HH:mm dd/MM/yyyy' }}</td>
+                </tr>
+              </ng-container>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="topup-list mobile-only">
+          <div class="topup-card" *ngFor="let t of topupsHistory">
+            <div class="row"><span>Mã GD</span><span class="value mono">#{{ t.id }}</span></div>
+            <div class="row"><span>Số tiền</span><span class="value money">{{ t.amount | number }}₫</span></div>
+            <div class="row"><span>Trạng thái</span><span class="badge" [class.ok]="t.paymentStatus === 'SUCCESS'">{{ t.paymentStatus }}</span></div>
+            <div class="row time">{{ t.createdAt | date:'HH:mm dd/MM' }}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" *ngIf="menu==='notifications'">
+        <div class="card-head"><div class="card-title">Thông báo hệ thống</div></div>
+        <div class="note"><div class="dot"></div><div><div class="n-title">Chào mừng bạn!</div><div class="n-sub">Chúc bạn tìm được mã nguồn ưng ý nhất.</div></div></div>
+      </div>
+
+    </main>
+  </div>
+</section>
+
+<ng-template #emptyT>
+  <tr><td colspan="5" class="empty">Bạn chưa có giao dịch nào gần đây.</td></tr>
+</ng-template>

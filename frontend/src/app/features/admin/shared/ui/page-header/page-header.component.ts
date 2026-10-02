@@ -1,5 +1,5 @@
-import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Component, Input } from '@angular/core';
 
 @Component({
   selector: 'app-admin-page-header',
@@ -7,16 +7,17 @@ import { CommonModule } from '@angular/common';
   imports: [CommonModule],
   styleUrls: ['./page-header.component.css'],
   template: `
-    <div class="admin-page-header">
-      <div class="title">
-        <h2 class="admin-page-title">{{ title }}</h2>
+    <header class="admin-page-header">
+      <div class="admin-page-copy">
+        <span class="admin-page-eyebrow">Quản trị hệ thống</span>
+        <h1 class="admin-page-title">{{ title }}</h1>
         <p *ngIf="subtitle" class="admin-page-subtitle">{{ subtitle }}</p>
       </div>
 
-      <div class="actions">
+      <div class="admin-page-actions">
         <ng-content></ng-content>
       </div>
-    </div>
+    </header>
   `
 })
 export class AdminPageHeaderComponent {

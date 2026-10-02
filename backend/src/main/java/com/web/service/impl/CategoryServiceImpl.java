@@ -40,7 +40,7 @@ public class CategoryServiceImpl implements ICategoryService {
         }
         CategoryEntity categoryEntity = new CategoryEntity();
         categoryEntity.setName(nameCategory);
-
+        categoryEntity.setStatus(true);
         if(req.getParentId() != null){
             CategoryEntity parentCategory = categoryRepository.findById(req.getParentId()).orElseThrow(()-> new MyException("Danh mục cha không tồn tại"));
             if(parentCategory.getParentCategory() != null){
@@ -108,18 +108,9 @@ public class CategoryServiceImpl implements ICategoryService {
     }
 
     @Override
-    public List<AdminCategoryResponse> getAllCategories() {
+    public List<CategoryResponse> getAllCategories() {
         List<CategoryEntity> categories = categoryRepository.findAllByStatus(true);
-        List<AdminCategoryResponse> adminCategoriesResponse = new ArrayList<>();
-
-        for (CategoryEntity categoryEntity : categories) {
-            AdminCategoryResponse categoryDTO = mapper.toAdminDTO(categoryEntity);
-            int quantities = productRepository.countByCategoryId(categoryEntity.getId());
-            categoryDTO.setQuantity(quantities);
-            adminCategoriesResponse.add(categoryDTO);
-
-        }
-        return adminCategoriesResponse;
+        return categories.stream().map(mapper::toDTO).toList();
     }
 
     @Override

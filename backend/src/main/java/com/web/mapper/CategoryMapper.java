@@ -11,9 +11,11 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface CategoryMapper {
 
+    @Mapping(target= "parentId",source = "parentCategory.id")
     CategoryResponse toDTO(CategoryEntity categoryEntity);
     
     @Mapping(target="quantity" , ignore = true)
+    @Mapping(target= "parentId",source = "parentCategory.id")
     AdminCategoryResponse toAdminDTO(CategoryEntity categoryEntity);
 
 }

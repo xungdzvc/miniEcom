@@ -1,0 +1,117 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap');
+
+:host {
+  display: block;
+  font-family: 'Poppins', sans-serif;
+  --primary: #6366f1; /* Màu tím Indigo chủ đạo */
+  --primary-hover: #4f46e5;
+  --text-dark: #1f2937;
+  --text-light: #6b7280;
+  --bg-color: #f3f4f6;
+}
+
+.error-container {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: var(--bg-color);
+  overflow: hidden; /* Để cắt phần chữ nền bị thừa */
+  text-align: center;
+}
+
+/* Hiệu ứng chữ nền mờ khổng lồ */
+.bg-text {
+  position: absolute;
+  font-size: 25rem; /* Kích thước cực lớn */
+  font-weight: 800;
+  color: rgba(99, 102, 241, 0.05); /* Màu tím rất nhạt */
+  z-index: 0;
+  user-select: none;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  animation: pulse 4s infinite ease-in-out;
+}
+
+/* Hộp nội dung chính */
+.content-box {
+  position: relative;
+  z-index: 1; /* Nổi lên trên nền */
+  max-width: 500px;
+  padding: 2rem;
+}
+
+.main-code {
+  font-size: 6rem;
+  margin: 0;
+  font-weight: 800;
+  color: var(--primary);
+  line-height: 1;
+  text-shadow: 4px 4px 0px rgba(99, 102, 241, 0.2); /* Đổ bóng cứng tạo khối */
+  animation: float 3s ease-in-out infinite;
+}
+
+.title {
+  font-size: 1.5rem;
+  color: var(--text-dark);
+  margin: 1rem 0 0.5rem;
+  font-weight: 600;
+}
+
+.message {
+  color: var(--text-light);
+  margin-bottom: 2rem;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+/* Nút bấm */
+.btn-home {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.75rem 2rem;
+  background-color: var(--primary);
+  color: white;
+  border: none;
+  border-radius: 50px; /* Bo tròn hoàn toàn */
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+}
+
+.btn-home:hover {
+  background-color: var(--primary-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+}
+
+.icon {
+  margin-right: 8px;
+  font-size: 1.1rem;
+  transition: transform 0.3s;
+}
+
+.btn-home:hover .icon {
+  transform: translateX(-4px);
+}
+
+/* Animations */
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-15px); }
+}
+
+@keyframes pulse {
+  0%, 100% { transform: translate(-50%, -50%) scale(1); }
+  50% { transform: translate(-50%, -50%) scale(1.05); }
+}
+
+/* Responsive cho điện thoại */
+@media (max-width: 600px) {
+  .bg-text { font-size: 15rem; }
+  .main-code { font-size: 4rem; }
+}

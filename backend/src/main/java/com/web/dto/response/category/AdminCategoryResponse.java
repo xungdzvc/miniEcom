@@ -16,6 +16,7 @@ import lombok.Setter;
 @Setter
 public class AdminCategoryResponse {
     private Long id;
+    private Long parentId;
     private String name;
     private Integer quantity;
     private Instant createdAt;

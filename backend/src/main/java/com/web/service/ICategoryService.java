@@ -15,6 +15,6 @@ public interface ICategoryService {
     CategoryResponse updateCategory(Long id, CategoryUpdateRequest req);
     CategoryResponse getCategoryById(Long id);
     Page<AdminCategoryResponse> getAllCategories(Pageable pageable);
-    List<AdminCategoryResponse> getAllCategories();
+    List<CategoryResponse> getAllCategories();
     int getCount();
 }

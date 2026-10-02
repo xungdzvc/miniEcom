@@ -16,6 +16,7 @@ import lombok.Setter;
 @Setter
 public class CategoryResponse {
     private Long id;
+    private Long parentId;
     private String name;
     private Instant createdAt;
     private Instant updatedAt;

@@ -41,8 +41,15 @@ export class UserAdminListComponent implements OnInit {
       .pipe(finalize(() => this.isLoading = false))
       .subscribe({
         next: res => {
-          this.users = res.content;
-          this.totalPages = res.totalPages;
+          // Hỗ trợ cả response phân trang trực tiếp và response bọc trong `data`.
+          // Quan trọng: không bao giờ gán undefined vào mảng vì template dùng `.length`.
+          const pageData = (res as any)?.data ?? res;
+          this.users = Array.isArray(pageData)
+            ? pageData
+            : (Array.isArray(pageData?.content) ? pageData.content : []);
+          this.totalPages = Array.isArray(pageData)
+            ? 1
+            : Number(pageData?.totalPages ?? 1);
         },
         error: err => {
           const code = err?.status ?? 500;

@@ -1,52 +1,66 @@
-
 .admin-page-header {
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  margin-bottom: var(--admin-spacing-md);
-  flex-wrap: wrap;
+  gap: 24px;
+  margin-bottom: 20px;
+  padding: 2px 2px 0;
 }
 
-.title h2 {
+.admin-page-copy {
+  min-width: 0;
+}
+
+.admin-page-eyebrow {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--admin-primary);
+  font-size: .69rem;
+  font-weight: 850;
+  letter-spacing: .11em;
+  text-transform: uppercase;
+}
+
+.admin-page-title {
   margin: 0;
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: var(--admin-text-dark);
+  color: var(--text-main, var(--admin-text-dark));
+  font-size: clamp(1.35rem, 2vw, 1.8rem);
+  font-weight: 820;
+  letter-spacing: -.025em;
+  line-height: 1.15;
 }
 
-.title p {
-  margin: 4px 0 0;
-  color: var(--admin-text-light);
-  font-size: 0.95rem;
+.admin-page-subtitle {
+  max-width: 680px;
+  margin: 7px 0 0;
+  color: var(--text-muted, var(--admin-text-light));
+  font-size: .9rem;
+  line-height: 1.55;
 }
 
-.actions {
-  
+.admin-page-actions {
   display: flex;
+  align-items: center;
+  justify-content: flex-end;
   gap: 8px;
   flex-wrap: wrap;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 820px) {
   .admin-page-header {
     align-items: flex-start;
+    flex-direction: column;
+    gap: 14px;
   }
 
-  .actions {
+  .admin-page-actions {
     width: 100%;
-  }
-
-  .actions :is(button, a) {
-    flex: 1 1 auto;
-    min-width: 140px;
-    justify-content: center;
+    justify-content: flex-start;
   }
 }
 
-@media (max-width: 480px) {
-  .actions :is(button, a) {
-    width: 100%;
-    min-width: 0;
+@media (max-width: 520px) {
+  .admin-page-actions :is(button, a) {
+    flex: 1 1 calc(50% - 8px);
   }
 }

@@ -5,7 +5,10 @@
 package com.web.service;
 
 import com.web.dto.StorageFileDTO;
+import com.web.dto.StorageResourceDTO;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.Optional;
 
 /**
  *
@@ -13,7 +16,10 @@ import org.springframework.web.multipart.MultipartFile;
  */
 public interface IStorageService {
     StorageFileDTO save(MultipartFile file, String folder);
+    Optional<StorageResourceDTO> load(String key);
     void delete(String key);
     String getPublicUrl(String key);
+
+
     
 }

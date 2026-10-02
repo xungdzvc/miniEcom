@@ -4,10 +4,12 @@ import { Component } from '@angular/core';
   selector: 'app-admin-table',
   standalone: true,
   template: `
-    <div class="admin-table-container">
-      <table class="admin-table">
-        <ng-content></ng-content>
-      </table>
+    <div class="admin-table-shell">
+      <div class="admin-table-container">
+        <table class="admin-table">
+          <ng-content></ng-content>
+        </table>
+      </div>
     </div>
   `
 })

@@ -282,6 +282,11 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
     return Array.from(new Set(imgs));
   }
 
+  // Angular tái sử dụng đúng <img> theo URL, không destroy/create khi activeIndex đổi.
+  trackByImageUrl(_index: number, url: string): string {
+    return url;
+  }
+
   // --------------------
   // Gallery controls
   // --------------------

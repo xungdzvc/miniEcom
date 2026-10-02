@@ -5,8 +5,9 @@ import { distinctUntilChanged, finalize, map } from 'rxjs';
 
 import { ProductCardComponent } from '../../../../shared/ui/product-card/product-card.component';
 import { ProductViewerListDetail } from '../../../../shared/models/core/product/product-viewer-list.model';
-import { environment } from '../../../../../environments/environment';
 import { ProductService } from '../../../../shared/data-access/products/product.service';
+import { CategoryService } from '../../../../shared/data-access/category.service';
+import { Category } from '../../../../shared/models/cartegory.model';
 
 type SortKey = 'newest' | 'views' | 'sales' | 'free';
 
@@ -21,10 +22,10 @@ export class ProductListComponent {
   constructor(
     private productService: ProductService,
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private categoryService: CategoryService
   ) {}
 
-  fileBaseUrl = environment.fileBaseUrl;
 
   // data
   products: any[] = [];
@@ -33,8 +34,8 @@ export class ProductListComponent {
 
   // filter/sort
   sort: SortKey = 'newest';
-  activeCategory: string | null = null;      // filter theo tên category (UI tabs)
-  activeCategoryId: number | null = null;    // lấy từ query param categoryId
+  categories: Category[] = [];
+  activeCategoryId: number | null = null;
 
   // pagination
   pageSize = 8;
@@ -46,21 +47,11 @@ export class ProductListComponent {
   // Derived UI data
   // -----------------------------
 
-  get categories(): string[] {
-    // lấy danh mục từ dataset hiện tại
-    const set = new Set((this.products ?? []).map(p => p.categoryName).filter(Boolean) as string[]);
-    return ['Tất cả', ...Array.from(set)];
-  }
   private sortPinnedFirst(list: any[] = []) {
     return [...list].sort((a, b) => Number(!!b.pin) - Number(!!a.pin));
   }
   get filtered(): ProductViewerListDetail[] {
   let list = [...(this.products ?? [])];
-
-  // Lọc theo tab categoryName
-  if (this.activeCategory) {
-    list = list.filter(p => p.categoryName === this.activeCategory);
-  }
 
   // Filter theo sort key "free"
   if (this.sort === 'free') {
@@ -116,10 +107,12 @@ export class ProductListComponent {
     this.currentPage = 1;
   }
 
-  setCategory(cat: string) {
-    this.activeCategory = cat === 'Tất cả' ? null : cat;
-    this.resetPage();
-    this.loadProduct();
+  setCategory(categoryId: number | null) {
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { categoryId: categoryId ?? null },
+      queryParamsHandling: 'merge'
+    });
   }
 
   setSort(k: SortKey) {
@@ -140,6 +133,8 @@ export class ProductListComponent {
   // -----------------------------
 
   ngOnInit(): void {
+    this.loadCategories();
+
     // Theo dõi query param categoryId để load lại data
     this.route.queryParamMap
       .pipe(
@@ -155,6 +150,18 @@ export class ProductListComponent {
         this.resetPage();
         this.loadProduct();
       });
+  }
+
+
+  private loadCategories(): void {
+    this.categoryService.getCategoriesForLayout().subscribe({
+      next: res => {
+        this.categories = res?.data ?? [];
+      },
+      error: () => {
+        this.categories = [];
+      }
+    });
   }
 
   loadProduct(): void {

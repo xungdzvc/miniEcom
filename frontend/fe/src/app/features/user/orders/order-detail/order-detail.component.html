@@ -1,0 +1,107 @@
+<section class="od-wrapper">
+  <header class="od-header">
+    <div>
+      <h1>Chi tiết đơn hàng</h1>
+    </div>
+
+    <div class="od-actions">
+      <button class="btn btn-ghost" (click)="goBack()">← Quay lại</button>
+      <button class="btn btn-ghost" (click)="fetch()" [disabled]="isLoading">Làm mới</button>
+    </div>
+  </header>
+
+  <div class="card" *ngIf="order as o">
+    <div class="summary-grid">
+      <div class="summary-col">
+        <div class="label">Mã</div>
+        <div class="value mono">{{ orderCode() }}</div>
+      </div>
+
+      <div class="summary-col">
+        <div class="label">Thời gian</div>
+        <div class="value">{{ o.createdAt | date:'HH:mm:ss dd/MM/yyyy' }}</div>
+      </div>
+
+      <div class="summary-col">
+        <div class="label">Tổng</div>
+        <div class="value strong">{{ o.total | number:'1.0-0' }} VNĐ</div>
+      </div>
+
+      <div class="summary-col">
+        <div class="label">Trạng thái</div>
+        <div class="value">
+          <span [class]="statusClass(o.status)">{{ statusText(o.status) }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="note" *ngIf="!canDownload()">
+      ⚠️ Đơn hàng chưa thanh toán thành công — nút tải xuống sẽ bị khoá.
+    </div>
+  </div>
+
+  <div class="card" *ngIf="order as o">
+    <div class="items-head">
+      <h2>Danh sách sản phẩm</h2>
+
+      <input
+        class="input"
+        [(ngModel)]="keyword"
+        placeholder="Tìm theo tên / danh mục / productId..."
+      />
+    </div>
+
+    <div class="table-wrap">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Sản phẩm</th>
+            <th>Danh mục</th>
+            <th class="right">Giá</th>
+            <th class="center">SL</th>
+            <th class="center">Thao tác</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr *ngFor="let it of filteredItems()">
+            <td>
+              <div class="prod">
+                <div class="prod-name">{{ it.productName }}</div>
+                <div class="prod-sub muted">
+                  ProductID: <span class="mono">{{ it.productId }}</span>
+                </div>
+              </div>
+            </td>
+
+            <td>{{ it.categoryName }}</td>
+            <td class="right">{{ it.productPrice | number:'1.0-0' }} VNĐ</td>
+            <td class="center">{{ it.quantity }}</td>
+
+            <td class="center">
+              <button
+                class="btn btn-sm btn-primary"
+                (click)="download(it.orderItemId)"
+                [disabled]="!canDownload() || isDownloadingId === it.orderItemId"
+              >
+                {{ isDownloadingId === it.orderItemId ? 'Đang mở…' : 'Tải xuống' }}
+              </button>
+            </td>
+          </tr>
+
+          <tr *ngIf="filteredItems().length === 0">
+            <td colspan="6" class="empty muted">Không có sản phẩm phù hợp.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="page-loader" *ngIf="isLoading">
+    <div class="page-loader__card">
+      <div class="page-loader__ring"></div>
+      <div class="page-loader__title">Đang tải chi tiết đơn hàng…</div>
+      <div class="page-loader__sub">Vui lòng chờ trong giây lát</div>
+    </div>
+  </div>
+</section>

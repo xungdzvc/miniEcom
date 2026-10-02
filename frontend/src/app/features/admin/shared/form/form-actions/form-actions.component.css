@@ -1,27 +1,40 @@
 .form-actions {
   display: flex;
   justify-content: flex-end;
-  margin-top: 18px;
+  gap: 10px;
+  margin-top: 20px;
+  padding-top: 18px;
+  border-top: 1px solid var(--border, var(--admin-border));
 }
 
 .btn-submit {
+  min-height: 42px;
+  padding: .7rem 1.2rem;
+  border: 1px solid var(--admin-primary);
+  border-radius: 11px;
+  color: #fff;
   background: var(--admin-primary);
-  color: var(--admin-text-white);
-  border: none;
-  padding: 0.65rem 1.25rem;
-  font-weight: 600;
-  border-radius: var(--admin-border-radius);
+  box-shadow: 0 5px 14px color-mix(in srgb, var(--admin-primary) 24%, transparent);
+  font: inherit;
+  font-size: .9rem;
+  font-weight: 760;
   cursor: pointer;
-  transition: transform 0.12s ease, background 0.2s ease;
+  transition: background-color .16s ease, transform .16s ease, box-shadow .16s ease;
 }
 
-.btn-submit:hover {
-  background: #2980b9;
+.btn-submit:hover:not(:disabled) {
   transform: translateY(-1px);
+  background: color-mix(in srgb, var(--admin-primary) 88%, #000 12%);
 }
 
 .btn-submit:disabled {
-  opacity: 0.6;
+  opacity: .5;
   cursor: not-allowed;
-  transform: none;
+  box-shadow: none;
+}
+
+@media (max-width: 520px) {
+  .btn-submit {
+    width: 100%;
+  }
 }

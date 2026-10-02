@@ -1,0 +1,42 @@
+<div
+  class="image-uploader"
+  [class.dragging]="isDragging"
+  (dragover)="onDragOver($event)"
+  (dragleave)="onDragLeave($event)"
+  (drop)="onDrop($event)"
+>
+  <div class="label-row">
+    <label class="label">
+      {{ label }} <span *ngIf="required" class="required">*</span>
+    </label>
+    <small *ngIf="helper" class="helper">{{ helper }}</small>
+  </div>
+
+  <div class="preview-grid">
+    <div class="preview-item" *ngFor="let name of existing; let i = index">
+      <img [src]="toPreviewUrl(name)" alt="existing" />
+      <button type="button" class="remove" (click)="removeExisting(i)">×</button>
+      <div class="badge">Đang có</div>
+    </div>
+
+    <div class="preview-item" *ngFor="let item of newItems; let i = index">
+      <img [src]="item.previewUrl" alt="new" />
+      <button type="button" class="remove" (click)="removeNew(i)">×</button>
+      <div class="badge badge-new">Mới</div>
+    </div>
+
+    <button type="button" class="add" (click)="fileInput.click()">
+      + Chọn ảnh
+      <span class="add-sub">hoặc kéo & thả vào đây</span>
+    </button>
+  </div>
+
+  <input
+    #fileInput
+    type="file"
+    [attr.accept]="accept"
+    [attr.multiple]="multiple ? '' : null"
+    (change)="onFilesSelected($event)"
+    hidden
+  />
+</div>

@@ -49,9 +49,14 @@ app:
   retry:
       optimistic-lock:
         max-attempts: 3
-  instance-id: ${INSTANCE_ID}
+  instance-id: ${INSTANCE_ID} 
+  storage:
+    image:
+      type: ${IMAGE_STORAGE_TYPE:local}
+    download:
+      type: ${DOWNLOAD_STORAGE_TYPE:google-drive}
 
-  upload-url-prefix: /uploads
+  upload-dir: ${UPLOAD_DIR} 
 
   mail:
     fromName: XungLord.com

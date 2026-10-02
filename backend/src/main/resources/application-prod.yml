@@ -39,8 +39,7 @@ spring:
 jwt:
   secret: ${JWT_KEY}
 
-app:
-  upload-dir: ${UPLOAD_DIR}
+app: 
 
   logging:
     request:

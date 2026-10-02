@@ -1,12 +1,25 @@
 .form-section {
-  margin-bottom: 36px;
+  margin-bottom: 20px;
+  padding: 18px;
+  border: 1px solid var(--border, var(--admin-border));
+  border-radius: 15px;
+  background: color-mix(in srgb, var(--surface-1, #f8fafc) 55%, var(--card, #fff));
 }
 
 .section-title {
-  font-size: 18px;
-  font-weight: 600;
-  margin-bottom: 18px;
-  padding-left: 10px;
-  border-left: 4px solid var(--admin-primary);
-  color: var(--admin-text-dark);
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin: 0 0 17px;
+  color: var(--text-main, var(--admin-text-dark));
+  font-size: .96rem;
+  font-weight: 800;
+}
+
+.section-title::before {
+  content: '';
+  width: 4px;
+  height: 18px;
+  border-radius: 999px;
+  background: var(--admin-primary);
 }

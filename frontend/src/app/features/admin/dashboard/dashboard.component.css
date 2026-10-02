@@ -1,365 +1,442 @@
-/* --- Layout Grid --- */
-/* --- 1. CẤU HÌNH MÀU SẮC (THEME) --- */
-:root {
-  /* Màu chủ đạo */
-  --primary: #6366f1; 
-  
-  /* --- CẤU HÌNH LIGHT THEME (Nhưng Sidebar màu Tím Đậm) --- */
-  --bg-body: #f3f4f6; /* Nền nội dung chính vẫn sáng */
-  
-  /* 🔥 QUAN TRỌNG: Đổi nền Sidebar sang Tím Đậm (Deep Indigo/Purple) */
-  /* Mã màu RGB của tím đậm là 15, 23, 42 hoặc 30, 27, 75 */
-  --sidebar-bg: rgba(30, 27, 75, 0.85); 
-  --sidebar-border: rgba(255, 255, 255, 0.1); /* Viền sáng nhẹ */
-  
-  /* Vì nền tối nên chữ Sidebar phải sáng */
-  --sidebar-text: #e0e7ff; 
-  --sidebar-text-muted: #a5b4fc; 
-  --sidebar-active-bg: rgba(99, 102, 241, 0.2); /* Màu nền khi active item */
-
-  /* Header trên cùng vẫn giữ màu kính sáng cho sạch sẽ */
-  --header-bg: rgba(255, 255, 255, 0.8); 
-  --header-text: #1f2937;
-  
-  --shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
-}
-
-/* --- DARK THEME (Giữ nguyên hoặc chỉnh tối hơn) --- */
-[data-theme="dark"] {
-  --bg-body: #0f172a;
-  --sidebar-bg: rgba(15, 23, 42, 0.85); /* Tối hẳn */
-  --header-bg: rgba(15, 23, 42, 0.8);
-  --header-text: #f3f4f6;
-  --sidebar-text: #f3f4f6;
-  --sidebar-text-muted: #94a3b8;
-}
-
-/* --- 2. CẬP NHẬT CLASS SIDEBAR --- */
-.glass-sidebar {
-  /* ... giữ các thuộc tính layout cũ ... */
-  width: var(--sidebar-w);
-  height: 100vh;
-  position: sticky;
-  top: 0;
-  display: flex;
-  flex-direction: column;
-
-  /* ÁP DỤNG MÀU MỚI */
-  background: var(--sidebar-bg); /* Dùng biến màu tím mới */
-  border-right: 1px solid var(--sidebar-border);
-  color: var(--sidebar-text); /* Chữ màu sáng */
-  
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  box-shadow: var(--shadow);
-  z-index: 50;
-  transition: all 0.3s ease;
-}
-
-/* --- 3. CẬP NHẬT ITEM TRONG SIDEBAR (Để chữ sáng lên) --- */
-.nav-item {
-  /* ... */
-  color: var(--sidebar-text-muted); /* Màu chữ mờ sáng */
-}
-
-.nav-item:hover {
-  background: rgba(255, 255, 255, 0.1); /* Hover sáng nhẹ */
-  color: #fff;
-}
-
-.nav-item.active {
-  background: var(--primary); /* Hoặc var(--sidebar-active-bg) */
-  color: white;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3); /* Shadow đậm hơn vì nền tối */
-}
-
-.app-name {
-  color: #fff; /* Tên app luôn trắng */
-}
-
-/* --- 4. GIỮ HEADER TRÊN CÙNG MÀU SÁNG (Cho tương phản đẹp) --- */
-.glass-header {
-  /* ... */
-  background: var(--header-bg);
-  color: var(--header-text);
-  border-bottom: 1px solid rgba(0,0,0,0.05);
-}
-
 .admin-shell {
+  --primary: #4f46e5;
+  --accent: #4f46e5;
+  --accent-2: #7c3aed;
+  --primary-glow: rgba(79, 70, 229, .09);
+
+  --bg: #f5f7fb;
+  --bg-main: #f5f7fb;
+  --bg-body: #f5f7fb;
+  --bg-surface: #f5f7fb;
+  --bg-glass: rgba(255, 255, 255, .88);
+  --card: #ffffff;
+  --surface-1: #f8fafc;
+  --surface-2: #f1f5f9;
+  --text: #0f172a;
+  --text-main: #0f172a;
+  --text-muted: #64748b;
+  --muted: #64748b;
+  --border: rgba(15, 23, 42, .10);
+  --border-strong: rgba(15, 23, 42, .16);
+  --shadow-sm: 0 4px 14px rgba(15, 23, 42, .06);
+  --shadow: 0 14px 38px rgba(15, 23, 42, .10);
+
+  --admin-primary: var(--primary);
+  --admin-secondary: #0f172a;
+  --admin-success: #16a34a;
+  --admin-warning: #d97706;
+  --admin-danger: #dc2626;
+  --admin-info: #0284c7;
+  --danger: var(--admin-danger);
+  --success: var(--admin-success);
+  --admin-bg-light: var(--bg-main);
+  --admin-bg-white: var(--card);
+  --admin-text-dark: var(--text-main);
+  --admin-text-light: var(--text-muted);
+  --admin-text-white: #ffffff;
+  --admin-border: var(--border);
+  --admin-border-strong: var(--border-strong);
+  --admin-surface-1: var(--surface-1);
+  --admin-surface-2: var(--surface-2);
+  --admin-border-radius: 14px;
+  --admin-box-shadow: var(--shadow);
+  --admin-box-shadow-hover: 0 16px 38px rgba(15, 23, 42, .10);
+  --admin-shadow-sm: var(--shadow-sm);
+  --admin-spacing-xs: .5rem;
+  --admin-spacing-sm: .75rem;
+  --admin-spacing-md: 1rem;
+  --admin-spacing-lg: 1.5rem;
+  --admin-spacing-xl: 2rem;
+  --admin-font-size-sm: .82rem;
+  --admin-font-size-base: .94rem;
+  --admin-font-size-lg: 1.08rem;
+  --admin-font-size-xl: 1.45rem;
+  --nav-height-mobile: 76px;
+
   display: grid;
-  grid-template-columns: 260px 1fr; /* Sidebar nhỏ hơn chút cho tinh tế */
+  grid-template-columns: 248px minmax(0, 1fr);
   min-height: 100vh;
-  transition: grid-template-columns 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+  background: var(--bg-main);
+  color: var(--text-main);
+  color-scheme: light;
+  transition: grid-template-columns .26s ease, background-color .2s ease, color .2s ease;
 }
 
-/* --- Sidebar Styling --- */
+.admin-shell[data-theme="dark"] {
+  --primary: #818cf8;
+  --accent: #818cf8;
+  --accent-2: #a78bfa;
+  --primary-glow: rgba(129, 140, 248, .12);
+
+  --bg: #080d18;
+  --bg-main: #080d18;
+  --bg-body: #080d18;
+  --bg-surface: #080d18;
+  --bg-glass: rgba(8, 13, 24, .88);
+  --card: #0f172a;
+  --surface-1: #131d31;
+  --surface-2: #182338;
+  --text: #eef2ff;
+  --text-main: #eef2ff;
+  --text-muted: #94a3b8;
+  --muted: #94a3b8;
+  --border: rgba(148, 163, 184, .16);
+  --border-strong: rgba(148, 163, 184, .26);
+  --shadow-sm: 0 5px 18px rgba(0, 0, 0, .22);
+  --shadow: 0 18px 44px rgba(0, 0, 0, .34);
+
+  --admin-bg-light: var(--bg-main);
+  --admin-bg-white: var(--card);
+  --admin-text-dark: var(--text-main);
+  --admin-text-light: var(--text-muted);
+  --admin-border: var(--border);
+  --admin-border-strong: var(--border-strong);
+  --admin-box-shadow-hover: 0 18px 44px rgba(0, 0, 0, .36);
+  --admin-surface-1: var(--surface-1);
+  --admin-surface-2: var(--surface-2);
+
+  color-scheme: dark;
+}
+
 .admin-sidebar {
   position: sticky;
   top: 0;
   height: 100vh;
-  
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border-right: 1px solid var(--border);
+  padding: 18px 14px;
   display: flex;
   flex-direction: column;
-  padding: 20px 16px;
+  background: color-mix(in srgb, var(--card) 94%, var(--bg-main));
+  border-right: 1px solid var(--border);
   z-index: 50;
-  transition: all 0.3s ease;
+  transition: background-color .2s ease, border-color .2s ease;
 }
 
-/* Header của Sidebar */
 .side-head {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 24px;
-  padding: 0 8px;
+  min-height: 44px;
+  gap: 10px;
+  margin-bottom: 20px;
+  padding: 0 4px;
 }
 
 .brand {
-  font-size: 1.25rem;
-  font-weight: 800;
+  min-width: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
   color: var(--text-main);
   text-decoration: none;
-  letter-spacing: -0.5px;
-  display: flex;
-  align-items: center;
-  gap: 4px;
 }
 
-.brand span {
-  color: var(--primary);
-  background: linear-gradient(135deg, var(--primary), #a78bfa);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-/* Nút toggle Sidebar/Theme */
-.icon-btn {
-  background: transparent;
-  border: 1px solid transparent;
-  color: var(--text-muted);
-  cursor: pointer;
-  padding: 6px;
-  border-radius: 8px;
-  transition: all 0.2s;
-  display: flex;
+.brand-mark {
+  width: 34px;
+  height: 34px;
+  flex: 0 0 34px;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
+  border-radius: 11px;
+  color: #fff;
+  background: linear-gradient(135deg, var(--primary), var(--accent-2));
+  box-shadow: 0 7px 18px color-mix(in srgb, var(--primary) 22%, transparent);
+  font-weight: 900;
+}
+
+.brand-copy {
+  overflow: hidden;
+  color: var(--text-main);
+  font-size: .94rem;
+  font-weight: 780;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.brand-copy b {
+  color: var(--primary);
+  font-weight: 850;
+}
+
+.icon-btn {
+  width: 36px;
+  height: 36px;
+  flex: 0 0 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--text-muted);
+  background: var(--card);
+  font: inherit;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: color .16s ease, background-color .16s ease, border-color .16s ease, transform .16s ease;
 }
 
 .icon-btn:hover {
-  background: var(--bg-surface);
   color: var(--primary);
-  box-shadow: var(--shadow-sm);
+  border-color: color-mix(in srgb, var(--primary) 25%, var(--border));
+  background: var(--surface-1);
+  transform: translateY(-1px);
 }
 
-/* --- Navigation --- */
 .nav {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 5px;
 }
 
 .nav-item {
+  min-height: 44px;
+  padding: 9px 10px;
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 12px 14px;
-  border-radius: var(--radius-md);
-  text-decoration: none;
-  color: var(--text-muted);
-  font-weight: 500;
-  font-size: 0.95rem;
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  gap: 11px;
   border: 1px solid transparent;
+  border-radius: 11px;
+  color: var(--text-muted);
+  text-decoration: none;
+  font-size: .87rem;
+  font-weight: 680;
+  transition: color .16s ease, background-color .16s ease, border-color .16s ease;
 }
 
 .nav-item .ico {
-  font-size: 1.2rem;
   width: 24px;
-  text-align: center;
-  transition: transform 0.2s;
+  flex: 0 0 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: currentColor;
+  font-size: .95rem;
+  font-weight: 800;
 }
 
-/* Hover State */
 .nav-item:hover {
-  background: var(--bg-surface);
   color: var(--text-main);
-  transform: translateX(4px); /* Hiệu ứng trượt nhẹ */
+  background: var(--surface-1);
 }
 
-/* Active State - Soft & Techy */
 .nav-item.active {
-  background: var(--primary-glow);
   color: var(--primary);
-  font-weight: 600;
-  border-color: rgba(99, 102, 241, 0.2);
-}
-
-.nav-item.active .ico {
-  transform: scale(1.1);
+  border-color: color-mix(in srgb, var(--primary) 15%, var(--border));
+  background: var(--primary-glow);
 }
 
 .nav-divider {
   height: 1px;
-  background: linear-gradient(to right, transparent, var(--border), transparent);
-  margin: 12px 0;
+  margin: 10px 6px;
+  background: var(--border);
 }
 
 .side-foot {
   margin-top: auto;
-  padding-top: 16px;
+  padding: 14px 4px 0;
   border-top: 1px solid var(--border);
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-/* --- Main Area & Topbar --- */
-
-
-.admin-topbar {
-  position: sticky;
-  top: 0;
-  z-index: 40;
-  height: 64px;
-  padding: 0 32px;
-  display: flex;
   align-items: center;
   justify-content: space-between;
-  backdrop-filter: blur(12px);
-  border-bottom: 1px solid var(--border);
+  gap: 10px;
 }
 
-.crumb .muted {
-  font-size: 0.9rem;
+.side-foot-copy {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.side-foot-copy span {
   color: var(--text-muted);
-  font-weight: 500;
+  font-size: .68rem;
+  font-weight: 800;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+}
+
+.side-foot-copy small {
+  color: var(--text-main);
+  font-size: .77rem;
+  font-weight: 700;
 }
 
 .admin-main {
-  
   min-width: 0;
   display: flex;
   flex-direction: column;
   background: var(--bg-main);
   color: var(--text-main);
 }
-.admin-content {
-  border-radius: 16px;
-  padding: 32px;
-  width: 100%;
-  max-width: 1400px;
-  margin: 0 auto;
-  animation: fadeIn 0.5s ease-out;
+
+.admin-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  min-height: 64px;
+  padding: 0 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  background: color-mix(in srgb, var(--bg-glass) 94%, transparent);
+  border-bottom: 1px solid var(--border);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
 }
 
-
-/* --- Collapsed State (Desktop) --- */
-.admin-shell.sidebar-collapsed {
-  grid-template-columns: 80px 1fr;
-}
-.sidebar-collapsed .side-head {
-  justify-content: center;
-}
-.sidebar-collapsed .brand span,
-.sidebar-collapsed .nav-item .txt { 
-  display: none; 
+.topbar-context {
+  display: grid;
+  gap: 1px;
 }
 
-.sidebar-collapsed .brand { 
-  justify-content: center; 
-  font-size: 0; /* Ẩn text */
+.topbar-kicker {
+  color: var(--text-muted);
+  font-size: .66rem;
+  font-weight: 850;
+  letter-spacing: .09em;
+  text-transform: uppercase;
 }
-.sidebar-collapsed .brand::after {
-  content: "AP"; /* Viết tắt Admin Panel */
-  font-size: 1.25rem;
+
+.topbar-context strong {
+  color: var(--text-main);
+  font-size: .9rem;
+  font-weight: 780;
+}
+
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.topbar-link {
+  padding: 8px 11px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--text-main);
+  background: var(--card);
+  text-decoration: none;
+  font-size: .8rem;
+  font-weight: 720;
+}
+
+.topbar-link:hover {
+  border-color: color-mix(in srgb, var(--primary) 24%, var(--border));
   color: var(--primary);
+}
+
+.admin-content {
+  width: min(100%, 1520px);
+  margin: 0 auto;
+  padding: 28px;
+  animation: adminContentIn .22s ease-out;
+}
+
+.admin-mobile-theme-btn {
+  display: none;
+}
+
+.admin-shell.sidebar-collapsed {
+  grid-template-columns: 76px minmax(0, 1fr);
+}
+
+.sidebar-collapsed .brand-copy,
+.sidebar-collapsed .nav-item .txt,
+.sidebar-collapsed .side-foot-copy {
+  display: none;
+}
+
+.sidebar-collapsed .side-head,
+.sidebar-collapsed .side-foot {
+  justify-content: center;
 }
 
 .sidebar-collapsed .nav-item {
   justify-content: center;
-  padding: 12px 0;
+  padding-inline: 0;
 }
 
-.sidebar-collapsed .nav-item:hover {
-  transform: none; /* Tắt trượt khi đóng */
-  background: var(--primary-glow);
-}
-
-/* --- Responsive (Mobile Floating Dock) --- */
 @media (max-width: 900px) {
-  .admin-shell {
+  .admin-shell,
+  .admin-shell.sidebar-collapsed {
     grid-template-columns: 1fr;
-    padding-bottom: calc(var(--nav-height-mobile) + env(safe-area-inset-bottom)); /* Chừa chỗ cho menu dưới */
+    padding-bottom: calc(var(--nav-height-mobile) + env(safe-area-inset-bottom));
   }
 
-  /* Sidebar biến thành Floating Dock */
   .admin-sidebar {
     position: fixed;
-    inset: auto 16px calc(16px + env(safe-area-inset-bottom)) 16px; /* Cách đáy + safe-area */
+    inset: auto 12px calc(10px + env(safe-area-inset-bottom)) 12px;
     top: auto;
     height: auto;
+    padding: 7px;
     flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-    background: rgba(var(--bg-surface), 0.9); /* Nền đặc hơn chút */
-    background: color-mix(in srgb, var(--bg-surface), transparent 5%);
     border: 1px solid var(--border);
-    border-radius: 24px; /* Bo tròn như viên thuốc */
-    box-shadow: 0 10px 40px -10px rgba(0,0,0,0.2); /* Shadow sâu làm nổi bật */
-    padding: 8px 16px;
-    z-index: 100;
+    border-radius: 17px;
+    box-shadow: var(--shadow);
+    background: color-mix(in srgb, var(--card) 94%, transparent);
+    backdrop-filter: blur(16px);
   }
 
-  /* Ẩn các phần không cần thiết ở Mobile */
-  .side-head, .side-foot, .nav-divider {
-    display: none; 
+  .side-head,
+  .side-foot,
+  .nav-divider {
+    display: none;
   }
 
   .nav {
-    flex-direction: row;
     width: 100%;
-    justify-content: space-around;
+    flex-direction: row;
+    gap: 3px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .nav::-webkit-scrollbar {
+    display: none;
   }
 
   .nav-item {
+    min-width: 66px;
+    min-height: 54px;
+    padding: 7px 8px;
+    flex: 1 0 66px;
     flex-direction: column;
-    gap: 4px;
-    padding: 8px;
+    justify-content: center;
+    gap: 3px;
     border-radius: 12px;
-    min-width: 60px;
+    font-size: .65rem;
   }
 
-  .nav-item .ico { font-size: 1.4rem; }
-  .nav-item .txt { font-size: 0.7rem; font-weight: 600; }
-  
-  .nav-item:hover { transform: translateY(-4px); } /* Nảy lên khi chạm */
-  
-  .admin-topbar { padding: 0 16px; }
-  .admin-content { padding: 16px; }
-}
+  .nav-item .ico {
+    height: 20px;
+    font-size: .9rem;
+  }
 
+  .admin-mobile-theme-btn {
+    display: inline-flex;
+  }
 
-@media (max-width: 480px) {
+  .admin-content {
+    padding: 20px 16px;
+  }
+
   .admin-topbar {
-    height: 56px;
-  }
-
-  .admin-sidebar {
-    border-radius: 20px;
-    padding: 8px 12px;
-  }
-
-  .nav-item {
-    min-width: 56px;
+    padding: 0 16px;
   }
 }
 
-/* Animation nhẹ */
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
+@media (max-width: 520px) {
+  .admin-content {
+    padding: 18px 12px;
+  }
+
+  .topbar-link {
+    display: none;
+  }
+}
+
+@keyframes adminContentIn {
+  from { opacity: 0; transform: translateY(4px); }
   to { opacity: 1; transform: translateY(0); }
 }

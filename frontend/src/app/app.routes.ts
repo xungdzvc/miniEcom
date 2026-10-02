@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { ErrorPageComponent } from './shared/error-page/error-page.component';
+import { adminGuard } from './core/guards/admin.guard';
 
 export const routes: Routes = [
   { path: 'error/:code', component: ErrorPageComponent },
@@ -41,8 +42,9 @@ export const routes: Routes = [
   // Admin site
   {
     path: 'admin',
+    canActivate: [adminGuard],
     loadChildren: () => import('./features/admin/admin.routes').then(m => m.ADMIN_ROUTES),
   },
 
-  // { path: '**', redirectTo: 'login' },   
+  { path: '**', redirectTo: 'error/404' },
 ];

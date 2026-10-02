@@ -330,3 +330,11 @@
   transform:none;
   box-shadow:none;
 }
+
+
+/* Download file upload */
+.download-upload{ display:flex; flex-direction:column; gap:10px; }
+.download-current{ display:flex; align-items:center; justify-content:space-between; gap:12px; padding:10px 12px; border:1px solid var(--border); border-radius:12px; background:var(--surface-1); }
+.download-current span{ min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-weight:800; }
+.download-clear{ border:0; background:transparent; color:var(--danger); cursor:pointer; font-weight:800; }
+.download-help{ color:var(--muted); line-height:1.5; }

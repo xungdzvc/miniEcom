@@ -1,52 +1,86 @@
 <div class="admin-container">
-
   <app-admin-page-header
-    title="🏷️ Quản lý Danh mục"
-    subtitle="Thêm, sửa và quản lý các danh mục sản phẩm"
+    title="🏷️ Quản lý danh mục"
+    subtitle="Tổ chức nhóm sản phẩm và theo dõi số lượng sản phẩm trong từng danh mục."
   >
-    <button class="admin-btn admin-btn-secondary" (click)="reload()">🔄 Tải lại</button>
-    <button class="admin-btn admin-btn-primary" (click)="addCategoryClick()">➕ Thêm Danh Mục</button>
+    <button type="button" class="admin-btn admin-btn-secondary" (click)="reload()">↻ Tải lại</button>
+    <button type="button" class="admin-btn admin-btn-primary" (click)="addCategoryClick()">＋ Thêm danh mục</button>
   </app-admin-page-header>
 
   <div class="admin-card" *ngIf="isLoading">
-    <div class="admin-card-body">
+    <div class="admin-loading">
       <div class="spinner"></div>
       <p>Đang tải danh sách danh mục...</p>
     </div>
   </div>
 
   <div class="admin-card" *ngIf="!isLoading && categories.length === 0">
-    <div class="admin-card-body">
-      <div class="admin-alert admin-alert-info">Chưa có danh mục nào.</div>
-      <button class="admin-btn admin-btn-primary" (click)="addCategoryClick()">+ Thêm Danh Mục</button>
+    <div class="admin-empty">
+      <span class="admin-empty-icon">◇</span>
+      <h3>Chưa có danh mục</h3>
+      <p>Tạo danh mục để nhóm sản phẩm rõ ràng hơn.</p>
+      <button type="button" class="admin-btn admin-btn-primary" (click)="addCategoryClick()">＋ Thêm danh mục</button>
     </div>
   </div>
 
-  <div class="admin-card" *ngIf="!isLoading && categories.length > 0">
+  <section class="admin-card admin-fade-in" *ngIf="!isLoading && categories.length > 0">
+    <div class="admin-list-meta">
+      <div class="admin-list-meta-copy">
+        <span class="admin-list-kicker">Danh sách</span>
+        <span class="admin-list-count">{{ categories.length }} danh mục trên trang</span>
+      </div>
+      <span class="admin-list-page">Trang {{ page }} / {{ totalPages }}</span>
+    </div>
+
     <app-admin-table>
       <thead>
         <tr>
-          <th>ID</th>
-          <th>Tên danh mục</th>
+          <th>Danh mục</th>
+          <th>Cấp danh mục</th>
           <th>Số sản phẩm</th>
-          <th>Ngày tạo</th>
-          <th>Ngày cập nhật</th>
+          <th>Tạo / cập nhật</th>
           <th class="actions">Thao tác</th>
         </tr>
       </thead>
 
       <tbody>
         <tr *ngFor="let category of categories; trackBy: trackById">
-          <td>{{ category.id }}</td>
-          <td>{{ category.name }}</td>
-          <td>
-            <span class="admin-badge">{{ category.quantity}}</span>
+          <td data-label="Danh mục">
+            <div class="admin-entity">
+              <div class="admin-avatar">{{ categoryInitial(category) }}</div>
+              <div class="admin-entity-main">
+                <span class="admin-entity-title">{{ category.name || 'Chưa đặt tên' }}</span>
+                <div class="admin-entity-meta">#{{ category.id }}</div>
+              </div>
+            </div>
           </td>
-          <td>{{ category.createdAt | date:'HH:mm:ss dd/MM/yyyy' }}</td>
-          <td>{{ category.updatedAt | date:'HH:mm:ss dd/MM/yyyy' }}</td>
-          <td class="actions">
-            <button class="admin-btn admin-btn-secondary" (click)="editCategory(category)">Sửa</button>
-            <button class="admin-btn admin-btn-danger" (click)="deleteCategory(category)">Xóa</button>
+
+          <td data-label="Cấp danh mục">
+            <div class="category-level-cell">
+              <span class="category-level-badge" [class.is-child]="isChildCategory(category)">
+                {{ isChildCategory(category) ? 'Cấp 2' : 'Cấp 1' }}
+              </span>
+              <small *ngIf="isChildCategory(category)">Cha: {{ category.parentName || ('#' + category.parentId) }}</small>
+              <small *ngIf="!isChildCategory(category)">Danh mục gốc</small>
+            </div>
+          </td>
+
+          <td data-label="Số sản phẩm">
+            <span class="admin-quantity-pill">{{ categoryQuantity(category) }}</span>
+          </td>
+
+          <td data-label="Tạo / cập nhật">
+            <div class="admin-date-stack">
+              <span><small>Tạo</small>{{ category.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
+              <span><small>Sửa</small>{{ category.updatedAt | date:'dd/MM/yyyy HH:mm' }}</span>
+            </div>
+          </td>
+
+          <td class="actions" data-label="Thao tác">
+            <div class="admin-row-actions">
+              <button type="button" class="admin-btn admin-btn-secondary admin-btn-sm" (click)="editCategory(category)">✎ Sửa</button>
+              <button type="button" class="admin-btn admin-btn-danger admin-btn-sm" (click)="deleteCategory(category)">⌫ Xóa</button>
+            </div>
           </td>
         </tr>
       </tbody>
@@ -56,28 +90,14 @@
       <div class="admin-pagination-meta">
         <span class="admin-pagination-label">Điều hướng</span>
         <div class="admin-pagination-pill">
-          <span class="page-info">
-            Trang <span class="page-current">{{ page }}</span> / <span class="page-total">{{ totalPages }}</span>
-          </span>
+          <span class="page-info">Trang <span class="page-current">{{ page }}</span> / <span class="page-total">{{ totalPages }}</span></span>
         </div>
       </div>
 
       <div class="admin-pagination-actions">
-        <button
-          class="admin-btn admin-btn-secondary admin-page-btn"
-          (click)="prevPage()"
-          [disabled]="page === 1">
-          ← Trước
-        </button>
-
-        <button
-          class="admin-btn admin-btn-secondary admin-page-btn"
-          (click)="nextPage()"
-          [disabled]="page === totalPages">
-          Sau →
-        </button>
+        <button type="button" class="admin-btn admin-btn-secondary admin-page-btn" (click)="prevPage()" [disabled]="page === 1">← Trước</button>
+        <button type="button" class="admin-btn admin-btn-secondary admin-page-btn" (click)="nextPage()" [disabled]="page === totalPages">Sau →</button>
       </div>
     </div>
-  </div>
-
+  </section>
 </div>

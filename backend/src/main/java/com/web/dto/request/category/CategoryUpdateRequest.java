@@ -5,8 +5,7 @@ import lombok.Getter;
 
 @Getter
 public class CategoryUpdateRequest {
-    private Long parentId;
-
+    private Long parentId;  
     @NotBlank(message="Tên Danh mục không thể để trống")
     private String name;
 }

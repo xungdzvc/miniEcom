@@ -180,23 +180,28 @@ export class ProfileComponent  implements  OnInit {
       this.notifiService.info("Tài khoản đã được liên kết với Google");
       return;
     }
-    localStorage.setItem('google_auth_action', 'LINK');
+    sessionStorage.setItem('google_auth_action', 'LINK');
     this.redirectToGoogle();
     
   }
   private redirectToGoogle(): void {
     const redirectUri = `${window.location.origin}/auth/google-callback`;
+    const state = crypto.randomUUID();
+    const nonce = crypto.randomUUID();
+
+    sessionStorage.setItem('google_oauth_state', state);
+
     const params = new URLSearchParams({
       client_id: environment.googleClientId,
       redirect_uri: redirectUri,
-      response_type: 'id_token', // Hoặc 'code' tùy luồng bạn dùng
+      response_type: 'id_token',
       scope: 'openid email profile',
-      nonce: Math.random().toString(36).substring(2),
-      state: Math.random().toString(36).substring(2)
+      nonce,
+      state
     });
-    
+
     window.location.href = `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`;
-}
+  }
   loadProfile(){
     this.auth.refreshUser().subscribe();
   }

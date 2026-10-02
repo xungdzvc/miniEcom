@@ -2,9 +2,11 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { switchMap, of } from 'rxjs';
+import { forkJoin, of } from 'rxjs';
+import { finalize, switchMap } from 'rxjs/operators';
 
 import { CategoryService } from '../../../../../shared/data-access/category.service';
+import { Category } from '../../../../../shared/models/cartegory.model';
 import { NotificationService } from '../../../../../core/services/notification.service';
 
 import { FormLayoutComponent } from '../../../shared/form/form-layout/form-layout.component';
@@ -29,9 +31,8 @@ export class CategoryFormComponent implements OnInit {
 
   isEdit = false;
   categoryId: number | null = null;
-
-  // để show UI loading nếu muốn
   isLoading = false;
+  rootCategories: Category[] = [];
 
   constructor(
     private fb: FormBuilder,
@@ -44,35 +45,47 @@ export class CategoryFormComponent implements OnInit {
   ngOnInit(): void {
     this.form = this.fb.group({
       name: ['', Validators.required],
+      parentId: [null],
     });
 
-    // Nếu có :id -> edit, không có -> add
     this.route.paramMap
       .pipe(
         switchMap((params) => {
           const idParam = params.get('id');
           this.isEdit = !!idParam;
           this.categoryId = idParam ? Number(idParam) : null;
-
-          if (!this.isEdit) return of(null);
-
           this.isLoading = true;
-          return this.categoryService.getCategoryById(this.categoryId!);
+
+          const roots$ = this.categoryService.getCategoriesForLayout();
+
+          if (!this.isEdit || !this.categoryId) {
+            return forkJoin({ roots: roots$, category: of(null) });
+          }
+
+          return forkJoin({
+            roots: roots$,
+            category: this.categoryService.getCategoryById(this.categoryId),
+          });
         })
       )
       .subscribe({
-        next: (data: any) => {
+        next: ({ roots, category }: any) => {
           this.isLoading = false;
-          if (!data) return;
+          const rootsPayload = roots?.data ?? roots;
+          const allCategories: Category[] = Array.isArray(rootsPayload) ? rootsPayload : [];
 
-          // tùy API bạn trả về data hay trực tiếp category
-          const category = data?.data ?? data;
+          // Chỉ danh mục cấp 1 mới có thể làm cha. Backend cũng kiểm tra tối đa 2 cấp.
+          this.rootCategories = allCategories.filter((item) =>
+            item?.id !== this.categoryId && (item?.parentId == null)
+          );
 
+          if (!category) return;
+
+          const data = category?.data ?? category;
           this.form.patchValue({
-            name: category.name,
+            name: data?.name ?? '',
+            parentId: data?.parentId ?? null,
           });
-
-          // reset pristine để nút lưu không active ngay từ đầu (nếu bạn dùng dirty)
           this.form.markAsPristine();
         },
         error: () => {
@@ -83,17 +96,26 @@ export class CategoryFormComponent implements OnInit {
       });
   }
 
-  cancel() {
+
+  trackByCategoryId(_index: number, category: Category): number {
+    return category.id;
+  }
+
+  cancel(): void {
     this.router.navigate(['/admin/categories']);
   }
 
-  submit() {
+  submit(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       return;
     }
 
-    const payload = { name: this.form.value.name };
+    const parentValue = this.form.value.parentId;
+    const payload = {
+      name: String(this.form.value.name ?? '').trim(),
+      parentId: parentValue === '' || parentValue == null ? null : Number(parentValue),
+    };
 
     this.isLoading = true;
 
@@ -101,23 +123,13 @@ export class CategoryFormComponent implements OnInit {
       ? this.categoryService.updateCategory(this.categoryId!, payload)
       : this.categoryService.addCategory(payload);
 
-    req$.subscribe({
+    req$.pipe(finalize(() => (this.isLoading = false))).subscribe({
       next: () => {
-        this.isLoading = false;
-
-        if (this.isEdit) {
-          this.notify.success('Cập nhật danh mục thành công!');
-          this.form.markAsPristine();
-          // hoặc quay về list
-          this.router.navigate(['/admin/categories']);
-        } else {
-          this.notify.success('Thêm danh mục thành công!');
-          this.form.reset();
-        }
+        this.notify.success(this.isEdit ? 'Cập nhật danh mục thành công!' : 'Thêm danh mục thành công!');
+        this.router.navigate(['/admin/categories']);
       },
-      error: () => {
-        this.isLoading = false;
-        this.notify.error(this.isEdit ? 'Lỗi khi cập nhật!' : 'Lỗi khi thêm!');
+      error: (err) => {
+        this.notify.error(err?.error?.message ?? (this.isEdit ? 'Lỗi khi cập nhật!' : 'Lỗi khi thêm!'));
       },
     });
   }

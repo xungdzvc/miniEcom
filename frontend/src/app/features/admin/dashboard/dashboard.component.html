@@ -1,57 +1,73 @@
-<div class="admin-shell" [class.sidebar-collapsed]="!sidebarOpen">
+<div class="admin-shell" [attr.data-theme]="theme" [class.sidebar-collapsed]="!sidebarOpen">
   <aside class="admin-sidebar">
     <div class="side-head">
-      <a class="brand" routerLink="/admin/dashboard">Admin<span>Panel</span></a>
+      <a class="brand" routerLink="/admin/dashboard" aria-label="Admin Panel">
+        <span class="brand-mark">M</span>
+        <span class="brand-copy">MiniEcom <b>Admin</b></span>
+      </a>
 
-      <button class="icon-btn" type="button" (click)="toggleSidebar()" title="Thu gọn / Mở">
-        {{ sidebarOpen ? '«' : '»' }}
+      <button class="icon-btn sidebar-toggle" type="button" (click)="toggleSidebar()" title="Thu gọn / Mở sidebar">
+        {{ sidebarOpen ? '‹' : '›' }}
       </button>
     </div>
 
-    <nav class="nav">
+    <nav class="nav" aria-label="Điều hướng quản trị">
       <a class="nav-item" routerLink="/admin/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}">
-        <span class="ico">🏠</span>
+        <span class="ico">⌂</span>
         <span class="txt">Tổng quan</span>
       </a>
       <a class="nav-item" routerLink="/admin/products" routerLinkActive="active">
-        <span class="ico">📦</span>
+        <span class="ico">▣</span>
         <span class="txt">Sản phẩm</span>
       </a>
       <a class="nav-item" routerLink="/admin/categories" routerLinkActive="active">
-        <span class="ico">🗂</span>
+        <span class="ico">◇</span>
         <span class="txt">Danh mục</span>
       </a>
       <a class="nav-item" routerLink="/admin/users" routerLinkActive="active">
-        <span class="ico">👤</span>
+        <span class="ico">♙</span>
         <span class="txt">Người dùng</span>
       </a>
       <a class="nav-item" routerLink="/admin/coupons" routerLinkActive="active">
-        <span class="ico">🎟</span>
+        <span class="ico">%</span>
         <span class="txt">Mã giảm giá</span>
       </a>
 
       <div class="nav-divider"></div>
 
       <a class="nav-item" routerLink="/" title="Về trang người dùng">
-        <span class="ico">↩</span>
+        <span class="ico">↗</span>
         <span class="txt">Về website</span>
       </a>
     </nav>
 
     <div class="side-foot">
-      <button class="icon-btn" type="button" (click)="toggleTheme()" [title]="theme === 'light' ? 'Dark mode' : 'Light mode'">
-        {{ theme === 'light' ? '🌙' : '☀️' }}
+      <div class="side-foot-copy" *ngIf="sidebarOpen">
+        <span>Giao diện</span>
+        <small>{{ theme === 'light' ? 'Sáng' : 'Tối' }}</small>
+      </div>
+      <button class="icon-btn theme-btn" type="button" (click)="toggleTheme()" [title]="theme === 'light' ? 'Bật nền tối' : 'Bật nền sáng'">
+        {{ theme === 'light' ? '☾' : '☀' }}
       </button>
     </div>
   </aside>
 
   <div class="admin-main">
     <header class="admin-topbar">
-      <div class="crumb">
-        <span class="muted">Quản trị</span>
+      <div class="topbar-context">
+        <span class="topbar-kicker">MiniEcom</span>
+        <strong>Quản trị</strong>
       </div>
-      <div class="actions">
-        <a class="btn btn-ghost btn-sm" routerLink="/admin/dashboard">Dashboard</a>
+
+      <div class="topbar-actions">
+        <button
+          class="icon-btn admin-mobile-theme-btn"
+          type="button"
+          (click)="toggleTheme()"
+          [title]="theme === 'light' ? 'Bật nền tối' : 'Bật nền sáng'">
+          {{ theme === 'light' ? '☾' : '☀' }}
+        </button>
+        <a class="topbar-link" routerLink="/">Xem website ↗</a>
       </div>
     </header>
 

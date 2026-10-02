@@ -116,6 +116,7 @@ public class UserEntity extends BaseEntity{
         this.initDefaultUser();
     }
     public void initDefaultUser(){
+        this.cart = new CartEntity();
         this.totalDeposit = BigDecimal.ZERO;
         this.currentBalance = BigDecimal.ZERO;
         this.isActive = true;

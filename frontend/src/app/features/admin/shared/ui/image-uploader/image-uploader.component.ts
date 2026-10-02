@@ -1,4 +1,6 @@
 import { CommonModule } from '@angular/common';
+import { ImageFallbackDirective } from '../../../../../shared/directives/image-fallback.directive';
+import { resolveFileUrl } from '../../../../../shared/utils/file-url.util';
 import { Component, EventEmitter, Input, Output, OnDestroy } from '@angular/core';
 
 type NewImageItem = { file: File; previewUrl: string };
@@ -6,7 +8,7 @@ type NewImageItem = { file: File; previewUrl: string };
 @Component({
   selector: 'app-image-uploader',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, ImageFallbackDirective],
   templateUrl: './image-uploader.component.html',
   styleUrls: ['./image-uploader.component.css']
 })
@@ -17,7 +19,6 @@ export class ImageUploaderComponent implements OnDestroy {
   @Input() accept = 'image/*';
   @Input() helper = '';
   @Input() existing: string[] = [];
-  @Input() baseUrl = '';
 
   @Output() existingChange = new EventEmitter<string[]>();
   @Output() filesChange = new EventEmitter<File[]>();
@@ -26,9 +27,7 @@ export class ImageUploaderComponent implements OnDestroy {
   isDragging = false;
 
   toPreviewUrl(value: string): string {
-    if (!value) return '';
-    if (/^https?:\/\//i.test(value) || value.startsWith('data:')) return value;
-    return `${this.baseUrl}${value}`;
+    return resolveFileUrl(value);
   }
 
   onDragOver(e: DragEvent): void {

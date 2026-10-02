@@ -1,0 +1,365 @@
+/* --- Layout Grid --- */
+/* --- 1. CẤU HÌNH MÀU SẮC (THEME) --- */
+:root {
+  /* Màu chủ đạo */
+  --primary: #6366f1; 
+  
+  /* --- CẤU HÌNH LIGHT THEME (Nhưng Sidebar màu Tím Đậm) --- */
+  --bg-body: #f3f4f6; /* Nền nội dung chính vẫn sáng */
+  
+  /* 🔥 QUAN TRỌNG: Đổi nền Sidebar sang Tím Đậm (Deep Indigo/Purple) */
+  /* Mã màu RGB của tím đậm là 15, 23, 42 hoặc 30, 27, 75 */
+  --sidebar-bg: rgba(30, 27, 75, 0.85); 
+  --sidebar-border: rgba(255, 255, 255, 0.1); /* Viền sáng nhẹ */
+  
+  /* Vì nền tối nên chữ Sidebar phải sáng */
+  --sidebar-text: #e0e7ff; 
+  --sidebar-text-muted: #a5b4fc; 
+  --sidebar-active-bg: rgba(99, 102, 241, 0.2); /* Màu nền khi active item */
+
+  /* Header trên cùng vẫn giữ màu kính sáng cho sạch sẽ */
+  --header-bg: rgba(255, 255, 255, 0.8); 
+  --header-text: #1f2937;
+  
+  --shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+}
+
+/* --- DARK THEME (Giữ nguyên hoặc chỉnh tối hơn) --- */
+[data-theme="dark"] {
+  --bg-body: #0f172a;
+  --sidebar-bg: rgba(15, 23, 42, 0.85); /* Tối hẳn */
+  --header-bg: rgba(15, 23, 42, 0.8);
+  --header-text: #f3f4f6;
+  --sidebar-text: #f3f4f6;
+  --sidebar-text-muted: #94a3b8;
+}
+
+/* --- 2. CẬP NHẬT CLASS SIDEBAR --- */
+.glass-sidebar {
+  /* ... giữ các thuộc tính layout cũ ... */
+  width: var(--sidebar-w);
+  height: 100vh;
+  position: sticky;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+
+  /* ÁP DỤNG MÀU MỚI */
+  background: var(--sidebar-bg); /* Dùng biến màu tím mới */
+  border-right: 1px solid var(--sidebar-border);
+  color: var(--sidebar-text); /* Chữ màu sáng */
+  
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: var(--shadow);
+  z-index: 50;
+  transition: all 0.3s ease;
+}
+
+/* --- 3. CẬP NHẬT ITEM TRONG SIDEBAR (Để chữ sáng lên) --- */
+.nav-item {
+  /* ... */
+  color: var(--sidebar-text-muted); /* Màu chữ mờ sáng */
+}
+
+.nav-item:hover {
+  background: rgba(255, 255, 255, 0.1); /* Hover sáng nhẹ */
+  color: #fff;
+}
+
+.nav-item.active {
+  background: var(--primary); /* Hoặc var(--sidebar-active-bg) */
+  color: white;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3); /* Shadow đậm hơn vì nền tối */
+}
+
+.app-name {
+  color: #fff; /* Tên app luôn trắng */
+}
+
+/* --- 4. GIỮ HEADER TRÊN CÙNG MÀU SÁNG (Cho tương phản đẹp) --- */
+.glass-header {
+  /* ... */
+  background: var(--header-bg);
+  color: var(--header-text);
+  border-bottom: 1px solid rgba(0,0,0,0.05);
+}
+
+.admin-shell {
+  display: grid;
+  grid-template-columns: 260px 1fr; /* Sidebar nhỏ hơn chút cho tinh tế */
+  min-height: 100vh;
+  transition: grid-template-columns 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+/* --- Sidebar Styling --- */
+.admin-sidebar {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  padding: 20px 16px;
+  z-index: 50;
+  transition: all 0.3s ease;
+}
+
+/* Header của Sidebar */
+.side-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  padding: 0 8px;
+}
+
+.brand {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--text-main);
+  text-decoration: none;
+  letter-spacing: -0.5px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.brand span {
+  color: var(--primary);
+  background: linear-gradient(135deg, var(--primary), #a78bfa);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Nút toggle Sidebar/Theme */
+.icon-btn {
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 8px;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon-btn:hover {
+  background: var(--bg-surface);
+  color: var(--primary);
+  box-shadow: var(--shadow-sm);
+}
+
+/* --- Navigation --- */
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  text-decoration: none;
+  color: var(--text-muted);
+  font-weight: 500;
+  font-size: 0.95rem;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid transparent;
+}
+
+.nav-item .ico {
+  font-size: 1.2rem;
+  width: 24px;
+  text-align: center;
+  transition: transform 0.2s;
+}
+
+/* Hover State */
+.nav-item:hover {
+  background: var(--bg-surface);
+  color: var(--text-main);
+  transform: translateX(4px); /* Hiệu ứng trượt nhẹ */
+}
+
+/* Active State - Soft & Techy */
+.nav-item.active {
+  background: var(--primary-glow);
+  color: var(--primary);
+  font-weight: 600;
+  border-color: rgba(99, 102, 241, 0.2);
+}
+
+.nav-item.active .ico {
+  transform: scale(1.1);
+}
+
+.nav-divider {
+  height: 1px;
+  background: linear-gradient(to right, transparent, var(--border), transparent);
+  margin: 12px 0;
+}
+
+.side-foot {
+  margin-top: auto;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* --- Main Area & Topbar --- */
+
+
+.admin-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  height: 64px;
+  padding: 0 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+
+.crumb .muted {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.admin-main {
+  
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-main);
+  color: var(--text-main);
+}
+.admin-content {
+  border-radius: 16px;
+  padding: 32px;
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  animation: fadeIn 0.5s ease-out;
+}
+
+
+/* --- Collapsed State (Desktop) --- */
+.admin-shell.sidebar-collapsed {
+  grid-template-columns: 80px 1fr;
+}
+.sidebar-collapsed .side-head {
+  justify-content: center;
+}
+.sidebar-collapsed .brand span,
+.sidebar-collapsed .nav-item .txt { 
+  display: none; 
+}
+
+.sidebar-collapsed .brand { 
+  justify-content: center; 
+  font-size: 0; /* Ẩn text */
+}
+.sidebar-collapsed .brand::after {
+  content: "AP"; /* Viết tắt Admin Panel */
+  font-size: 1.25rem;
+  color: var(--primary);
+}
+
+.sidebar-collapsed .nav-item {
+  justify-content: center;
+  padding: 12px 0;
+}
+
+.sidebar-collapsed .nav-item:hover {
+  transform: none; /* Tắt trượt khi đóng */
+  background: var(--primary-glow);
+}
+
+/* --- Responsive (Mobile Floating Dock) --- */
+@media (max-width: 900px) {
+  .admin-shell {
+    grid-template-columns: 1fr;
+    padding-bottom: calc(var(--nav-height-mobile) + env(safe-area-inset-bottom)); /* Chừa chỗ cho menu dưới */
+  }
+
+  /* Sidebar biến thành Floating Dock */
+  .admin-sidebar {
+    position: fixed;
+    inset: auto 16px calc(16px + env(safe-area-inset-bottom)) 16px; /* Cách đáy + safe-area */
+    top: auto;
+    height: auto;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(var(--bg-surface), 0.9); /* Nền đặc hơn chút */
+    background: color-mix(in srgb, var(--bg-surface), transparent 5%);
+    border: 1px solid var(--border);
+    border-radius: 24px; /* Bo tròn như viên thuốc */
+    box-shadow: 0 10px 40px -10px rgba(0,0,0,0.2); /* Shadow sâu làm nổi bật */
+    padding: 8px 16px;
+    z-index: 100;
+  }
+
+  /* Ẩn các phần không cần thiết ở Mobile */
+  .side-head, .side-foot, .nav-divider {
+    display: none; 
+  }
+
+  .nav {
+    flex-direction: row;
+    width: 100%;
+    justify-content: space-around;
+  }
+
+  .nav-item {
+    flex-direction: column;
+    gap: 4px;
+    padding: 8px;
+    border-radius: 12px;
+    min-width: 60px;
+  }
+
+  .nav-item .ico { font-size: 1.4rem; }
+  .nav-item .txt { font-size: 0.7rem; font-weight: 600; }
+  
+  .nav-item:hover { transform: translateY(-4px); } /* Nảy lên khi chạm */
+  
+  .admin-topbar { padding: 0 16px; }
+  .admin-content { padding: 16px; }
+}
+
+
+@media (max-width: 480px) {
+  .admin-topbar {
+    height: 56px;
+  }
+
+  .admin-sidebar {
+    border-radius: 20px;
+    padding: 8px 12px;
+  }
+
+  .nav-item {
+    min-width: 56px;
+  }
+}
+
+/* Animation nhẹ */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}

@@ -1,7 +1,9 @@
 export interface Category {
   id: number;
   name: string;
-  quantity: number;
-  createdAt: Date;
-  updatedAt: Date;
+  quantity?: number;
+  parentId?: number | null;
+  parentName?: string | null;
+  createdAt?: string | Date | null;
+  updatedAt?: string | Date | null;
 }

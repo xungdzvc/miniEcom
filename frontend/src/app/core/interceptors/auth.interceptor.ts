@@ -1,67 +1,75 @@
 import { HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
-import { catchError, switchMap, throwError } from 'rxjs';
-import { AuthService } from '../services/auth.service';
 import { Router } from '@angular/router';
+import { Observable, catchError, finalize, shareReplay, switchMap, throwError } from 'rxjs';
+import { AuthService } from '../services/auth.service';
+
+let refreshInFlight$: Observable<any> | null = null;
+
+function isEndpoint(url: string, suffix: string): boolean {
+  return url.includes(`/api/auth/${suffix}`);
+}
 
 export const AuthInterceptor: HttpInterceptorFn = (req, next) => {
-
   const auth = inject(AuthService);
-  const router = inject(Router); // ✅ inject đúng cách
+  const router = inject(Router);
 
-  const isAuthEndpoint =
-    req.url.includes('/api/auth/refresh-token') ||
-    req.url.includes('/api/auth/login') ||
-    req.url.includes('/api/auth/register');
-
-  // Các endpoint auth cần cookie
-  if (isAuthEndpoint) {
-    return next(req.clone({ withCredentials: true }));
-  }
+  const isRefresh = isEndpoint(req.url, 'refresh-token');
+  const skipBearer = [
+    'login',
+    'register',
+    'refresh-token',
+    'google-login',
+    'logout',
+    'forgot-password'
+  ].some(path => isEndpoint(req.url, path));
 
   const token = auth.getAccessToken();
+  const request = req.clone({
+    withCredentials: skipBearer || req.withCredentials,
+    setHeaders: !skipBearer && token
+      ? { Authorization: `Bearer ${token}` }
+      : {}
+  });
 
-  const authReq = token
-    ? req.clone({ setHeaders: { Authorization: `Bearer ${token}` } })
-    : req;
-
-  return next(authReq).pipe(
+  return next(request).pipe(
     catchError(error => {
-
-      // ✅ 403 → redirect error page
       if (error.status === 403) {
         router.navigate(['/error', 403]);
         return throwError(() => error);
       }
 
-      
-      // ✅ chỉ refresh token khi 401
-      if (error.status !== 401) {
+      if (error.status !== 401 || skipBearer || isRefresh) {
         return throwError(() => error);
       }
 
-      // 🔁 refresh token
-      return auth.refreshToken().pipe(
-        switchMap((res: any) => {
-          const accessToken = res.accessToken;
+      if (!refreshInFlight$) {
+        refreshInFlight$ = auth.refreshToken().pipe(
+          shareReplay({ bufferSize: 1, refCount: false }),
+          finalize(() => {
+            refreshInFlight$ = null;
+          })
+        );
+      }
+
+      return refreshInFlight$.pipe(
+        switchMap(res => {
+          const accessToken = res?.accessToken;
+
           if (!accessToken) {
-            auth.logout().subscribe();
+            auth.clearLocalSession();
             router.navigate(['/login']);
             return throwError(() => error);
           }
 
-          return next(
-            req.clone({
-              setHeaders: {
-                Authorization: `Bearer ${accessToken}`
-              }
-            })
-          );
+          return next(req.clone({
+            setHeaders: { Authorization: `Bearer ${accessToken}` }
+          }));
         }),
-        catchError(refreshErr => {
-          auth.logout().subscribe();
+        catchError(refreshError => {
+          auth.clearLocalSession();
           router.navigate(['/login']);
-          return throwError(() => refreshErr);
+          return throwError(() => refreshError);
         })
       );
     })

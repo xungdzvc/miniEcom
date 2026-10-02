@@ -30,7 +30,7 @@
     <div class="cart-items-container">
       <article class="cart-item" *ngFor="let it of (cartItems?.cartItems ?? [])">
         <div class="item-media">
-          <img [src]="it.thumbnail ? (fileBaseUrl + it.thumbnail) : 'https://placehold.co/120x120'" alt="{{it.productName}}">
+          <img appImageFallback [src]="getFileUrl(it.thumbnail)" alt="{{it.productName}}">
         </div>
 
         <div class="item-content">

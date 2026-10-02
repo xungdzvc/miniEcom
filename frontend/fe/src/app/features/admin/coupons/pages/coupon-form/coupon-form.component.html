@@ -1,0 +1,65 @@
+<div class="admin-container">
+  <app-admin-page-header
+    [title]="isEditMode ? '✏️ Cập nhật Coupon' : '➕ Thêm Coupon'"
+    [subtitle]="isEditMode ? 'Chỉnh sửa thông tin mã giảm giá' : 'Tạo mới mã giảm giá'"
+  >
+    <div class="header-actions">
+      <button class="admin-btn admin-btn-secondary" (click)="goBack()">
+        ← Quay lại
+      </button>
+    </div>
+  </app-admin-page-header>
+
+  <div class="admin-card">
+    <div class="admin-card-body">
+      <div *ngIf="isLoading" class="admin-empty-state">
+        <div class="spinner"></div>
+        <p>Đang tải dữ liệu coupon...</p>
+      </div>
+
+      <form *ngIf="!isLoading" [formGroup]="form" (ngSubmit)="onSubmit()">
+        <div class="admin-grid admin-grid-2">
+          <div class="admin-form-group">
+            <label class="admin-form-label">Mã coupon</label>
+            <input
+              class="admin-form-control"
+              formControlName="couponCode"
+              placeholder="VD: XUNG"
+            />
+          </div>
+
+          <div class="admin-form-group">
+            <label class="admin-form-label">Phần trăm giảm giá</label>
+            <input
+              class="admin-form-control"
+              type="number"
+              formControlName="discount"
+              placeholder="VD: 10"
+            />
+          </div>
+
+          
+        </div>
+
+        <div class="admin-actions">
+          <button
+            type="submit"
+            class="admin-btn admin-btn-primary"
+            [disabled]="isSubmitting || form.invalid"
+          >
+            {{ isSubmitting ? 'Đang lưu...' : (isEditMode ? '💾 Cập nhật' : '➕ Tạo coupon') }}
+          </button>
+
+          <button
+            type="button"
+            class="admin-btn admin-btn-secondary"
+            (click)="goBack()"
+            [disabled]="isSubmitting"
+          >
+            Hủy
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

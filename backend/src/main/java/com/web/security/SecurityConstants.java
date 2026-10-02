@@ -30,7 +30,9 @@ public class SecurityConstants {
                 "/api/cart/coupon/**",
                 "/api/search",
                 "/api/callback",
-                "/api/categories"
+                "/api/categories",
+                "/api/files/**",
+                "/uploads/products/**"
             };
 
     public static final String[] ADMIN_URLS = {

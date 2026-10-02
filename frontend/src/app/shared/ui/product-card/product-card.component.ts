@@ -1,7 +1,8 @@
 import { Component, Input } from '@angular/core';
+import { ImageFallbackDirective } from '../../directives/image-fallback.directive';
 import { CommonModule } from '@angular/common';
 import { ProductViewerListDetail } from '../../models/core/product/product-viewer-list.model';
-import { environment } from '../../../../environments/environment';
+import { resolveFileUrl } from '../../utils/file-url.util';
 import { Router } from '@angular/router';
 import { ProductService } from '../../data-access/products/product.service';
 import { take } from 'rxjs/operators';
@@ -9,7 +10,7 @@ import { take } from 'rxjs/operators';
 @Component({
   selector: 'app-product-card',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, ImageFallbackDirective],
   templateUrl: './product-card.component.html',
   styleUrls: ['./product-card.component.css'],
 })
@@ -17,7 +18,7 @@ export class ProductCardComponent {
   @Input({ required: true }) product!: ProductViewerListDetail;
   @Input() ctaText: string = 'Xem chi tiết';
 
-  fileBaseUrl = environment.fileBaseUrl;
+  readonly getFileUrl = resolveFileUrl;
 
   constructor(private router: Router, private productService: ProductService) {}
 

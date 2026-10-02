@@ -48,14 +48,44 @@ export class ProductListComponent implements OnInit {
       .pipe(finalize(() => this.isLoading = false))
       .subscribe({
         next: res => {
-          this.products = res.content;
-          this.totalPages = res.totalPages;
+          // Hỗ trợ cả response phân trang trực tiếp và response bọc trong `data`.
+          // Quan trọng: không bao giờ gán undefined vào mảng vì template dùng `.length`.
+          const pageData = (res as any)?.data ?? res;
+          this.products = Array.isArray(pageData)
+            ? pageData
+            : (Array.isArray(pageData?.content) ? pageData.content : []);
+          this.totalPages = Array.isArray(pageData)
+            ? 1
+            : Number(pageData?.totalPages ?? 1);
         },
         error: err => {
           const code = err?.status ?? 500;
           this.router.navigate(['/error', code]);
         }
       });
+  }
+
+  getProductImageUrl(path?: string | null): string {
+    if (!path) return '/logo.png';
+
+    const raw = String(path).trim().replace(/\\/g, '/');
+    if (/^https?:\/\//i.test(raw)) return raw;
+
+    let normalized = raw.startsWith('/') ? raw : `/${raw}`;
+
+    // Tương thích dữ liệu đã từng được lưu theo /api/files/product(s)/...
+    normalized = normalized.replace(/^\/api\/files\/products?\//i, '/uploads/products/');
+    normalized = normalized.replace(/^\/products?\//i, '/uploads/products/');
+
+    const base = this.fileBaseUrl.replace(/\/$/, '');
+    return `${base}${normalized}`;
+  }
+
+  onImageError(event: Event): void {
+    const img = event.target as HTMLImageElement;
+    if (!img || img.dataset['fallbackApplied']) return;
+    img.dataset['fallbackApplied'] = 'true';
+    img.src = '/logo.png';
   }
 
   goAddProduct() {

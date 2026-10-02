@@ -14,13 +14,13 @@
 
   <div class="preview-grid">
     <div class="preview-item" *ngFor="let name of existing; let i = index">
-      <img [src]="toPreviewUrl(name)" alt="existing" />
+      <img appImageFallback [src]="toPreviewUrl(name)" alt="existing" />
       <button type="button" class="remove" (click)="removeExisting(i)">×</button>
       <div class="badge">Đang có</div>
     </div>
 
     <div class="preview-item" *ngFor="let item of newItems; let i = index">
-      <img [src]="item.previewUrl" alt="new" />
+      <img appImageFallback [src]="item.previewUrl" alt="new" />
       <button type="button" class="remove" (click)="removeNew(i)">×</button>
       <div class="badge badge-new">Mới</div>
     </div>

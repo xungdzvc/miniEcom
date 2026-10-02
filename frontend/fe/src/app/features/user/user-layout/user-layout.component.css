@@ -1,0 +1,409 @@
+/* ==========================================================================
+   TOPBAR - GLOBAL HEADER
+   ========================================================================== */
+.topbar {
+  background: color-mix(in srgb, var(--bg) 90%, transparent);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  padding: 0 24px;
+}
+
+.topbar-inner {
+  max-width: 1440px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 64px;
+}
+
+/* --- Layout Grid PC --- */
+.topbar-left { flex: 0 0 auto; display: flex; align-items: center; gap: 24px; } /* Căn sát logo và Menu */
+.topbar-center { flex: 1; display: flex; justify-content: center; padding: 0 24px; max-width: 600px; } /* Search giữa màn */
+.topbar-right { flex: 0 0 auto; display: flex; align-items: center; gap: 8px; }
+
+/* --- Logo --- */
+.logo { font-size: 30px; font-weight: 900; text-decoration: none; color: var(--text); letter-spacing: -0.5px; }
+.logo span { color: var(--accent); }
+
+/* --- Desktop Nav --- */
+.desktop-nav { display: flex; align-items: center; gap: 4px; }
+.nav-link {
+  font-size: 14px; font-weight: 700; color: var(--muted); text-decoration: none;
+  padding: 6px 14px; height: 36px; display: inline-flex; align-items: center;
+  border-radius: 999px; transition: all 0.2s; background: transparent; border: none; cursor: pointer;
+}
+.nav-link.has-icon { gap: 4px; }
+.nav-link:hover { color: var(--text); }
+.nav-link.active { color: var(--text); background: var(--card); box-shadow: var(--shadow-sm); }
+
+/* --- Search Bar --- */
+/* ==========================================================================
+   SEARCH SYSTEM - UPDATED MINIMALIST STYLE
+   ========================================================================== */
+
+/* --- Container chính --- */
+.search-container {
+  width: 100%;
+  position: relative;
+  z-index: 1001;
+}
+
+/* --- Khung Input Wrapper --- */
+.search-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  border-radius: 999px; /* Đồng bộ bo tròn kiểu viên thuốc như cũ */
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  height: 40px;
+}
+
+.icon-s {
+  position: absolute;
+  left: 14px;
+  color: var(--muted);
+  pointer-events: none;
+  transition: color 0.2s;
+}
+
+.search-input-wrapper input {
+  width: 100%;
+  height: 100%;
+  padding: 0 16px 0 44px;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* Hiệu ứng khi Focus */
+.search-container:focus-within .search-input-wrapper, 
+.search-container.active .search-input-wrapper {
+  background: var(--card);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 10%, transparent);
+}
+
+.search-container:focus-within .icon-s {
+  color: var(--accent);
+}
+
+/* ==========================================================================
+   SUGGESTION CARD - FLOATING EFFECT
+   ========================================================================== */
+.suggest-card {
+  position: absolute;
+  top: calc(100% + 12px);
+  left: 0; 
+  right: 0;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 18px; /* Bo góc mềm mại hơn */
+  box-shadow: 0 12px 30px -5px rgba(0, 0, 0, 0.15), 
+              0 4px 10px -2px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  animation: slideDown 0.2s ease-out;
+  backdrop-filter: blur(10px); /* Hiệu ứng kính mờ nhẹ */
+}
+
+/* Danh sách kết quả */
+.suggest-list {
+  max-height: 380px;
+  overflow-y: auto;
+}
+
+.s-item {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  gap: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+  border-bottom: 1px solid color-mix(in srgb, var(--border) 30%, transparent);
+}
+
+.s-item:last-child { border-bottom: none; }
+
+.s-item:hover {
+  background: color-mix(in srgb, var(--accent) 5%, var(--surface-1));
+}
+
+/* Ảnh Thumbnail */
+.s-thumb {
+  width: 44px; 
+  height: 44px;
+  border-radius: 8px;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: var(--surface-2);
+}
+
+.s-thumb img { 
+  width: 100%; 
+  height: 100%; 
+  object-fit: cover; 
+  transition: transform 0.3s ease;
+}
+
+.s-item:hover .s-thumb img {
+  transform: scale(1.1);
+}
+
+/* Thông tin chữ */
+.s-info { flex: 1; min-width: 0; }
+.s-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.2;
+}
+
+.highlight { 
+  color: var(--accent); 
+  font-weight: 800;
+}
+
+.s-meta { 
+  font-size: 12px; 
+  color: var(--muted); 
+  margin-top: 4px; 
+}
+
+/* Icon mũi tên chỉ hướng */
+.s-arrow {
+  color: var(--muted);
+  opacity: 0;
+  transform: translateX(-8px);
+  transition: all 0.2s;
+}
+
+.s-item:hover .s-arrow {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* Nút hành động cuối danh sách */
+.suggest-action {
+  padding: 14px;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 700;
+  color: #fff;
+  background: var(--accent);
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.suggest-action:hover {
+  opacity: 0.95;
+}
+
+/* Animation mượt mà */
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ==========================================================================
+   MOBILE TWEAKS
+   ========================================================================== */
+@media (max-width: 900px) {
+  .suggest-card {
+    position: fixed; /* Chế độ phủ toàn màn hình nhẹ trên mobile */
+    top: 110px; /* Dưới search bar mobile */
+    left: 16px;
+    right: 16px;
+    width: auto;
+    max-height: 60vh;
+  }
+}
+/* --- Actions & Buttons --- */
+.action-btn {
+  width: 40px; height: 40px; border-radius: 50%; border: none; background: transparent;
+  color: var(--muted); display: grid; place-items: center; cursor: pointer; transition: 0.2s; position: relative;
+}
+.action-btn:hover { background: var(--surface-1); color: var(--text); }
+.divider { width: 1px; height: 20px; background: var(--border); margin: 0 8px; }
+
+.badge {
+  position: absolute; top: 4px; right: 4px; background: var(--danger); color: #fff;
+  font-size: 10px; font-weight: 800; min-width: 18px; height: 18px; border-radius: 99px;
+  display: grid; place-items: center; border: 2px solid var(--bg); line-height: 1;
+}
+
+/* Auth Group */
+.auth-group { display: flex; align-items: center; gap: 8px; }
+.login-btn, .register-btn { height: 38px; border-radius: 999px; font-weight: 700; font-size: 14px; display: inline-flex; align-items: center; }
+.login-btn { padding: 0 20px; box-shadow: 0 4px 14px color-mix(in srgb, var(--accent) 30%, transparent); }
+.register-btn { padding: 0 16px; border: 1px solid var(--border); background: transparent; color: var(--text); }
+.register-btn:hover { background: var(--surface-1); }
+
+/* Dropdown */
+.user-menu-wrap, .nav-dropdown-wrap, .guest-wrap { position: relative; cursor: pointer; }
+.avatar-circle { width: 38px; height: 38px; border-radius: 50%; overflow: hidden; border: 2px solid var(--border); }
+.avatar-circle img { width: 100%; height: 100%; object-fit: cover; }
+
+.dropdown-menu {
+  position: absolute; top: calc(100% + 12px); left: 0; min-width: 220px;
+  background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg); padding: 8px; animation: drop-in 0.2s cubic-bezier(0.16, 1, 0.3, 1); z-index: 1000;
+}
+/* --- Sửa lỗi z-index để không che Dropdown --- */
+.search-container {
+  width: 100%;
+  position: relative;
+  /* Giảm z-index xuống thấp hơn dropdown (thường là 1000) */
+  z-index: 10; 
+}
+
+/* Chỉ khi đang focus hoặc có kết quả mới nổi lên cao */
+.search-container:focus-within,
+.search-container.active {
+  z-index: 1001; 
+}
+
+/* Đảm bảo dropdown của User/Cart có z-index cao nhất */
+.user-menu-wrap .dropdown-menu,
+.guest-wrap .dropdown-menu {
+  z-index: 2000; 
+}
+
+/* --- Tối ưu hiển thị Mobile (Dòng 868 trong file của bạn) --- */
+@media (max-width: 900px) {
+  .topbar-center {
+    /* Đảm bảo phần search không chiếm không gian ảo che các nút ở dòng trên */
+    order: 3;
+    position: relative;
+    clear: both;
+    width: 100%;
+  }
+
+  /* Fix lỗi Suggest Card bị lệch trên mobile */
+  .suggest-card {
+    position: absolute;
+    top: 100%; /* Sát ngay dưới thanh search */
+    left: 0;
+    right: 0;
+    width: 100%;
+    z-index: 2001;
+  }
+}
+.dropdown-menu.right { left: auto; right: 0; }
+.dropdown-item {
+  display: block; width: 100%; text-align: left; padding: 10px 16px; color: var(--text);
+  font-size: 14px; font-weight: 600; text-decoration: none; border-radius: var(--radius-sm); border: none; background: transparent;
+}
+.dropdown-item:hover { background: var(--surface-1); color: var(--accent); }
+.dropdown-header { padding: 12px 16px; }
+.dd-name { font-weight: 800; color: var(--text); }
+.dd-sub { font-size: 12px; color: var(--muted); }
+.dropdown-divider { height: 1px; background: var(--border); margin: 8px 0; }
+
+@keyframes drop-in { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+
+/* ==========================================================================
+   MOBILE SIDEBAR MENU
+   ========================================================================== */
+.mobile-menu-toggle, .show-on-mobile { display: none; }
+.mobile-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+  backdrop-filter: blur(4px); z-index: 999;
+}
+.mobile-sidebar {
+  position: fixed; top: 0; left: -300px; width: 280px; height: 100vh;
+  background: var(--card); z-index: 1000; transition: left 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: var(--shadow-lg); display: flex; flex-direction: column;
+}
+.mobile-sidebar.open { left: 0; }
+.sidebar-header {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 16px 20px; border-bottom: 1px solid var(--border);
+}
+.sidebar-content { padding: 16px; overflow-y: auto; flex: 1; }
+.sidebar-item {
+  display: block; padding: 12px 16px; color: var(--text); font-weight: 700;
+  text-decoration: none; border-radius: var(--radius-sm); margin-bottom: 4px;
+}
+.sidebar-item:hover { background: var(--surface-1); }
+.sidebar-item.sub { font-weight: 500; color: var(--muted); padding-left: 36px; }
+.sidebar-group-title { font-size: 12px; font-weight: 800; color: var(--muted); text-transform: uppercase; margin: 16px 0 8px 16px; }
+.sidebar-divider { height: 1px; background: var(--border); margin: 16px 0; }
+.btn-theme { width: 100%; text-align: left; background: transparent; border: none; cursor: pointer; }
+
+/* --- Logo Image --- */
+.logo {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+  height: 100%; /* Căn giữa theo chiều dọc của Topbar */
+  margin-right: 12px;
+}
+
+.logo img {
+  height: 50px; /* Chiều cao lý tưởng cho logo trên Navbar */
+  width: auto;  /* Tự động co giãn chiều ngang để không bị méo */
+  object-fit: contain; /* Đảm bảo logo luôn hiển thị trọn vẹn */
+  transition: transform 0.2s ease;
+}
+
+/* Hiệu ứng nảy nhẹ khi di chuột vào logo */
+.logo:hover img {
+  transform: scale(1.05);
+}
+/* ==========================================================================
+   RESPONSIVE - MOBILE & TABLET (ĐÃ FIX CHUẨN 100%)
+   ========================================================================== */
+/* ==========================================================================
+   RESPONSIVE - MOBILE & TABLET (ĐÃ FIX LỖI TRÀN DROPDOWN)
+   ========================================================================== */
+@media (max-width: 900px) {
+  .topbar { padding: 0 16px; }
+  .topbar-inner {
+    flex-wrap: wrap; 
+    height: auto; 
+    padding: 12px 0;
+  }
+  
+  /* FIX 1: Ép Logo và các Icon luôn nằm trên cùng 1 hàng */
+  .topbar-left { 
+    flex: 1; 
+    gap: 8px; 
+    min-width: 0; /* Ngăn chặn flexbox bị phình to */
+  } 
+  .logo img { 
+    max-width: 140px; /* Bóp chiều ngang logo lại trên mobile */
+    height: auto; 
+  }
+  
+  .topbar-right { flex: 0 0 auto; gap: 4px; } 
+  
+  .mobile-menu-toggle, .show-on-mobile { display: grid; }
+  .desktop-nav, .hide-on-mobile { display: none !important; }
+
+  /* FIX 2: Căn chỉnh lại Dropdown Menu để không bị lẹm màn hình */
+  .dropdown-menu.right {
+    right: -10px; /* Căn hụt đi một chút để menu nằm trọn trong màn hình */
+    left: auto;
+  }
+
+  /* Search Box rơi xuống dòng 2 */
+  .topbar-center { 
+    flex: 0 0 100%; 
+    max-width: 100%; 
+    order: 3; 
+    margin-top: 12px; 
+    padding: 0; 
+  }
+}

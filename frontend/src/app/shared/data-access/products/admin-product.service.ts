@@ -5,6 +5,14 @@ import { environment } from '../../../../environments/environment';
 import { ProductAdminList } from '../../models/core/product/product-admin-list.model';
 import { ProductAddOrUpdate } from '../../models/core/product/product-add-or-update.model';
 
+export interface StorageUploadResponse {
+  key?: string;
+  url?: string;
+  filename?: string;
+  size?: number;
+  contentType?: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -42,10 +50,16 @@ export class ProductAdminService {
   addProduct(data : any): Observable<any> {
     return this.http.post(this.apiUrl,data);
   }
-  uploadS3(file: File): Observable<{ url: string }> {
+  uploadImage(file: File): Observable<StorageUploadResponse> {
     const formData = new FormData();
-    formData.append('file', file);  
-    return this.http.post<{ url: string }>(`${environment.apiBaseUrl}/admin/uploads`, formData);
+    formData.append('file', file);
+    return this.http.post<StorageUploadResponse>(`${environment.apiBaseUrl}/admin/uploads`, formData);
+  }
+
+  uploadDownloadFile(file: File): Observable<StorageUploadResponse> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post<StorageUploadResponse>(`${environment.apiBaseUrl}/admin/files/download`, formData);
   }
   getProductById(id: number): Observable<any> {
     return this.http.get<any>(`${this.apiUrl}/${id}`);

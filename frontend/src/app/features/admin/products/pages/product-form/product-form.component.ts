@@ -14,7 +14,7 @@ import { FormFieldComponent } from '../../../shared/form/form-field/form-field.c
 import { FormActionsComponent } from '../../../shared/form/form-actions/form-actions.component';
 import { ImageUploaderComponent } from '../../../shared/ui/image-uploader/image-uploader.component';
 import { AdminToastService } from '../../../shared/services/admin-toast.service';
-import { environment } from '../../../../../../environments/environment';@Component({
+@Component({
   selector: 'app-product-form',
   standalone: true,
   imports: [
@@ -38,11 +38,12 @@ export class ProductFormComponent {
 
   thumbnailFile: File | null = null;
   galleryFiles: File[] = [];
+  downloadFile: File | null = null;
+  downloadFileName = '';
 
   thumbnailExisting: string[] = [];
   galleryExisting: string[] = [];
 
-  readonly fileBaseUrl = environment.fileBaseUrl;
 
   constructor(
     private fb: FormBuilder,
@@ -110,6 +111,8 @@ export class ProductFormComponent {
 
         this.thumbnailFile = null;
         this.galleryFiles = [];
+        this.downloadFile = null;
+        this.downloadFileName = this.extractFileName(product.downloadUrl);
       },
       error: err => console.error('Lỗi tải sản phẩm:', err)
     });
@@ -150,20 +153,24 @@ export class ProductFormComponent {
 
     try {
       const thumbnail = this.thumbnailFile
-        ? await this.uploadToS3(this.thumbnailFile)
+        ? await this.uploadImage(this.thumbnailFile)
         : (this.thumbnailExisting[0] ?? '');
 
       const uploadedGallery: string[] = [];
       for (const file of this.galleryFiles) {
-        uploadedGallery.push(await this.uploadToS3(file));
+        uploadedGallery.push(await this.uploadImage(file));
       }
 
       const imageUrls: string[] = [...this.galleryExisting, ...uploadedGallery];
+      const downloadUrl = this.downloadFile
+        ? await this.uploadDownload(this.downloadFile)
+        : (formValue.downloadUrl ?? '');
 
       const payload = {
         ...formValue,
         thumbnail,
-        imageUrls
+        imageUrls,
+        downloadUrl
       };
 
       if (this.mode === 'edit' && this.productId) {
@@ -173,7 +180,7 @@ export class ProductFormComponent {
       }
     } catch (err) {
       console.error('Upload lỗi:', err);
-      this.toast.error('Upload ảnh thất bại. Hãy thử lại.');
+      this.toast.error('Upload tài nguyên thất bại. Hãy thử lại.');
     }
   }
 
@@ -219,6 +226,26 @@ export class ProductFormComponent {
     }
   }
 
+
+  onDownloadFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0] ?? null;
+    this.downloadFile = file;
+    this.downloadFileName = file?.name ?? this.extractFileName(this.productForm.get('downloadUrl')?.value);
+  }
+
+  clearDownloadFile(): void {
+    this.downloadFile = null;
+    this.downloadFileName = '';
+    this.productForm.patchValue({ downloadUrl: '' });
+  }
+
+  private extractFileName(value?: string | null): string {
+    if (!value) return '';
+    const normalized = value.split('?')[0].replace(/\\/g, '/');
+    return normalized.substring(normalized.lastIndexOf('/') + 1) || 'File hiện tại';
+  }
+
   onGalleryExistingChange(names: string[]): void {
     this.galleryExisting = names;
     this.productForm.patchValue({ imageUrls: names });
@@ -236,10 +263,25 @@ export class ProductFormComponent {
     return Array.from(map.values());
   }
 
-  private uploadToS3(file: File): Promise<string> {
+  private uploadImage(file: File): Promise<string> {
     return new Promise((resolve, reject) => {
-      this.productService.uploadS3(file).subscribe({
-        next: res => resolve(res.url),
+      this.productService.uploadImage(file).subscribe({
+        next: res => {
+          const value = res.url ?? res.key;
+          value ? resolve(value) : reject(new Error('Storage không trả về url/key của ảnh'));
+        },
+        error: err => reject(err)
+      });
+    });
+  }
+
+  private uploadDownload(file: File): Promise<string> {
+    return new Promise((resolve, reject) => {
+      this.productService.uploadDownloadFile(file).subscribe({
+        next: res => {
+          const value = res.url ?? res.key;
+          value ? resolve(value) : reject(new Error('Storage không trả về url/key của file tải'));
+        },
         error: err => reject(err)
       });
     });

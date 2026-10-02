@@ -1,27 +1,59 @@
 <app-form-layout [title]="isEdit ? '✏️ Cập nhật danh mục' : '📝 Thêm danh mục mới'">
-
   <form [formGroup]="form" (ngSubmit)="submit()">
-
     <app-form-field
       label="Tên danh mục"
       [required]="true"
       [control]="form.get('name')"
       errorMessage="Vui lòng nhập tên danh mục."
     >
-      <input class="form-control" formControlName="name" placeholder="Ví dụ: Productions" />
+      <input
+        class="form-control"
+        formControlName="name"
+        placeholder="Ví dụ: Mã nguồn miễn phí"
+      />
     </app-form-field>
+
+    <!--
+      Không bọc select bằng điều kiện theo rootCategories.length.
+      Kể cả chưa có danh mục cha, field này vẫn phải hiển thị để người dùng
+      nhìn thấy rõ category đang là Cấp 1 hay Cấp 2.
+    -->
+    <div class="category-parent-group">
+      <label for="category-parent">Danh mục cha</label>
+
+      <select
+        id="category-parent"
+        class="form-control"
+        formControlName="parentId"
+      >
+        <option [ngValue]="null">— Không có (Danh mục cấp 1) —</option>
+
+        <option
+          *ngFor="let parent of rootCategories; trackBy: trackByCategoryId"
+          [ngValue]="parent.id"
+        >
+          {{ parent.name }}
+        </option>
+      </select>
+
+      <small class="category-field-hint">
+        Chọn một danh mục cấp 1 để tạo danh mục cấp 2. Để “Không có” nếu đây là danh mục gốc.
+      </small>
+    </div>
+
+    <div class="category-level-note">
+      <strong>Cấu trúc hỗ trợ:</strong>
+      <span>Cấp 1 → Cấp 2.</span>
+      <span>Danh mục cấp 2 không được dùng làm danh mục cha.</span>
+    </div>
 
     <app-form-actions
       [submitText]="isEdit ? 'Cập nhật' : 'Thêm danh mục'"
       [disabled]="form.invalid || isLoading"
-    >
-    </app-form-actions>
+    ></app-form-actions>
 
-    <!-- nếu bạn muốn có nút hủy -->
-    <div style="margin-top:10px; display:flex; justify-content:flex-end;">
+    <div class="category-cancel-row">
       <button class="btn btn-outline" type="button" (click)="cancel()">Hủy</button>
     </div>
-
   </form>
-
 </app-form-layout>

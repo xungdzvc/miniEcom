@@ -1,0 +1,47 @@
+<button class="support-fab" type="button" (click)="toggle()" aria-label="Hỗ trợ" title="Hỗ trợ">
+  <i class="fa-solid fa-headset support-fab__icon" aria-hidden="true"></i>
+</button>
+
+<section class="support-panel" [class.open]="open" [attr.aria-hidden]="!open">
+  <header class="support-header">
+    <div>
+      <div class="support-title">Hỗ trợ</div>
+      <div class="support-sub">Chọn kênh liên hệ</div>
+    </div>
+
+    <button class="support-iconbtn" type="button" (click)="close()" aria-label="Đóng">✕</button>
+  </header>
+
+  <div class="support-body">
+    <a class="support-item" [href]="zaloUrl" target="_blank" rel="noopener">
+      <span class="support-item__badge " aria-hidden="true">Z</span>
+      <div class="support-item__content">
+        <div class="support-item__title">Zalo</div>
+        <div class="support-item__desc">Chat nhanh với CSKH</div>
+      </div>
+      <span class="support-item__chev" aria-hidden="true">›</span>
+    </a>
+
+    <a class="support-item" [href]="telegramUrl" target="_blank" rel="noopener">
+      <span class="support-item__badge" aria-hidden="true">T</span>
+      <div class="support-item__content">
+        <div class="support-item__title">Telegram</div>
+        <div class="support-item__desc">Hỗ trợ kỹ thuật</div>
+      </div>
+      <span class="support-item__chev" aria-hidden="true">›</span>
+    </a>
+
+    <a class="support-item" [href]="facebookUrl" target="_blank" rel="noopener">
+      <span class="support-item__badge " aria-hidden="true">f</span>
+      <div class="support-item__content">
+        <div class="support-item__title">Facebook</div>
+        <div class="support-item__desc">Messenger</div>
+      </div>
+      <span class="support-item__chev" aria-hidden="true">›</span>
+    </a>
+  </div>
+
+  <footer class="support-footer">
+    <small class="support-footer__text">Online: 8:30–00:00 • Phản hồi nhanh</small>
+  </footer>
+</section>

@@ -44,13 +44,25 @@ export class GoogleCallbackComponent implements OnInit {
     const hash = window.location.hash.substring(1);
     const params = new URLSearchParams(hash);
     const idToken = params.get('id_token');
+    const returnedState = params.get('state');
+    const expectedState = sessionStorage.getItem('google_oauth_state');
+
+    if (!expectedState || returnedState !== expectedState) {
+      sessionStorage.removeItem('google_oauth_state');
+      sessionStorage.removeItem('google_auth_action');
+      this.router.navigate(['/login']);
+      return;
+    }
+
+    sessionStorage.removeItem('google_oauth_state');
+
     if (!idToken) {
       console.error('Không tìm thấy id_token');
       this.router.navigate(['/login']);
       return;
     }
 
-    const action = localStorage.getItem('google_auth_action');
+    const action = sessionStorage.getItem('google_auth_action');
     if(action === 'LINK'){
       this.linkGoogleAccount(idToken);
     }else{
@@ -62,7 +74,7 @@ export class GoogleCallbackComponent implements OnInit {
   loginWithGoogle(idToken: string) {
     this.authService.loginWithGoogle(idToken).subscribe({
       next: () => {
-        localStorage.removeItem('google_auth_action');
+        sessionStorage.removeItem('google_auth_action');
         window.location.href = '/';
       },
       error: () => {
@@ -74,7 +86,7 @@ export class GoogleCallbackComponent implements OnInit {
   linkGoogleAccount(idToken: string) {
     this.authService.linkGoogleAccount(idToken).subscribe({
       next: () => {
-        localStorage.removeItem('google_auth_action');
+        sessionStorage.removeItem('google_auth_action');
         window.location.href = '/profile';
       },
       error: () => {

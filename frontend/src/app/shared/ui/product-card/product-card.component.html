@@ -1,16 +1,12 @@
 <article class="p-card" [class.pinned]="product.pin">
 
   <div class="p-thumb">
-    <img [src]="fileBaseUrl + product.thumbnail" [alt]="product.name" />
+    <img appImageFallback [src]="getFileUrl(product.thumbnail)" [alt]="product.name" />
 
     <!-- ✅ Pin icon -->
     <div class="pin-icon" *ngIf="product.pin" title="Sản phẩm được ghim">📌</div>
 
-    <!-- ✅ Badge -->
-    <div class="p-badge" *ngIf="product.pin; else normalBadge">Nổi bật</div>
-    <ng-template #normalBadge>
-      <div class="p-badge">Nổi bật</div>
-    </ng-template>
+    <div class="p-badge" *ngIf="product.pin">Nổi bật</div>
   </div>
 
   <div class="p-body">

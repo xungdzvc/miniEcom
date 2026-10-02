@@ -81,3 +81,51 @@ form{
   cursor:not-allowed;
   transform:none;
 }
+
+.category-level-note {
+  margin: -2px 0 18px;
+  padding: 11px 13px;
+  border: 1px solid var(--border, #dbe3ef);
+  border-radius: 10px;
+  color: var(--text-muted, #64748b);
+  background: color-mix(in srgb, var(--surface-1, #f8fafc) 82%, transparent);
+  font-size: .82rem;
+  line-height: 1.5;
+}
+
+.category-cancel-row {
+  margin-top: 10px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.category-field-hint {
+  display: block;
+  margin-top: 6px;
+  color: var(--text-muted, #64748b);
+  font-size: .76rem;
+}
+
+/* V7: parent category selector is always visible */
+.category-parent-group {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin-bottom: 4px;
+}
+
+.category-parent-group > label {
+  color: var(--text-main, var(--admin-text-dark, #e5e7eb));
+  font-size: .82rem;
+  font-weight: 720;
+}
+
+.category-parent-group select.form-control {
+  cursor: pointer;
+}
+
+.category-level-note {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px 8px;
+}

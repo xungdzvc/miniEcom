@@ -12,10 +12,22 @@
         (mouseenter)="stopAuto()"
         (mouseleave)="startAuto()">
 
-        <img
-          class="g-img"
-          [src]="galleryImages[activeIndex]"
-          alt="preview" />
+        <!--
+          Giữ tất cả ảnh của gallery trong DOM sau lần tải đầu tiên.
+          Chuyển slide chỉ translate track, không đổi src của một <img> duy nhất.
+          Browser cache sẽ giữ bytes ảnh; Angular chỉ đổi activeIndex.
+        -->
+        <div
+          class="g-track"
+          [style.transform]="'translate3d(-' + (activeIndex * 100) + '%, 0, 0)'">
+          <img
+            *ngFor="let img of galleryImages; let i = index; trackBy: trackByImageUrl"
+            class="g-img g-slide"
+            [src]="img"
+            [attr.alt]="'preview ' + (i + 1)"
+            loading="eager"
+            decoding="async" />
+        </div>
 
         <button class="g-nav left" type="button" (click)="prev()">‹</button>
         <button class="g-nav right" type="button" (click)="next()">›</button>
@@ -34,7 +46,7 @@
       <div class="g-thumbs" *ngIf="galleryImages.length > 1">
         <button
           class="t"
-          *ngFor="let img of galleryImages; let i = index"
+          *ngFor="let img of galleryImages; let i = index; trackBy: trackByImageUrl"
           type="button"
           [class.active]="i === activeIndex"
           (click)="go(i)">

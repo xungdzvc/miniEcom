@@ -107,20 +107,34 @@
           [required]="true"
           [multiple]="false"
           [existing]="thumbnailExisting"
-          [baseUrl]="fileBaseUrl"
           helper="Chọn 1 ảnh. Nếu đang sửa, ảnh cũ sẽ được giữ lại nếu bạn không xoá."
           (existingChange)="onThumbnailExistingChange($event)"
           (filesChange)="onThumbnailFilesChange($event)"
         ></app-image-uploader>
       </app-form-field>
 
-     <app-form-field
-  label="Link File Download"
-  [required]="false"
-  [control]="productForm.get('downloadUrl')"
->
-  <input type="url" class="form-control" formControlName="downloadUrl" />
-</app-form-field>
+      <app-form-field label="File tải sản phẩm" [required]="false">
+        <div class="download-upload">
+          <input
+            #downloadInput
+            type="file"
+            class="form-control"
+            (change)="onDownloadFileSelected($event)"
+          />
+
+          <div class="download-current" *ngIf="downloadFileName">
+            <span>📦 {{ downloadFileName }}</span>
+            <button type="button" class="download-clear" (click)="clearDownloadFile(); downloadInput.value = ''">
+              Bỏ file
+            </button>
+          </div>
+
+          <small class="download-help">
+            Chọn file trực tiếp. Backend sẽ upload vào storage download (ví dụ Google Drive).
+            Nếu không chọn file mới khi sửa sản phẩm, file cũ vẫn được giữ nguyên.
+          </small>
+        </div>
+      </app-form-field>
 
 <app-form-field
   label="Link File Youtube"
@@ -146,7 +160,6 @@
         label="Bộ sưu tập ảnh"
         [multiple]="true"
         [existing]="galleryExisting"
-        [baseUrl]="fileBaseUrl"
         helper="Bạn có thể xoá ảnh cũ và/hoặc thêm ảnh mới."
         (existingChange)="onGalleryExistingChange($event)"
         (filesChange)="onGalleryFilesChange($event)"

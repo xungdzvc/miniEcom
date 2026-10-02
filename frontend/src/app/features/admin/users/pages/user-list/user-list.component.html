@@ -1,37 +1,37 @@
 <div class="admin-container">
   <app-admin-page-header
-    title="👤 Quản lý Người dùng"
-    subtitle="Khóa / mở khóa, chỉnh sửa thông tin tài khoản người dùng"
+    title="👤 Quản lý người dùng"
+    subtitle="Theo dõi tài khoản, vai trò và trạng thái truy cập của người dùng."
   >
-    <div class="header-actions">
-      <button class="admin-btn admin-btn-primary" (click)="goAddUser()">
-        ➕ Thêm người dùng
-      </button>
-
-      <button class="admin-btn admin-btn-secondary" (click)="loadUsers()">
-        🔄 Tải lại
-      </button>
-    </div>
+    <button type="button" class="admin-btn admin-btn-secondary" (click)="loadUsers()">↻ Tải lại</button>
+    <button type="button" class="admin-btn admin-btn-primary" (click)="goAddUser()">＋ Thêm người dùng</button>
   </app-admin-page-header>
 
   <div class="admin-card">
-    <div class="admin-card-body">
-      <div *ngIf="isLoading" class="admin-empty-state">
-        <div class="spinner"></div>
-        <p>Đang tải danh sách người dùng...</p>
+    <div *ngIf="isLoading" class="admin-loading">
+      <div class="spinner"></div>
+      <p>Đang tải danh sách người dùng...</p>
+    </div>
+
+    <div *ngIf="!isLoading && (users?.length ?? 0) === 0" class="admin-empty">
+      <div class="admin-empty-icon">♙</div>
+      <h3>Chưa có người dùng</h3>
+      <p>Danh sách hiện đang trống.</p>
+    </div>
+
+    <ng-container *ngIf="!isLoading && (users?.length ?? 0) > 0">
+      <div class="admin-list-meta">
+        <div class="admin-list-meta-copy">
+          <span class="admin-list-kicker">Danh sách</span>
+          <span class="admin-list-count">{{ users.length }} người dùng trên trang</span>
+        </div>
+        <span class="admin-list-page">Trang {{ page }} / {{ totalPages }}</span>
       </div>
 
-      <div *ngIf="!isLoading && users.length === 0" class="admin-empty-state">
-        <div class="admin-empty-icon">👥</div>
-        <h3>Chưa có người dùng</h3>
-        <p>Danh sách hiện đang trống.</p>
-      </div>
-
-      <app-admin-table *ngIf="!isLoading && users.length > 0">
+      <app-admin-table>
         <thead>
           <tr>
-            <th>ID</th>
-            <th>Username</th>
+            <th>Người dùng</th>
             <th>Email</th>
             <th>Vai trò</th>
             <th>Trạng thái</th>
@@ -41,12 +41,28 @@
 
         <tbody>
           <tr *ngFor="let user of users">
-            <td>{{ user.id }}</td>
-            <td>{{ user.username }}</td>
-            <td>{{ user.email }}</td>
-            <td>{{ (user.role || '').replaceAll('ROLE_', '') }}</td>
+            <td data-label="Người dùng">
+              <div class="admin-entity">
+                <div class="admin-avatar">{{ user.username.charAt(0).toUpperCase() }}</div>
+                <div class="admin-entity-main">
+                  <span class="admin-entity-title">{{ user.username }}</span>
+                  <div class="admin-entity-meta">
+                    <span>#{{ user.id }}</span>
+                    <span *ngIf="user.fullname">{{ user.fullname }}</span>
+                  </div>
+                </div>
+              </div>
+            </td>
 
-            <td>
+            <td data-label="Email">
+              <span class="admin-muted">{{ user.email }}</span>
+            </td>
+
+            <td data-label="Vai trò">
+              <span class="admin-role-pill">{{ (user.role || '').replaceAll('ROLE_', '') }}</span>
+            </td>
+
+            <td data-label="Trạng thái">
               <app-status-badge
                 [on]="user.status"
                 onText="Hoạt động"
@@ -54,54 +70,38 @@
               ></app-status-badge>
             </td>
 
-            <td class="actions">
-              <button
-                class="admin-btn admin-btn-primary"
-                (click)="editUser(user.id)"
-              >
-                ✏️ Sửa
-              </button>
-
-              <button
-                class="admin-btn admin-btn-secondary"
-                [title]="user.status ? 'Khóa' : 'Mở khóa'"
-                (click)="changeStatus(user)"
-              >
-                {{ user.status ? '🔒 Khóa' : '🔓 Mở khóa' }}
-              </button>
+            <td class="actions" data-label="Thao tác">
+              <div class="admin-row-actions">
+                <button type="button" class="admin-btn admin-btn-secondary admin-btn-sm" (click)="editUser(user.id)">✎ Sửa</button>
+                <button
+                  type="button"
+                  class="admin-btn admin-btn-sm"
+                  [class.admin-btn-warning]="user.status"
+                  [class.admin-btn-success]="!user.status"
+                  [title]="user.status ? 'Khóa tài khoản' : 'Mở khóa tài khoản'"
+                  (click)="changeStatus(user)"
+                >
+                  {{ user.status ? '⊘ Khóa' : '✓ Mở khóa' }}
+                </button>
+              </div>
             </td>
           </tr>
         </tbody>
       </app-admin-table>
 
-      <div class="admin-pagination" *ngIf="!isLoading && users.length > 0">
+      <div class="admin-pagination">
         <div class="admin-pagination-meta">
           <span class="admin-pagination-label">Điều hướng</span>
           <div class="admin-pagination-pill">
-            <span class="page-info">
-              Trang <span class="page-current">{{ page }}</span> / <span class="page-total">{{ totalPages }}</span>
-            </span>
+            <span class="page-info">Trang <span class="page-current">{{ page }}</span> / <span class="page-total">{{ totalPages }}</span></span>
           </div>
         </div>
 
         <div class="admin-pagination-actions">
-          <button
-            class="admin-btn admin-btn-secondary admin-page-btn"
-            (click)="prevPage()"
-            [disabled]="page === 1"
-          >
-            ← Trước
-          </button>
-
-          <button
-            class="admin-btn admin-btn-secondary admin-page-btn"
-            (click)="nextPage()"
-            [disabled]="page === totalPages"
-          >
-            Sau →
-          </button>
+          <button type="button" class="admin-btn admin-btn-secondary admin-page-btn" (click)="prevPage()" [disabled]="page === 1">← Trước</button>
+          <button type="button" class="admin-btn admin-btn-secondary admin-page-btn" (click)="nextPage()" [disabled]="page === totalPages">Sau →</button>
         </div>
       </div>
-    </div>
+    </ng-container>
   </div>
 </div>

@@ -1,4 +1,5 @@
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import { ImageFallbackDirective } from '../../../shared/directives/image-fallback.directive';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { OrderService } from '../../../shared/data-access/order.service';
@@ -8,10 +9,10 @@ import { CouponService } from '../../../shared/data-access/coupon.service';
 import { Router } from '@angular/router';
 import { OrderCheckoutResponse } from '../../../shared/models/core/order/order-response.model';
 import { AuthService } from '../../../core/services/auth.service';
-import { environment } from '../../../../environments/environment';@Component({
+import { resolveFileUrl } from '../../../shared/utils/file-url.util';@Component({
   selector: 'app-checkout-modal',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, ImageFallbackDirective],
   templateUrl: './checkout-modal.component.html',
   styleUrls: ['./checkout-modal.component.css']
 })
@@ -29,7 +30,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
   paymentMethod: 'WALLET' | 'ORDER_BANKING' = 'WALLET';
   
   isLoading = false;
-  fileBaseUrl = environment.fileBaseUrl;
+  readonly getFileUrl = resolveFileUrl;
 
   couponCode = '';
   discountAmount = 0;
@@ -78,12 +79,6 @@ export class CheckoutComponent implements OnInit, OnDestroy {
   get savedByProduct(): number { return this.originalPrice - this.priceAfterProductDiscount; }
   get finalPrice(): number { const p = this.priceAfterProductDiscount - this.discountAmount; return p > 0 ? p : 0; }
   get canPayByWallet(): boolean { return (this.user?.vnd || 0) >= this.finalPrice; }
-
-  getFileUrl(path?: string): string {
-    if (!path) return 'https://placehold.co/1200x600';
-    if (path.startsWith('http')) return path;
-    return `${this.fileBaseUrl.replace(/\/$/, '')}/${path.replace(/^\//, '')}`;
-  }
 
   // --- ACTIONS ---
 

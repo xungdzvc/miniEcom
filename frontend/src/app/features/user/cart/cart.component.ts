@@ -1,9 +1,11 @@
 import { Component, OnInit } from '@angular/core';
+import { ImageFallbackDirective } from '../../../shared/directives/image-fallback.directive';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 
-import { environment } from '../../../../environments/environment';import { CartResponse } from '../../../shared/models/core/cart/cart.model';
+import { resolveFileUrl } from '../../../shared/utils/file-url.util';
+import { CartResponse } from '../../../shared/models/core/cart/cart.model';
 import { Order } from '../../../shared/models/core/checkout/order.model';
 
 import { CartService } from '../../../shared/data-access/cart.service';
@@ -22,12 +24,12 @@ type AppliedCoupon =
 @Component({
   selector: 'app-cart',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink, ImageFallbackDirective],
   templateUrl: './cart.component.html',
   styleUrls: ['./cart.component.css'],
 })
 export class CartComponent implements OnInit {
-  fileBaseUrl = environment.fileBaseUrl;
+  readonly getFileUrl = resolveFileUrl;
 
   coupon = '';
   note = '';

@@ -8,4 +8,4 @@ package com.web.dto;
  *
  * @author ZZ
  */
-public record StorageFileDTO(String key, String url) {}
+public record StorageFileDTO(String key, String url,long size,String contentType) {}

@@ -14,7 +14,7 @@ import java.util.Map;
 @ConfigurationProperties(prefix = "app.rate-limit")
 public class RateLimitProperties {
 
-    private boolean enabled = true;
+    private boolean enabled = false;
     private Map<String, Policy> policies = new HashMap<>();
 
     @Getter
