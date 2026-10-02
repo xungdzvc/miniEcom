@@ -131,7 +131,7 @@ export class OrderDetailComponent implements OnInit, OnDestroy {
 
     this.orderService.downloadOrderItemFile(this.orderId, this.isDownloadingId).subscribe({
       next: (res) => {
-        const url = res?.data;
+        const url = res?.message ?? res?.data?.url ?? null;
         if (!url) {
           this.noti.error('Không nhận được link tải xuống.');
           this.isDownloadingId = null;
