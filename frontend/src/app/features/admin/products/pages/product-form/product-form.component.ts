@@ -14,6 +14,11 @@ import { FormFieldComponent } from '../../../shared/form/form-field/form-field.c
 import { FormActionsComponent } from '../../../shared/form/form-actions/form-actions.component';
 import { ImageUploaderComponent } from '../../../shared/ui/image-uploader/image-uploader.component';
 import { AdminToastService } from '../../../shared/services/admin-toast.service';
+
+interface ProductCategoryOption {
+  id: number;
+  label: string;
+}
 @Component({
   selector: 'app-product-form',
   standalone: true,
@@ -32,6 +37,7 @@ import { AdminToastService } from '../../../shared/services/admin-toast.service'
 export class ProductFormComponent {
   productForm!: FormGroup;
   categories: Category[] = [];
+  categoryOptions: ProductCategoryOption[] = [];
 
   mode: 'add' | 'edit' = 'add';
   productId: number | null = null;
@@ -119,9 +125,14 @@ export class ProductFormComponent {
   }
 
   private patchForm(product: ProductAddOrUpdate): void {
+    const rawCategoryId =
+      product.categoryId ??
+      (product as ProductAddOrUpdate & { category?: { id?: number | string | null } }).category?.id ??
+      null;
+
     this.productForm.patchValue({
       name: product.name,
-      categoryId: product.categoryId,
+      categoryId: rawCategoryId == null ? null : Number(rawCategoryId),
       description: product.description ??'',
       installTotoirial: product.installTotoirial ?? '',
       status: product.status ?? true,
@@ -137,10 +148,65 @@ export class ProductFormComponent {
   }
 
   private loadCategories(): void {
-    this.categoryService.getAllCategories().subscribe({
-      next: data => (this.categories = data),
-      error: err => console.error('Lỗi tải danh mục:', err)
+    // Public category API trả { data: Category[] }.
+    // Product Form cần toàn bộ category để có thể chọn cả cấp 1 và cấp 2.
+    this.categoryService.getCategoriesForLayout().subscribe({
+      next: response => {
+        const data = response?.data;
+        this.categories = Array.isArray(data) ? data : [];
+        this.categoryOptions = this.buildCategoryOptions(this.categories);
+      },
+      error: err => {
+        this.categories = [];
+        this.categoryOptions = [];
+        console.error('Lỗi tải danh mục:', err);
+        this.toast.error('Không tải được danh sách danh mục.');
+      }
     });
+  }
+
+  private buildCategoryOptions(categories: Category[]): ProductCategoryOption[] {
+    const roots = categories
+      .filter(category => category.parentId == null)
+      .sort((a, b) => a.name.localeCompare(b.name, 'vi'));
+
+    const childrenByParent = new Map<number, Category[]>();
+
+    for (const category of categories) {
+      if (category.parentId == null) continue;
+
+      const children = childrenByParent.get(category.parentId) ?? [];
+      children.push(category);
+      childrenByParent.set(category.parentId, children);
+    }
+
+    const options: ProductCategoryOption[] = [];
+    const included = new Set<number>();
+
+    for (const root of roots) {
+      options.push({ id: root.id, label: `Cấp 1 · ${root.name}` });
+      included.add(root.id);
+
+      const children = (childrenByParent.get(root.id) ?? [])
+        .sort((a, b) => a.name.localeCompare(b.name, 'vi'));
+
+      for (const child of children) {
+        options.push({ id: child.id, label: `↳ Cấp 2 · ${child.name}` });
+        included.add(child.id);
+      }
+    }
+
+    // Compatibility: vẫn cho chọn category nếu parent của nó không có trong response.
+    for (const category of categories) {
+      if (!included.has(category.id)) {
+        options.push({
+          id: category.id,
+          label: category.parentId == null ? `Cấp 1 · ${category.name}` : `↳ Cấp 2 · ${category.name}`
+        });
+      }
+    }
+
+    return options;
   }
 
   async onSubmit(): Promise<void> {

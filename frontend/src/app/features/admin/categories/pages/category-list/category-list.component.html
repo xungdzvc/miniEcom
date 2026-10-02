@@ -1,103 +1,144 @@
-<div class="admin-container">
+<div class="admin-container category-page">
   <app-admin-page-header
-    title="🏷️ Quản lý danh mục"
-    subtitle="Tổ chức nhóm sản phẩm và theo dõi số lượng sản phẩm trong từng danh mục."
+    title="🏷️ Quản lý Danh mục"
+    subtitle="Danh mục được tổ chức tối đa 2 cấp: cấp 1 ở bên trái, cấp 2 ở bên phải"
   >
-    <button type="button" class="admin-btn admin-btn-secondary" (click)="reload()">↻ Tải lại</button>
-    <button type="button" class="admin-btn admin-btn-primary" (click)="addCategoryClick()">＋ Thêm danh mục</button>
+    <button type="button" class="admin-btn admin-btn-secondary" (click)="reload()">🔄 Tải lại</button>
+    <button type="button" class="admin-btn admin-btn-primary" (click)="addRootCategory()">➕ Thêm cấp 1</button>
   </app-admin-page-header>
 
-  <div class="admin-card" *ngIf="isLoading">
-    <div class="admin-loading">
-      <div class="spinner"></div>
-      <p>Đang tải danh sách danh mục...</p>
-    </div>
+  <div class="category-loading" *ngIf="isLoading">
+    <div class="spinner"></div>
+    <p>Đang tải danh sách danh mục...</p>
   </div>
 
-  <div class="admin-card" *ngIf="!isLoading && categories.length === 0">
-    <div class="admin-empty">
-      <span class="admin-empty-icon">◇</span>
-      <h3>Chưa có danh mục</h3>
-      <p>Tạo danh mục để nhóm sản phẩm rõ ràng hơn.</p>
-      <button type="button" class="admin-btn admin-btn-primary" (click)="addCategoryClick()">＋ Thêm danh mục</button>
-    </div>
+  <div class="category-empty" *ngIf="!isLoading && categories.length === 0">
+    <div class="empty-icon">🏷️</div>
+    <h3>Chưa có danh mục</h3>
+    <p>Tạo danh mục cấp 1 đầu tiên để bắt đầu phân loại sản phẩm.</p>
+    <button type="button" class="admin-btn admin-btn-primary" (click)="addRootCategory()">+ Thêm danh mục cấp 1</button>
   </div>
 
-  <section class="admin-card admin-fade-in" *ngIf="!isLoading && categories.length > 0">
-    <div class="admin-list-meta">
-      <div class="admin-list-meta-copy">
-        <span class="admin-list-kicker">Danh sách</span>
-        <span class="admin-list-count">{{ categories.length }} danh mục trên trang</span>
+  <section class="category-browser" *ngIf="!isLoading && categories.length > 0">
+    <aside class="category-pane root-pane">
+      <div class="pane-header">
+        <div>
+          <span class="pane-kicker">CẤP 1</span>
+          <h2>Danh mục cha</h2>
+          <p>Chọn một danh mục để xem các danh mục con.</p>
+        </div>
+        <span class="count-badge">{{ rootCategories.length }}</span>
       </div>
-      <span class="admin-list-page">Trang {{ page }} / {{ totalPages }}</span>
-    </div>
 
-    <app-admin-table>
-      <thead>
-        <tr>
-          <th>Danh mục</th>
-          <th>Cấp danh mục</th>
-          <th>Số sản phẩm</th>
-          <th>Tạo / cập nhật</th>
-          <th class="actions">Thao tác</th>
-        </tr>
-      </thead>
+      <div class="root-list">
+        <button
+          type="button"
+          class="root-item"
+          *ngFor="let category of rootCategories; trackBy: trackById"
+          [class.active]="category.id === selectedParentId"
+          (click)="selectParent(category)"
+        >
+          <span class="category-icon">📁</span>
 
-      <tbody>
-        <tr *ngFor="let category of categories; trackBy: trackById">
-          <td data-label="Danh mục">
-            <div class="admin-entity">
-              <div class="admin-avatar">{{ categoryInitial(category) }}</div>
-              <div class="admin-entity-main">
-                <span class="admin-entity-title">{{ category.name || 'Chưa đặt tên' }}</span>
-                <div class="admin-entity-meta">#{{ category.id }}</div>
+          <span class="category-copy">
+            <strong>{{ category.name }}</strong>
+            <small>ID #{{ category.id }} · {{ childCount(category.id) }} danh mục cấp 2</small>
+          </span>
+
+          <span class="root-actions">
+            <span
+              class="icon-action"
+              role="button"
+              tabindex="0"
+              title="Sửa danh mục"
+              (click)="editCategory(category, $event)"
+            >✏️</span>
+            <span
+              class="icon-action danger"
+              role="button"
+              tabindex="0"
+              title="Xóa danh mục"
+              (click)="deleteCategory(category, $event)"
+            >🗑️</span>
+          </span>
+
+          <span class="chevron">›</span>
+        </button>
+      </div>
+
+      <div class="root-empty" *ngIf="rootCategories.length === 0">
+        Không tìm thấy danh mục cấp 1 (`parentId = null`).
+      </div>
+    </aside>
+
+    <main class="category-pane child-pane">
+      <ng-container *ngIf="selectedParent as parent; else selectParentHint">
+        <div class="pane-header child-header">
+          <div>
+            <span class="pane-kicker">CẤP 2</span>
+            <h2>{{ parent.name }}</h2>
+            <p>Các danh mục có <code>parentId = {{ parent.id }}</code>.</p>
+          </div>
+
+          <button type="button" class="admin-btn admin-btn-primary" (click)="addChildCategory()">
+            ➕ Thêm cấp 2
+          </button>
+        </div>
+
+        <div class="parent-summary">
+          <div class="summary-main">
+            <span class="summary-folder">📂</span>
+            <div>
+              <strong>{{ parent.name }}</strong>
+              <span>Danh mục cấp 1 · ID #{{ parent.id }}</span>
+            </div>
+          </div>
+          <div class="summary-actions">
+            <button type="button" class="admin-btn admin-btn-secondary" (click)="editCategory(parent)">Sửa cấp 1</button>
+          </div>
+        </div>
+
+        <div class="child-list" *ngIf="selectedChildren.length > 0; else noChildren">
+          <article class="child-card" *ngFor="let child of selectedChildren; trackBy: trackById">
+            <div class="child-main">
+              <span class="tree-line">└─</span>
+              <span class="child-icon">🏷️</span>
+              <div class="child-copy">
+                <strong>{{ child.name }}</strong>
+                <div class="child-meta">
+                  <span>ID #{{ child.id }}</span>
+                  <span>Cha #{{ child.parentId }}</span>
+                  <span *ngIf="child.updatedAt">Cập nhật {{ child.updatedAt | date:'dd/MM/yyyy HH:mm' }}</span>
+                </div>
               </div>
             </div>
-          </td>
 
-          <td data-label="Cấp danh mục">
-            <div class="category-level-cell">
-              <span class="category-level-badge" [class.is-child]="isChildCategory(category)">
-                {{ isChildCategory(category) ? 'Cấp 2' : 'Cấp 1' }}
-              </span>
-              <small *ngIf="isChildCategory(category)">Cha: {{ category.parentName || ('#' + category.parentId) }}</small>
-              <small *ngIf="!isChildCategory(category)">Danh mục gốc</small>
+            <div class="child-actions">
+              <button type="button" class="admin-btn admin-btn-secondary" (click)="editCategory(child)">Sửa</button>
+              <button type="button" class="admin-btn admin-btn-danger" (click)="deleteCategory(child)">Xóa</button>
             </div>
-          </td>
-
-          <td data-label="Số sản phẩm">
-            <span class="admin-quantity-pill">{{ categoryQuantity(category) }}</span>
-          </td>
-
-          <td data-label="Tạo / cập nhật">
-            <div class="admin-date-stack">
-              <span><small>Tạo</small>{{ category.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
-              <span><small>Sửa</small>{{ category.updatedAt | date:'dd/MM/yyyy HH:mm' }}</span>
-            </div>
-          </td>
-
-          <td class="actions" data-label="Thao tác">
-            <div class="admin-row-actions">
-              <button type="button" class="admin-btn admin-btn-secondary admin-btn-sm" (click)="editCategory(category)">✎ Sửa</button>
-              <button type="button" class="admin-btn admin-btn-danger admin-btn-sm" (click)="deleteCategory(category)">⌫ Xóa</button>
-            </div>
-          </td>
-        </tr>
-      </tbody>
-    </app-admin-table>
-
-    <div class="admin-pagination">
-      <div class="admin-pagination-meta">
-        <span class="admin-pagination-label">Điều hướng</span>
-        <div class="admin-pagination-pill">
-          <span class="page-info">Trang <span class="page-current">{{ page }}</span> / <span class="page-total">{{ totalPages }}</span></span>
+          </article>
         </div>
-      </div>
 
-      <div class="admin-pagination-actions">
-        <button type="button" class="admin-btn admin-btn-secondary admin-page-btn" (click)="prevPage()" [disabled]="page === 1">← Trước</button>
-        <button type="button" class="admin-btn admin-btn-secondary admin-page-btn" (click)="nextPage()" [disabled]="page === totalPages">Sau →</button>
-      </div>
-    </div>
+        <ng-template #noChildren>
+          <div class="child-empty">
+            <span>↳</span>
+            <div>
+              <strong>Chưa có danh mục cấp 2</strong>
+              <p>Thêm danh mục con cho “{{ parent.name }}” hoặc giữ danh mục này độc lập ở cấp 1.</p>
+            </div>
+            <button type="button" class="admin-btn admin-btn-primary" (click)="addChildCategory()">+ Thêm cấp 2</button>
+          </div>
+        </ng-template>
+      </ng-container>
+
+      <ng-template #selectParentHint>
+        <div class="select-parent-hint">
+          <span>👈</span>
+          <h3>Chọn danh mục cấp 1</h3>
+          <p>Danh mục cấp 2 tương ứng sẽ được hiển thị ở đây.</p>
+        </div>
+      </ng-template>
+    </main>
   </section>
 </div>

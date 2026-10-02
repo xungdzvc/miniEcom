@@ -26,7 +26,7 @@
         class="form-control"
         formControlName="parentId"
       >
-        <option [ngValue]="null">— Không có (Danh mục cấp 1) —</option>
+        <option [ngValue]="null">{{ emptyParentLabel }}</option>
 
         <option
           *ngFor="let parent of rootCategories; trackBy: trackByCategoryId"
@@ -37,7 +37,7 @@
       </select>
 
       <small class="category-field-hint">
-        Chọn một danh mục cấp 1 để tạo danh mục cấp 2. Để “Không có” nếu đây là danh mục gốc.
+        {{ parentHint }}
       </small>
     </div>
 

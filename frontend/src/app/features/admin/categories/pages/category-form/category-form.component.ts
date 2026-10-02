@@ -33,6 +33,10 @@ export class CategoryFormComponent implements OnInit {
   categoryId: number | null = null;
   isLoading = false;
   rootCategories: Category[] = [];
+  allCategories: Category[] = [];
+  currentCategory: Category | null = null;
+  currentCategoryHasChildren = false;
+  presetParentId: number | null = null;
 
   constructor(
     private fb: FormBuilder,
@@ -43,9 +47,11 @@ export class CategoryFormComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.presetParentId = this.readPresetParentId();
+
     this.form = this.fb.group({
       name: ['', Validators.required],
-      parentId: [null],
+      parentId: [this.presetParentId],
     });
 
     this.route.paramMap
@@ -72,19 +78,39 @@ export class CategoryFormComponent implements OnInit {
         next: ({ roots, category }: any) => {
           this.isLoading = false;
           const rootsPayload = roots?.data ?? roots;
-          const allCategories: Category[] = Array.isArray(rootsPayload) ? rootsPayload : [];
+          this.allCategories = Array.isArray(rootsPayload) ? rootsPayload : [];
 
-          // Chỉ danh mục cấp 1 mới có thể làm cha. Backend cũng kiểm tra tối đa 2 cấp.
-          this.rootCategories = allCategories.filter((item) =>
-            item?.id !== this.categoryId && (item?.parentId == null)
+          if (!category) {
+            // Khi tạo mới: chỉ danh mục cấp 1 (parentId = null) được phép làm cha.
+            this.rootCategories = this.allCategories.filter(
+              (item) => item.parentId == null
+            );
+
+            const canUsePreset = this.presetParentId != null &&
+              this.rootCategories.some(item => item.id === this.presetParentId);
+
+            this.form.patchValue({ parentId: canUsePreset ? this.presetParentId : null });
+            return;
+          }
+
+          const data: Category = category?.data ?? category;
+          this.currentCategory = data;
+          this.currentCategoryHasChildren = this.allCategories.some(
+            (item) => item.parentId === data.id
           );
 
-          if (!category) return;
+          // Dropdown cha chỉ chứa category cấp 1 và không bao giờ chứa chính category đang sửa.
+          // Nếu category cấp 1 hiện tại đang có con, không cho chuyển nó xuống cấp 2 ở FE
+          // để tránh vô tình tạo cấu trúc cấp 3.
+          this.rootCategories = this.currentCategoryHasChildren
+            ? []
+            : this.allCategories.filter(
+                (item) => item.parentId == null && item.id !== data.id
+              );
 
-          const data = category?.data ?? category;
           this.form.patchValue({
-            name: data?.name ?? '',
-            parentId: data?.parentId ?? null,
+            name: data.name ?? '',
+            parentId: data.parentId ?? null,
           });
           this.form.markAsPristine();
         },
@@ -96,6 +122,43 @@ export class CategoryFormComponent implements OnInit {
       });
   }
 
+
+
+  private readPresetParentId(): number | null {
+    const raw = this.route.snapshot.queryParamMap.get('parentId');
+    if (raw == null || raw.trim() === '') return null;
+
+    const value = Number(raw);
+    return Number.isFinite(value) ? value : null;
+  }
+
+  get isCurrentCategoryLevel2(): boolean {
+    return this.currentCategory?.parentId != null;
+  }
+
+  get emptyParentLabel(): string {
+    if (!this.isEdit) {
+      return '— Không có (tạo danh mục cấp 1) —';
+    }
+
+    if (this.isCurrentCategoryLevel2) {
+      return '— Tách thành danh mục cấp 1 —';
+    }
+
+    return '— Giữ là danh mục cấp 1 —';
+  }
+
+  get parentHint(): string {
+    if (this.currentCategoryHasChildren) {
+      return 'Danh mục này đang có danh mục con nên được giữ ở cấp 1 để tránh tạo cấp 3.';
+    }
+
+    if (this.isCurrentCategoryLevel2) {
+      return 'Chỉ có thể chuyển sang một danh mục cha cấp 1 khác hoặc tách thành danh mục cấp 1.';
+    }
+
+    return 'Chỉ danh mục cấp 1 (parentId = null) được hiển thị trong danh sách cha.';
+  }
 
   trackByCategoryId(_index: number, category: Category): number {
     return category.id;
